@@ -16,7 +16,7 @@ spring:
     locations: classpath:db/migration
 
 jwt:
-  secret: "dGhpcy1pcy1hLXZlcnktc2VjcmV0LWp3dC1rZXkh"
+  secret: "dGhpcy1pcy1hLXZlcnktc2VjcmV0LWp3dC1rZXktZm9yLXBpenplcmlhLWFwcCEh"
   access-token-expiration-ms: 28800000
   refresh-token-expiration-days: 7
 
