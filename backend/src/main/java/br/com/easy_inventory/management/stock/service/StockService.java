@@ -2,6 +2,10 @@ package br.com.easy_inventory.management.stock.service;
 
 import br.com.easy_inventory.management.ingredient.entity.Ingredient;
 import br.com.easy_inventory.management.ingredient.repository.IngredientRepository;
+import br.com.easy_inventory.management.movement.entity.AdjustmentDirection;
+import br.com.easy_inventory.management.movement.entity.MovementType;
+import br.com.easy_inventory.management.movement.entity.StockMovement;
+import br.com.easy_inventory.management.movement.repository.StockMovementRepository;
 import br.com.easy_inventory.management.shared.exception.BusinessException;
 import br.com.easy_inventory.management.shared.exception.ResourceNotFoundException;
 import br.com.easy_inventory.management.stock.dto.StockResponse;
