@@ -8,6 +8,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Entity
+@Table(name = "stock",
+        uniqueConstraints = @UniqueConstraint(name = "uq_stock_ingredient_unit",
+                columnNames = {"ingredient_id", "unit_id"}))
 public class Stock {
 
     @Id
