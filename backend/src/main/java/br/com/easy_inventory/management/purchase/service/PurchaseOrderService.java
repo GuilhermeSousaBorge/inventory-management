@@ -9,6 +9,8 @@ import br.com.easy_inventory.management.purchase.entity.PurchaseOrderStatus;
 import br.com.easy_inventory.management.purchase.repository.PurchaseOrderRepository;
 import br.com.easy_inventory.management.shared.exception.BusinessException;
 import br.com.easy_inventory.management.shared.exception.ResourceNotFoundException;
+import br.com.easy_inventory.management.stock.entity.Stock;
+import br.com.easy_inventory.management.stock.service.StockService;
 import br.com.easy_inventory.management.supplier.entity.Supplier;
 import br.com.easy_inventory.management.supplier.repository.SupplierRepository;
 import br.com.easy_inventory.management.unit.entity.Unit;
@@ -34,17 +36,20 @@ public class PurchaseOrderService {
     private final UnitRepository unitRepository;
     private final IngredientRepository ingredientRepository;
     private final UserRepository userRepository;
+    private final StockService stockService;
 
     public PurchaseOrderService(PurchaseOrderRepository poRepository,
                                 SupplierRepository supplierRepository,
                                 UnitRepository unitRepository,
                                 IngredientRepository ingredientRepository,
-                                UserRepository userRepository) {
+                                UserRepository userRepository,
+                                StockService stockService) {
         this.poRepository = poRepository;
         this.supplierRepository = supplierRepository;
         this.unitRepository = unitRepository;
         this.ingredientRepository = ingredientRepository;
         this.userRepository = userRepository;
+        this.stockService = stockService;
     }
 
     public Page<PurchaseOrderResponse> findAll(PurchaseOrderStatus status, UUID supplierId, UUID unitId,
@@ -125,6 +130,38 @@ public class PurchaseOrderService {
             total = total.add(it.quantity().multiply(it.unitPrice()));
         }
         po.setTotalCost(total);
+    }
+
+    @Transactional
+    public PurchaseOrderResponse receive(UUID id, UUID actorUserId) {
+        PurchaseOrder po = getOrThrow(id);
+        if (po.getStatus() != PurchaseOrderStatus.PENDING) {
+            throw new BusinessException("Purchase order is not pending");
+        }
+        for (PurchaseOrderItem item : po.getItems()) {
+            stockService.applyEntry(
+                    item.getIngredient().getId(),
+                    po.getUnit().getId(),
+                    item.getQuantity(),
+                    item.getUnitPrice(),
+                    po.getId(),
+                    actorUserId
+            );
+        }
+        po.setStatus(PurchaseOrderStatus.RECEIVED);
+        po.setReceivedAt(java.time.LocalDateTime.now());
+        return PurchaseOrderResponse.from(poRepository.save(po));
+    }
+
+    @Transactional
+    public PurchaseOrderResponse cancel(UUID id) {
+        PurchaseOrder po = getOrThrow(id);
+        if (po.getStatus() != PurchaseOrderStatus.PENDING) {
+            throw new BusinessException("Purchase order is not pending");
+        }
+        po.setStatus(PurchaseOrderStatus.CANCELED);
+        po.setCanceledAt(java.time.LocalDateTime.now());
+        return PurchaseOrderResponse.from(poRepository.save(po));
     }
 
     PurchaseOrder getOrThrow(UUID id) {
