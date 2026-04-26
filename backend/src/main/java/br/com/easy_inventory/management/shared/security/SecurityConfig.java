@@ -50,6 +50,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/stock", "/stock/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/stock-movements", "/stock-movements/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/purchase-orders", "/purchase-orders/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/orders", "/orders/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
