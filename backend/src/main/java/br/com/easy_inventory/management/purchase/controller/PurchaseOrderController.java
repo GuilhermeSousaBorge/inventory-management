@@ -74,7 +74,7 @@ public class PurchaseOrderController {
     @PostMapping("/{id}/cancel")
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<ApiResponse<PurchaseOrderResponse>> cancel(@PathVariable UUID id) {
-        return ResponseEntity.ok(ApiResponse.of(service.cancel(id)));
+        return ResponseEntity.ok(ApiResponse.of(service.cancel(id, AuthenticatedUser.currentId())));
     }
 }
 

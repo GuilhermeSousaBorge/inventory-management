@@ -1,5 +1,7 @@
 package br.com.easy_inventory.management.purchase.service;
 
+import br.com.easy_inventory.management.audit.entity.AuditAction;
+import br.com.easy_inventory.management.audit.service.AuditService;
 import br.com.easy_inventory.management.ingredient.entity.Ingredient;
 import br.com.easy_inventory.management.ingredient.repository.IngredientRepository;
 import br.com.easy_inventory.management.purchase.dto.*;
@@ -24,7 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,19 +41,22 @@ public class PurchaseOrderService {
     private final IngredientRepository ingredientRepository;
     private final UserRepository userRepository;
     private final StockService stockService;
+    private final AuditService auditService;
 
     public PurchaseOrderService(PurchaseOrderRepository poRepository,
                                 SupplierRepository supplierRepository,
                                 UnitRepository unitRepository,
                                 IngredientRepository ingredientRepository,
                                 UserRepository userRepository,
-                                StockService stockService) {
+                                StockService stockService,
+                                AuditService auditService) {
         this.poRepository = poRepository;
         this.supplierRepository = supplierRepository;
         this.unitRepository = unitRepository;
         this.ingredientRepository = ingredientRepository;
         this.userRepository = userRepository;
         this.stockService = stockService;
+        this.auditService = auditService;
     }
 
     public Page<PurchaseOrderResponse> findAll(PurchaseOrderStatus status, UUID supplierId, UUID unitId,
@@ -83,7 +90,12 @@ public class PurchaseOrderService {
 
         attachItems(po, req.items());
 
-        return PurchaseOrderResponse.from(poRepository.save(po));
+        PurchaseOrder saved = poRepository.save(po);
+        auditService.log(AuditAction.PURCHASE_ORDER_CREATED, "PurchaseOrder", saved.getId(), actorUserId,
+                Map.of("supplierId", saved.getSupplier().getId(),
+                       "totalItems", saved.getItems().size(),
+                       "totalValue", saved.getTotalCost()));
+        return PurchaseOrderResponse.from(saved);
     }
 
     @Transactional
@@ -150,18 +162,25 @@ public class PurchaseOrderService {
         }
         po.setStatus(PurchaseOrderStatus.RECEIVED);
         po.setReceivedAt(java.time.LocalDateTime.now());
-        return PurchaseOrderResponse.from(poRepository.save(po));
+        PurchaseOrder saved = poRepository.save(po);
+        auditService.log(AuditAction.PURCHASE_ORDER_RECEIVED, "PurchaseOrder", saved.getId(), actorUserId,
+                Map.of("supplierId", saved.getSupplier().getId(),
+                       "itemsReceived", saved.getItems().size()));
+        return PurchaseOrderResponse.from(saved);
     }
 
     @Transactional
-    public PurchaseOrderResponse cancel(UUID id) {
+    public PurchaseOrderResponse cancel(UUID id, UUID actorUserId) {
         PurchaseOrder po = getOrThrow(id);
         if (po.getStatus() != PurchaseOrderStatus.PENDING) {
             throw new BusinessException("Purchase order is not pending");
         }
         po.setStatus(PurchaseOrderStatus.CANCELED);
         po.setCanceledAt(java.time.LocalDateTime.now());
-        return PurchaseOrderResponse.from(poRepository.save(po));
+        PurchaseOrder saved = poRepository.save(po);
+        auditService.log(AuditAction.PURCHASE_ORDER_CANCELED, "PurchaseOrder", saved.getId(), actorUserId,
+                Map.of("supplierId", saved.getSupplier().getId()));
+        return PurchaseOrderResponse.from(saved);
     }
 
     PurchaseOrder getOrThrow(UUID id) {
