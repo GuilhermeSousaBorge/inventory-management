@@ -4,6 +4,7 @@ import br.com.easy_inventory.management.ingredient.dto.*;
 import br.com.easy_inventory.management.ingredient.service.IngredientService;
 import br.com.easy_inventory.management.shared.dto.ApiResponse;
 import br.com.easy_inventory.management.shared.dto.PageResponse;
+import br.com.easy_inventory.management.shared.security.AuthenticatedUser;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,7 +38,7 @@ public class IngredientController {
     @PostMapping
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<ApiResponse<IngredientResponse>> create(@Valid @RequestBody CreateIngredientRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(ingredientService.create(request)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(ingredientService.create(request, AuthenticatedUser.currentId())));
     }
 
     @GetMapping("/{id}")
@@ -49,13 +50,13 @@ public class IngredientController {
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<ApiResponse<IngredientResponse>> update(@PathVariable UUID id,
                                                                    @Valid @RequestBody UpdateIngredientRequest request) {
-        return ResponseEntity.ok(ApiResponse.of(ingredientService.update(id, request)));
+        return ResponseEntity.ok(ApiResponse.of(ingredientService.update(id, request, AuthenticatedUser.currentId())));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<Void> deactivate(@PathVariable UUID id) {
-        ingredientService.deactivate(id);
+        ingredientService.deactivate(id, AuthenticatedUser.currentId());
         return ResponseEntity.noContent().build();
     }
 }
