@@ -6,6 +6,7 @@ import br.com.easy_inventory.management.movement.entity.AdjustmentDirection;
 import br.com.easy_inventory.management.movement.entity.MovementType;
 import br.com.easy_inventory.management.movement.entity.StockMovement;
 import br.com.easy_inventory.management.movement.repository.StockMovementRepository;
+import br.com.easy_inventory.management.shared.event.StockChangedEvent;
 import br.com.easy_inventory.management.shared.exception.BusinessException;
 import br.com.easy_inventory.management.shared.exception.ResourceNotFoundException;
 import br.com.easy_inventory.management.stock.dto.StockResponse;
@@ -17,6 +18,7 @@ import br.com.easy_inventory.management.user.entity.User;
 import br.com.easy_inventory.management.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,19 +37,22 @@ public class StockService {
     private final UnitRepository unitRepository;
     private final UserRepository userRepository;
     private final EntityManager entityManager;
+    private final ApplicationEventPublisher publisher;
 
     public StockService(StockRepository stockRepository,
                         StockMovementRepository movementRepository,
                         IngredientRepository ingredientRepository,
                         UnitRepository unitRepository,
                         UserRepository userRepository,
-                        EntityManager entityManager) {
+                        EntityManager entityManager,
+                        ApplicationEventPublisher publisher) {
         this.stockRepository = stockRepository;
         this.movementRepository = movementRepository;
         this.ingredientRepository = ingredientRepository;
         this.unitRepository = unitRepository;
         this.userRepository = userRepository;
         this.entityManager = entityManager;
+        this.publisher = publisher;
     }
 
     // ----- READ -----
@@ -119,7 +124,10 @@ public class StockService {
         mv.setUnitPrice(unitPrice);
         mv.setPurchaseOrderId(purchaseOrderId);
         mv.setCreatedBy(actor);
-        return movementRepository.save(mv);
+        StockMovement saved = movementRepository.save(mv);
+        publisher.publishEvent(new StockChangedEvent(
+                ing.getId(), unit.getId(), stock.getQuantity(), ing.getMinimumQty()));
+        return saved;
     }
 
     @Transactional
@@ -153,7 +161,10 @@ public class StockService {
         mv.setQuantity(quantity);
         mv.setReason(reason);
         mv.setCreatedBy(actor);
-        return movementRepository.save(mv);
+        StockMovement saved = movementRepository.save(mv);
+        publisher.publishEvent(new StockChangedEvent(
+                ing.getId(), unit.getId(), stock.getQuantity(), ing.getMinimumQty()));
+        return saved;
     }
 
     @Transactional
@@ -197,7 +208,10 @@ public class StockService {
         mv.setQuantity(quantity);
         mv.setReason(reason);
         mv.setCreatedBy(actor);
-        return movementRepository.save(mv);
+        StockMovement saved = movementRepository.save(mv);
+        publisher.publishEvent(new StockChangedEvent(
+                ing.getId(), unit.getId(), stock.getQuantity(), ing.getMinimumQty()));
+        return saved;
     }
 
     private Stock lockOrCreate(Ingredient ing, Unit unit) {
