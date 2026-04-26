@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "stock",
-        uniqueConstraints = @UniqueConstraint(name = "uq_stock_ingredient_unit",
+        uniqueConstraints = @UniqueConstraint(name = "unique_stock_ingredient_unit",
                 columnNames = {"ingredient_id", "unit_id"}))
 public class Stock {
 
