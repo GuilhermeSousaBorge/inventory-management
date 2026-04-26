@@ -15,8 +15,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("select o from Order o where " +
             "(:unitId is null or o.unit.id = :unitId) and " +
             "(:status is null or o.status = :status) and " +
-            "(:from is null or o.createdAt >= :from) and " +
-            "(:to is null or o.createdAt <= :to) " +
+            "(cast(:from as timestamp) is null or o.createdAt >= :from) and " +
+            "(cast(:to as timestamp) is null or o.createdAt <= :to) " +
             "order by o.createdAt desc")
     Page<Order> search(@Param("unitId") UUID unitId,
                        @Param("status") OrderStatus status,
