@@ -63,7 +63,7 @@ public class ProductService {
         attachIngredients(product, req.ingredients());
 
         try {
-            return ProductResponse.from(productRepository.save(product));
+            return ProductResponse.from(productRepository.saveAndFlush(product));
         } catch (DataIntegrityViolationException e) {
             throw new BusinessException("Product '" + req.name() + "' size " + req.size() + " already exists");
         }
@@ -89,7 +89,7 @@ public class ProductService {
         attachIngredients(product, req.ingredients());
 
         try {
-            return ProductResponse.from(productRepository.save(product));
+            return ProductResponse.from(productRepository.saveAndFlush(product));
         } catch (DataIntegrityViolationException e) {
             throw new BusinessException("Product '" + req.name() + "' size " + req.size() + " already exists");
         }
