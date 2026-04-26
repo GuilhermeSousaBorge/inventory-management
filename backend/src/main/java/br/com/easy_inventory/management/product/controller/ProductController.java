@@ -7,6 +7,7 @@ import br.com.easy_inventory.management.product.entity.ProductSize;
 import br.com.easy_inventory.management.product.service.ProductService;
 import br.com.easy_inventory.management.shared.dto.ApiResponse;
 import br.com.easy_inventory.management.shared.dto.PageResponse;
+import br.com.easy_inventory.management.shared.security.AuthenticatedUser;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,7 +49,7 @@ public class ProductController {
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<ApiResponse<ProductResponse>> create(
             @Valid @RequestBody CreateProductRequest request) {
-        var response = productService.create(request);
+        var response = productService.create(request, AuthenticatedUser.currentId());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(response));
     }
 
@@ -57,13 +58,13 @@ public class ProductController {
     public ResponseEntity<ApiResponse<ProductResponse>> update(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateProductRequest request) {
-        return ResponseEntity.ok(ApiResponse.of(productService.update(id, request)));
+        return ResponseEntity.ok(ApiResponse.of(productService.update(id, request, AuthenticatedUser.currentId())));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<Void> deactivate(@PathVariable UUID id) {
-        productService.deactivate(id);
+        productService.deactivate(id, AuthenticatedUser.currentId());
         return ResponseEntity.noContent().build();
     }
 }
