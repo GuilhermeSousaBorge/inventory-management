@@ -164,6 +164,9 @@ class StockControllerTest {
         jdbc.update("DELETE FROM stock_movements WHERE purchase_order_id IN (SELECT id FROM purchase_orders WHERE supplier_id IN (SELECT id FROM suppliers WHERE name LIKE 'Test%'))");
         // Delete standalone movements (adjustments/exits with no PO)
         jdbc.update("DELETE FROM stock_movements WHERE ingredient_id IN (SELECT id FROM ingredients WHERE name LIKE 'Test%')");
+        jdbc.update("DELETE FROM order_items WHERE product_id IN (SELECT id FROM products WHERE name LIKE 'Test%')");
+        jdbc.update("DELETE FROM orders WHERE notes LIKE 'Test%'");
+        jdbc.update("DELETE FROM products WHERE name LIKE 'Test%'");
         jdbc.update("DELETE FROM purchase_orders WHERE supplier_id IN (SELECT id FROM suppliers WHERE name LIKE 'Test%')");
         jdbc.update("DELETE FROM stock WHERE ingredient_id IN (SELECT id FROM ingredients WHERE name LIKE 'Test%')");
         jdbc.update("DELETE FROM ingredients WHERE name LIKE 'Test%'");
