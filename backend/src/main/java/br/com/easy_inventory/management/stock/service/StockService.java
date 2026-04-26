@@ -16,7 +16,7 @@ import br.com.easy_inventory.management.unit.repository.UnitRepository;
 import br.com.easy_inventory.management.user.entity.User;
 import br.com.easy_inventory.management.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
-import org.springframework.dao.DataIntegrityViolationException;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -95,6 +95,7 @@ public class StockService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + actorUserId));
 
         Stock stock = lockOrCreate(ing, unit);
+        entityManager.refresh(ing);
 
         BigDecimal currentQty = stock.getQuantity();
         BigDecimal currentAvg = ing.getAverageCost() == null ? BigDecimal.ZERO : ing.getAverageCost();
@@ -198,21 +199,18 @@ public class StockService {
         return movementRepository.save(mv);
     }
 
-    // Handles first-time upsert race: concurrent inserts for same (ingredient, unit).
     private Stock lockOrCreate(Ingredient ing, Unit unit) {
         return stockRepository.findForUpdate(ing.getId(), unit.getId())
                 .orElseGet(() -> {
-                    Stock s = new Stock(ing, unit, BigDecimal.ZERO);
-                    try {
-                        stockRepository.saveAndFlush(s);
-                        // Re-read with lock so we return a locked entity.
-                        entityManager.detach(s);
-                        return stockRepository.findForUpdate(ing.getId(), unit.getId())
-                                .orElseThrow();
-                    } catch (DataIntegrityViolationException race) {
-                        return stockRepository.findForUpdate(ing.getId(), unit.getId())
-                                .orElseThrow();
-                    }
+                    entityManager.createNativeQuery(
+                            "INSERT INTO stock (id, ingredient_id, unit_id, quantity, updated_at) " +
+                            "VALUES (gen_random_uuid(), :ingId, :unitId, 0, NOW()) " +
+                            "ON CONFLICT (ingredient_id, unit_id) DO NOTHING")
+                            .setParameter("ingId", ing.getId())
+                            .setParameter("unitId", unit.getId())
+                            .executeUpdate();
+                    return stockRepository.findForUpdate(ing.getId(), unit.getId())
+                            .orElseThrow();
                 });
     }
 

@@ -27,7 +27,8 @@ public class MovementService {
 
     public Page<MovementResponse> findAll(UUID ingredientId, UUID unitId, MovementType type,
                                           LocalDateTime from, LocalDateTime to, Pageable pageable) {
-        return movementRepository.search(ingredientId, unitId, type, from, to, pageable)
+        return movementRepository.search(ingredientId, unitId,
+                        type != null ? type.name() : null, from, to, pageable)
                 .map(MovementResponse::from);
     }
 
