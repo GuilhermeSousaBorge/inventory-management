@@ -61,7 +61,7 @@ public class OrderController {
     public ResponseEntity<ApiResponse<OrderResponse>> update(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateOrderRequest request) {
-        return ResponseEntity.ok(ApiResponse.of(orderService.update(id, request)));
+        return ResponseEntity.ok(ApiResponse.of(orderService.update(id, request, AuthenticatedUser.currentId())));
     }
 
     @PostMapping("/{id}/start")
@@ -74,12 +74,12 @@ public class OrderController {
     @PostMapping("/{id}/complete")
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<ApiResponse<OrderResponse>> complete(@PathVariable UUID id) {
-        return ResponseEntity.ok(ApiResponse.of(orderService.complete(id)));
+        return ResponseEntity.ok(ApiResponse.of(orderService.complete(id, AuthenticatedUser.currentId())));
     }
 
     @PostMapping("/{id}/cancel")
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<ApiResponse<OrderResponse>> cancel(@PathVariable UUID id) {
-        return ResponseEntity.ok(ApiResponse.of(orderService.cancel(id)));
+        return ResponseEntity.ok(ApiResponse.of(orderService.cancel(id, AuthenticatedUser.currentId())));
     }
 }
