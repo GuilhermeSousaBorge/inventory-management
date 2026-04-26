@@ -1,5 +1,7 @@
 package br.com.easy_inventory.management.stock.service;
 
+import br.com.easy_inventory.management.audit.entity.AuditAction;
+import br.com.easy_inventory.management.audit.service.AuditService;
 import br.com.easy_inventory.management.ingredient.entity.Ingredient;
 import br.com.easy_inventory.management.ingredient.repository.IngredientRepository;
 import br.com.easy_inventory.management.movement.entity.AdjustmentDirection;
@@ -17,6 +19,9 @@ import br.com.easy_inventory.management.unit.repository.UnitRepository;
 import br.com.easy_inventory.management.user.entity.User;
 import br.com.easy_inventory.management.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -38,6 +43,7 @@ public class StockService {
     private final UserRepository userRepository;
     private final EntityManager entityManager;
     private final ApplicationEventPublisher publisher;
+    private final AuditService auditService;
 
     public StockService(StockRepository stockRepository,
                         StockMovementRepository movementRepository,
@@ -45,7 +51,8 @@ public class StockService {
                         UnitRepository unitRepository,
                         UserRepository userRepository,
                         EntityManager entityManager,
-                        ApplicationEventPublisher publisher) {
+                        ApplicationEventPublisher publisher,
+                        AuditService auditService) {
         this.stockRepository = stockRepository;
         this.movementRepository = movementRepository;
         this.ingredientRepository = ingredientRepository;
@@ -53,6 +60,7 @@ public class StockService {
         this.userRepository = userRepository;
         this.entityManager = entityManager;
         this.publisher = publisher;
+        this.auditService = auditService;
     }
 
     // ----- READ -----
@@ -125,6 +133,13 @@ public class StockService {
         mv.setPurchaseOrderId(purchaseOrderId);
         mv.setCreatedBy(actor);
         StockMovement saved = movementRepository.save(mv);
+        Map<String, Object> entryDetails = new HashMap<>();
+        entryDetails.put("ingredientId", ing.getId());
+        entryDetails.put("unitId", unit.getId());
+        entryDetails.put("quantity", quantity);
+        entryDetails.put("unitPrice", unitPrice);
+        entryDetails.put("purchaseOrderId", purchaseOrderId);
+        auditService.log(AuditAction.STOCK_ENTRY, "StockMovement", saved.getId(), actorUserId, entryDetails);
         publisher.publishEvent(new StockChangedEvent(
                 ing.getId(), unit.getId(), stock.getQuantity(), ing.getMinimumQty()));
         return saved;
@@ -162,6 +177,12 @@ public class StockService {
         mv.setReason(reason);
         mv.setCreatedBy(actor);
         StockMovement saved = movementRepository.save(mv);
+        Map<String, Object> exitDetails = new HashMap<>();
+        exitDetails.put("ingredientId", ing.getId());
+        exitDetails.put("unitId", unit.getId());
+        exitDetails.put("quantity", quantity);
+        exitDetails.put("reason", reason);
+        auditService.log(AuditAction.STOCK_EXIT, "StockMovement", saved.getId(), actorUserId, exitDetails);
         publisher.publishEvent(new StockChangedEvent(
                 ing.getId(), unit.getId(), stock.getQuantity(), ing.getMinimumQty()));
         return saved;
@@ -209,6 +230,13 @@ public class StockService {
         mv.setReason(reason);
         mv.setCreatedBy(actor);
         StockMovement saved = movementRepository.save(mv);
+        Map<String, Object> adjDetails = new HashMap<>();
+        adjDetails.put("ingredientId", ing.getId());
+        adjDetails.put("unitId", unit.getId());
+        adjDetails.put("quantity", quantity);
+        adjDetails.put("direction", direction.name());
+        adjDetails.put("reason", reason);
+        auditService.log(AuditAction.STOCK_ADJUSTMENT, "StockMovement", saved.getId(), actorUserId, adjDetails);
         publisher.publishEvent(new StockChangedEvent(
                 ing.getId(), unit.getId(), stock.getQuantity(), ing.getMinimumQty()));
         return saved;
