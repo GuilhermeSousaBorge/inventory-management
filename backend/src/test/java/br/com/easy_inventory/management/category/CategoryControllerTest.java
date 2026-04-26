@@ -1,7 +1,5 @@
 package br.com.easy_inventory.management.category;
 
-import br.com.easy_inventory.management.auth.repository.RefreshTokenRepository;
-import br.com.easy_inventory.management.category.repository.CategoryRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Map;
@@ -22,17 +21,13 @@ class CategoryControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
-    @Autowired CategoryRepository categoryRepository;
-    @Autowired RefreshTokenRepository refreshTokenRepository;
+    @Autowired JdbcTemplate jdbc;
 
     private String adminToken;
 
     @BeforeEach
     void setUp() throws Exception {
-        refreshTokenRepository.deleteAll();
-        categoryRepository.findAll().stream()
-                .filter(c -> c.getName().startsWith("Test"))
-                .forEach(categoryRepository::delete);
+        cleanupTestData();
 
         String loginBody = objectMapper.writeValueAsString(
                 Map.of("email", "admin@pizzaria.com", "password", "admin123"));
@@ -89,5 +84,15 @@ class CategoryControllerTest {
         mockMvc.perform(delete("/categories/" + catId)
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isNoContent());
+    }
+
+    private void cleanupTestData() {
+        jdbc.update("DELETE FROM stock_movements WHERE ingredient_id IN (SELECT id FROM ingredients WHERE name LIKE 'Test%')");
+        jdbc.update("DELETE FROM stock WHERE ingredient_id IN (SELECT id FROM ingredients WHERE name LIKE 'Test%')");
+        jdbc.update("DELETE FROM purchase_orders WHERE supplier_id IN (SELECT id FROM suppliers WHERE name LIKE 'Test%')");
+        jdbc.update("DELETE FROM ingredients WHERE name LIKE 'Test%'");
+        jdbc.update("UPDATE ingredients SET category_id = NULL WHERE category_id IN (SELECT id FROM categories WHERE name LIKE 'Test%')");
+        jdbc.update("DELETE FROM categories WHERE name LIKE 'Test%'");
+        jdbc.update("DELETE FROM suppliers WHERE name LIKE 'Test%'");
     }
 }
