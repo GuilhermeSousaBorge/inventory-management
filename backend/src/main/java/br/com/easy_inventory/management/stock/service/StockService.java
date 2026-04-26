@@ -193,6 +193,7 @@ public class StockService {
         mv.setIngredient(ing);
         mv.setUnit(unit);
         mv.setType(MovementType.ADJUSTMENT);
+        mv.setDirection(direction);
         mv.setQuantity(quantity);
         mv.setReason(reason);
         mv.setCreatedBy(actor);

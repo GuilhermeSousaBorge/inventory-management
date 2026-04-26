@@ -38,6 +38,10 @@ public class StockMovement {
     @Column(length = 255)
     private String reason;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 10)
+    private AdjustmentDirection direction;
+
     @Column(name = "purchase_order_id")
     private UUID purchaseOrderId;
 
@@ -64,6 +68,8 @@ public class StockMovement {
     public void setUnitPrice(BigDecimal unitPrice) { this.unitPrice = unitPrice; }
     public String getReason() { return reason; }
     public void setReason(String reason) { this.reason = reason; }
+    public AdjustmentDirection getDirection() { return direction; }
+    public void setDirection(AdjustmentDirection direction) { this.direction = direction; }
     public UUID getPurchaseOrderId() { return purchaseOrderId; }
     public void setPurchaseOrderId(UUID purchaseOrderId) { this.purchaseOrderId = purchaseOrderId; }
     public User getCreatedBy() { return createdBy; }

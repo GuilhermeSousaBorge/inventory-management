@@ -1,5 +1,6 @@
 package br.com.easy_inventory.management.movement.dto;
 
+import br.com.easy_inventory.management.movement.entity.AdjustmentDirection;
 import br.com.easy_inventory.management.movement.entity.MovementType;
 import br.com.easy_inventory.management.movement.entity.StockMovement;
 
@@ -12,6 +13,7 @@ public record MovementResponse(
         UUID ingredientId, String ingredientName,
         UUID unitId, String unitName,
         MovementType type,
+        AdjustmentDirection direction,
         BigDecimal quantity,
         BigDecimal unitPrice,
         String reason,
@@ -25,6 +27,7 @@ public record MovementResponse(
                 m.getIngredient().getId(), m.getIngredient().getName(),
                 m.getUnit().getId(), m.getUnit().getName(),
                 m.getType(),
+                m.getDirection(),
                 m.getQuantity(),
                 m.getUnitPrice(),
                 m.getReason(),
