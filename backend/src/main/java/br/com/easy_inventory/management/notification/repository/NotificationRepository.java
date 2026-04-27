@@ -27,8 +27,8 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
     @Query("select n from Notification n where " +
            "(:status is null or n.status = :status) and " +
            "(:unitId is null or n.unit.id = :unitId) and " +
-           "(:from is null or n.createdAt >= :from) and " +
-           "(:to is null or n.createdAt <= :to) " +
+           "(cast(:from as timestamp) is null or n.createdAt >= :from) and " +
+           "(cast(:to as timestamp) is null or n.createdAt <= :to) " +
            "order by n.createdAt desc")
     Page<Notification> search(@Param("status") NotificationStatus status,
                               @Param("unitId") UUID unitId,
