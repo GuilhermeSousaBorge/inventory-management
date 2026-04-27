@@ -1,5 +1,7 @@
 package br.com.easy_inventory.management.order.service;
 
+import br.com.easy_inventory.management.audit.entity.AuditAction;
+import br.com.easy_inventory.management.audit.service.AuditService;
 import br.com.easy_inventory.management.order.dto.*;
 import br.com.easy_inventory.management.order.entity.Order;
 import br.com.easy_inventory.management.order.entity.OrderItem;
@@ -31,17 +33,20 @@ public class OrderService {
     private final UnitRepository unitRepository;
     private final UserRepository userRepository;
     private final StockService stockService;
+    private final AuditService auditService;
 
     public OrderService(OrderRepository orderRepository,
                         ProductRepository productRepository,
                         UnitRepository unitRepository,
                         UserRepository userRepository,
-                        StockService stockService) {
+                        StockService stockService,
+                        AuditService auditService) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.unitRepository = unitRepository;
         this.userRepository = userRepository;
         this.stockService = stockService;
+        this.auditService = auditService;
     }
 
     // ----- READ -----
@@ -72,13 +77,18 @@ public class OrderService {
 
         attachItems(order, req.items());
 
-        return OrderResponse.from(orderRepository.save(order));
+        Order saved = orderRepository.save(order);
+        auditService.log(AuditAction.ORDER_CREATED, "Order", saved.getId(), actorUserId,
+                Map.of("unitId", saved.getUnit().getId(),
+                       "totalPrice", saved.getTotalPrice(),
+                       "itemsCount", saved.getItems().size()));
+        return OrderResponse.from(saved);
     }
 
     // ----- UPDATE -----
 
     @Transactional
-    public OrderResponse update(UUID id, UpdateOrderRequest req) {
+    public OrderResponse update(UUID id, UpdateOrderRequest req, UUID actorUserId) {
         Order order = getOrThrow(id);
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new BusinessException("Only pending orders can be edited");
@@ -91,7 +101,12 @@ public class OrderService {
         order.clearItems();
         attachItems(order, req.items());
 
-        return OrderResponse.from(orderRepository.save(order));
+        Order saved = orderRepository.save(order);
+        auditService.log(AuditAction.ORDER_UPDATED, "Order", saved.getId(), actorUserId,
+                Map.of("unitId", saved.getUnit().getId(),
+                       "totalPrice", saved.getTotalPrice(),
+                       "itemsCount", saved.getItems().size()));
+        return OrderResponse.from(saved);
     }
 
     // ----- STATE TRANSITIONS -----
@@ -126,29 +141,44 @@ public class OrderService {
 
         order.setStatus(OrderStatus.IN_PROGRESS);
         order.setStartedAt(LocalDateTime.now());
-        return OrderResponse.from(orderRepository.save(order));
+        Order saved = orderRepository.save(order);
+        auditService.log(AuditAction.ORDER_STARTED, "Order", saved.getId(), actorUserId,
+                Map.of("unitId", saved.getUnit().getId(),
+                       "totalPrice", saved.getTotalPrice(),
+                       "itemsCount", saved.getItems().size()));
+        return OrderResponse.from(saved);
     }
 
     @Transactional
-    public OrderResponse complete(UUID id) {
+    public OrderResponse complete(UUID id, UUID actorUserId) {
         Order order = getOrThrow(id);
         if (order.getStatus() != OrderStatus.IN_PROGRESS) {
             throw new BusinessException("Only in-progress orders can be completed");
         }
         order.setStatus(OrderStatus.COMPLETED);
         order.setCompletedAt(LocalDateTime.now());
-        return OrderResponse.from(orderRepository.save(order));
+        Order saved = orderRepository.save(order);
+        auditService.log(AuditAction.ORDER_COMPLETED, "Order", saved.getId(), actorUserId,
+                Map.of("unitId", saved.getUnit().getId(),
+                       "totalPrice", saved.getTotalPrice(),
+                       "itemsCount", saved.getItems().size()));
+        return OrderResponse.from(saved);
     }
 
     @Transactional
-    public OrderResponse cancel(UUID id) {
+    public OrderResponse cancel(UUID id, UUID actorUserId) {
         Order order = getOrThrow(id);
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new BusinessException("Only pending orders can be canceled");
         }
         order.setStatus(OrderStatus.CANCELED);
         order.setCanceledAt(LocalDateTime.now());
-        return OrderResponse.from(orderRepository.save(order));
+        Order saved = orderRepository.save(order);
+        auditService.log(AuditAction.ORDER_CANCELED, "Order", saved.getId(), actorUserId,
+                Map.of("unitId", saved.getUnit().getId(),
+                       "totalPrice", saved.getTotalPrice(),
+                       "itemsCount", saved.getItems().size()));
+        return OrderResponse.from(saved);
     }
 
     // ----- PRIVATE -----

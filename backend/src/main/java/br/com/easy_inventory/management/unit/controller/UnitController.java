@@ -2,6 +2,7 @@ package br.com.easy_inventory.management.unit.controller;
 
 import br.com.easy_inventory.management.shared.dto.ApiResponse;
 import br.com.easy_inventory.management.shared.dto.PageResponse;
+import br.com.easy_inventory.management.shared.security.AuthenticatedUser;
 import br.com.easy_inventory.management.unit.dto.*;
 import br.com.easy_inventory.management.unit.service.UnitService;
 import jakarta.validation.Valid;
@@ -35,7 +36,7 @@ public class UnitController {
     @PostMapping
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<ApiResponse<UnitResponse>> create(@Valid @RequestBody CreateUnitRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(unitService.create(request)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(unitService.create(request, AuthenticatedUser.currentId())));
     }
 
     @GetMapping("/{id}")
@@ -47,13 +48,13 @@ public class UnitController {
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<ApiResponse<UnitResponse>> update(@PathVariable UUID id,
                                                              @Valid @RequestBody UpdateUnitRequest request) {
-        return ResponseEntity.ok(ApiResponse.of(unitService.update(id, request)));
+        return ResponseEntity.ok(ApiResponse.of(unitService.update(id, request, AuthenticatedUser.currentId())));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<Void> deactivate(@PathVariable UUID id) {
-        unitService.deactivate(id);
+        unitService.deactivate(id, AuthenticatedUser.currentId());
         return ResponseEntity.noContent().build();
     }
 }

@@ -334,6 +334,7 @@ class ProductControllerTest {
         jdbc.update("DELETE FROM purchase_orders WHERE supplier_id IN (SELECT id FROM suppliers WHERE name LIKE 'Test%')");
         jdbc.update("DELETE FROM stock WHERE ingredient_id IN (SELECT id FROM ingredients WHERE name LIKE 'Test%')");
         jdbc.update("DELETE FROM products WHERE name LIKE 'Test%'");
+        jdbc.update("DELETE FROM notifications WHERE ingredient_id IN (SELECT id FROM ingredients WHERE name LIKE 'Test%')");
         jdbc.update("DELETE FROM ingredients WHERE name LIKE 'Test%'");
         jdbc.update("DELETE FROM categories WHERE name LIKE 'Test%'");
         jdbc.update("DELETE FROM suppliers WHERE name LIKE 'Test%'");
