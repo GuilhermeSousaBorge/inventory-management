@@ -109,6 +109,7 @@ public class ProductService {
         }
 
         product.clearIngredients();
+        productRepository.saveAndFlush(product); // flush orphan deletes before re-inserts to avoid uq_product_ingredient
         attachIngredients(product, req.ingredients());
 
         try {
