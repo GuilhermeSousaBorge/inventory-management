@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(start \"\" \"C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe\")",
+      "Bash(docker-compose up *)",
+      "Bash(docker-compose down *)",
+      "Bash(docker exec backend-postgres-1 *)",
+      "Bash(mvnw.cmd test *)",
+      "Bash(cmd.exe /c \"mvnw.cmd test -Dtest=AuthControllerTest\")",
+      "Bash(./mvnw.cmd test *)",
+      "Bash(jar tf *)",
+      "Bash(xargs cat *)",
+      "Bash(xargs -I{} sh -c 'jar tf \"{}\" 2>/dev/null | grep -l \"AutoConfigureMockMvc\" && echo \"Found in: {}\"')",
+      "Bash(xargs -I{} sh -c 'jar tf \"{}\" 2>/dev/null | grep -q \"AutoConfigureMockMvc\" && echo \"{}:\"')",
+      "Bash(docker-compose ps *)",
+      "Bash(cmd.exe /c \"mvnw.cmd test -Dtest=AuthControllerTest 2>&1\")",
+      "Bash(cmd.exe *)",
+      "Bash(./mvnw test *)",
+      "Bash(python3 -c ' *)",
+      "Bash(unzip -l ~/.m2/repository/org/springframework/boot/spring-boot-starter-webmvc-test/4.0.5/spring-boot-starter-webmvc-test-4.0.5.jar)",
+      "Bash(unzip -l ~/.m2/repository/org/springframework/boot/spring-boot-webmvc-test/4.0.5/spring-boot-webmvc-test-4.0.5.jar)",
+      "Bash(unzip -l ~/.m2/repository/org/springframework/spring-test/7.0.6/spring-test-7.0.6.jar)",
+      "Bash(./mvnw dependency:tree)",
+      "Bash(unzip -l ~/.m2/repository/tools/jackson/core/jackson-databind/3.1.0/jackson-databind-3.1.0.jar)",
+      "Bash(unzip -p ~/.m2/repository/tools/jackson/core/jackson-databind/3.1.0/jackson-databind-3.1.0.jar tools/jackson/databind/ObjectMapper.class)",
+      "Bash(python3 *)",
+      "Bash(node *)",
+      "Bash(git -C /c/Users/Guilherme/Desktop/Workspace/inventory-management/backend add src/test/java/br/com/easy_inventory/management/user/UserControllerTest.java)",
+      "Bash(git -C /c/Users/Guilherme/Desktop/Workspace/inventory-management/backend commit -m \"test: add User controller integration tests\")",
+      "Bash(git *)"
+    ]
+  }
+}
