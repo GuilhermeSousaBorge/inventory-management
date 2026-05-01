@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { changePasswordSchema, createUserSchema, updateUserSchema } from "@/lib/users"
 import { createUnitSchema, updateUnitSchema } from "@/lib/units"
+import { createCategorySchema, updateCategorySchema } from "@/lib/categories"
 
 describe("createUserSchema", () => {
     it("accepts a valid input", () => {
@@ -145,6 +146,49 @@ describe("updateUnitSchema", () => {
 
     it("accepts active flag", () => {
         const r = updateUnitSchema.safeParse({ name: "Centro", address: "", active: false })
+        expect(r.success).toBe(true)
+    })
+})
+
+describe("createCategorySchema", () => {
+    it("accepts a name with empty description", () => {
+        const r = createCategorySchema.safeParse({ name: "Massas", description: "" })
+        expect(r.success).toBe(true)
+    })
+
+    it("accepts a name with valid description", () => {
+        const r = createCategorySchema.safeParse({
+            name: "Massas",
+            description: "Farinhas e variações",
+        })
+        expect(r.success).toBe(true)
+    })
+
+    it("rejects empty name", () => {
+        const r = createCategorySchema.safeParse({ name: "", description: "" })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects name > 100 chars", () => {
+        const r = createCategorySchema.safeParse({
+            name: "x".repeat(101),
+            description: "",
+        })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects description > 255 chars", () => {
+        const r = createCategorySchema.safeParse({
+            name: "Massas",
+            description: "x".repeat(256),
+        })
+        expect(r.success).toBe(false)
+    })
+})
+
+describe("updateCategorySchema", () => {
+    it("has the same shape as create", () => {
+        const r = updateCategorySchema.safeParse({ name: "Massas", description: "" })
         expect(r.success).toBe(true)
     })
 })
