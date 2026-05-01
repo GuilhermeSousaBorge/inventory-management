@@ -1,5 +1,6 @@
 "use client"
 
+import { useAuth, type Role } from "@/lib/auth"
 import {
     ArrowLeftRight,
     BarChart3,
@@ -9,7 +10,7 @@ import {
     Flame,
     LayoutGrid,
     Leaf,
-    type LucideIcon,
+    LogOut,
     Package,
     PanelLeft,
     Ruler,
@@ -18,16 +19,19 @@ import {
     ShoppingCart,
     Tag,
     Truck,
+    User as UserIcon,
     Users,
+    type LucideIcon,
 } from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useRef, useState } from "react"
 
 type NavItem = {
     label: string
     href: string
     icon: LucideIcon
+    requireRole?: Role
 }
 
 type NavSection = {
@@ -74,17 +78,59 @@ const SECTIONS: NavSection[] = [
     },
     {
         title: "Administração",
-        items: [{ label: "Usuários", href: "/usuarios", icon: Users }],
+        items: [{ label: "Usuários", href: "/usuarios", icon: Users, requireRole: "OWNER" }],
     },
 ]
 
-export default function ProtectedLayout({
-    children,
-}: {
-    children: React.ReactNode
-}) {
-    const [collapsed, setCollapsed] = useState(false)
+function initials(name: string): string {
+    return name
+        .split(" ")
+        .map((p) => p[0])
+        .filter(Boolean)
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+}
+
+export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
+    const router = useRouter()
     const pathname = usePathname()
+    const { user, status, logout } = useAuth()
+    const [collapsed, setCollapsed] = useState(false)
+    const [menuOpen, setMenuOpen] = useState(false)
+    const menuRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        if (status === "unauthenticated") router.replace("/auth")
+    }, [status, router])
+
+    useEffect(() => {
+        function onClickOutside(e: MouseEvent) {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+                setMenuOpen(false)
+            }
+        }
+        if (menuOpen) document.addEventListener("mousedown", onClickOutside)
+        return () => document.removeEventListener("mousedown", onClickOutside)
+    }, [menuOpen])
+
+    if (status !== "authenticated" || !user) {
+        return (
+            <div className="flex flex-1 items-center justify-center text-sm text-text-secondary">
+                Carregando...
+            </div>
+        )
+    }
+
+    async function onLogout() {
+        await logout()
+        router.replace("/auth")
+    }
+
+    const visibleSections = SECTIONS.map((section) => ({
+        ...section,
+        items: section.items.filter((item) => !item.requireRole || item.requireRole === user.role),
+    })).filter((s) => s.items.length > 0)
 
     return (
         <div className="flex flex-1 min-h-0">
@@ -95,17 +141,13 @@ export default function ProtectedLayout({
                             <Flame className="h-5 w-5" />
                         </div>
                         <div className="leading-tight">
-                            <p className="text-sm font-semibold text-text-primary">
-                                Forno Vivo
-                            </p>
-                            <p className="text-xs text-text-secondary">
-                                Gestão de pizzaria
-                            </p>
+                            <p className="text-sm font-semibold text-text-primary">Forno Vivo</p>
+                            <p className="text-xs text-text-secondary">Gestão de pizzaria</p>
                         </div>
                     </div>
 
                     <nav className="flex-1 overflow-y-auto px-3 pb-6">
-                        {SECTIONS.map((section) => (
+                        {visibleSections.map((section) => (
                             <div key={section.title} className="mt-4">
                                 <p className="px-3 pb-1 text-xs font-medium text-text-secondary">
                                     {section.title}
@@ -124,7 +166,9 @@ export default function ProtectedLayout({
                                                             : "text-text-primary/70 hover:bg-text-primary/5 hover:text-text-primary"
                                                     }`}
                                                 >
-                                                    <Icon className={`h-4 w-4 shrink-0 ${active ? "text-primary" : ""}`} />
+                                                    <Icon
+                                                        className={`h-4 w-4 shrink-0 ${active ? "text-primary" : ""}`}
+                                                    />
                                                     <span>{item.label}</span>
                                                 </Link>
                                             </li>
@@ -164,16 +208,39 @@ export default function ProtectedLayout({
                             aria-label="Notificações"
                         >
                             <Bell className="h-5 w-5" />
-                            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-semibold text-white">
-                                2
-                            </span>
                         </button>
 
-                        <div
-                            className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white"
-                            aria-label="Ana Gomes"
-                        >
-                            AG
+                        <div ref={menuRef} className="relative">
+                            <button
+                                type="button"
+                                onClick={() => setMenuOpen((o) => !o)}
+                                className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white"
+                                aria-label={user.name}
+                            >
+                                {initials(user.name)}
+                            </button>
+                            {menuOpen ? (
+                                <div className="absolute right-0 mt-2 w-48 overflow-hidden rounded-lg border border-border/40 bg-white shadow-lg">
+                                    <div className="border-b border-border/40 px-3 py-2">
+                                        <p className="truncate text-sm font-medium text-text-primary">{user.name}</p>
+                                        <p className="truncate text-xs text-text-secondary">{user.email}</p>
+                                    </div>
+                                    <Link
+                                        href="/me"
+                                        onClick={() => setMenuOpen(false)}
+                                        className="flex items-center gap-2 px-3 py-2 text-sm text-text-primary hover:bg-text-primary/5"
+                                    >
+                                        <UserIcon className="h-4 w-4" /> Meu perfil
+                                    </Link>
+                                    <button
+                                        type="button"
+                                        onClick={onLogout}
+                                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-danger hover:bg-danger/5"
+                                    >
+                                        <LogOut className="h-4 w-4" /> Sair
+                                    </button>
+                                </div>
+                            ) : null}
                         </div>
                     </div>
                 </header>
