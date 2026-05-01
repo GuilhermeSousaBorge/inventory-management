@@ -47,26 +47,26 @@ const SECTIONS: NavSection[] = [
     {
         title: "Vendas",
         items: [
-            { label: "Pedidos", href: "/pedidos", icon: ShoppingBag },
-            { label: "Notificações", href: "/notificacoes", icon: Bell },
+            { label: "Pedidos", href: "/orders", icon: ShoppingBag },
+            { label: "Notificações", href: "/notifications", icon: Bell },
         ],
     },
     {
         title: "Catálogo",
         items: [
-            { label: "Produtos", href: "/produtos", icon: Package },
-            { label: "Categorias", href: "/categorias", icon: Tag },
-            { label: "Ingredientes", href: "/ingredientes", icon: Leaf },
-            { label: "Unidades", href: "/unidades", icon: Ruler },
+            { label: "Produtos", href: "/products", icon: Package },
+            { label: "Categorias", href: "/categories", icon: Tag },
+            { label: "Ingredientes", href: "/ingredients", icon: Leaf },
+            { label: "Unidades", href: "/units", icon: Ruler },
         ],
     },
     {
         title: "Suprimentos",
         items: [
             { label: "Compras", href: "/compras", icon: ShoppingCart },
-            { label: "Fornecedores", href: "/fornecedores", icon: Truck },
-            { label: "Estoque", href: "/estoque", icon: Boxes },
-            { label: "Movimentações", href: "/movimentacoes", icon: ArrowLeftRight },
+            { label: "Fornecedores", href: "/suppliers", icon: Truck },
+            { label: "Estoque", href: "/stock", icon: Boxes },
+            { label: "Movimentações", href: "/movments", icon: ArrowLeftRight },
         ],
     },
     {
@@ -78,7 +78,7 @@ const SECTIONS: NavSection[] = [
     },
     {
         title: "Administração",
-        items: [{ label: "Usuários", href: "/usuarios", icon: Users, requireRole: "OWNER" }],
+        items: [{ label: "Usuários", href: "/users", icon: Users, requireRole: "OWNER" }],
     },
 ]
 
