@@ -6,9 +6,25 @@ import { Input } from "@/components/ui/input"
 import { isApiError, useAuth } from "@/lib/auth"
 import { Flame } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useState, type FormEvent } from "react"
+import { Suspense, useEffect, useState, type FormEvent } from "react"
 
 export default function AuthPage() {
+    return (
+        <Suspense fallback={<AuthFallback />}>
+            <AuthForm />
+        </Suspense>
+    )
+}
+
+function AuthFallback() {
+    return (
+        <main className="flex flex-1 items-center justify-center px-4">
+            <div className="text-sm text-text-secondary">Carregando...</div>
+        </main>
+    )
+}
+
+function AuthForm() {
     const router = useRouter()
     const params = useSearchParams()
     const { login, status } = useAuth()
