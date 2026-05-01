@@ -1,8 +1,48 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
+import { Field } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { isApiError, useAuth } from "@/lib/auth"
 import { Flame } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useState, type FormEvent } from "react"
 
 export default function AuthPage() {
+    const router = useRouter()
+    const params = useSearchParams()
+    const { login, status } = useAuth()
+    const expired = params.get("expired") === "1"
+
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [submitting, setSubmitting] = useState(false)
+    const [formError, setFormError] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (status === "authenticated") router.replace("/home")
+    }, [status, router])
+
+    async function onSubmit(e: FormEvent) {
+        e.preventDefault()
+        setSubmitting(true)
+        setFormError(null)
+        try {
+            await login(email, password)
+            router.replace("/home")
+        } catch (err) {
+            if (isApiError(err) && err.status === 401) {
+                setFormError("E-mail ou senha inválidos.")
+            } else if (isApiError(err) && err.status === 0) {
+                setFormError("Falha ao se conectar com o servidor.")
+            } else {
+                setFormError("Não foi possível entrar. Tente novamente.")
+            }
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
     return (
         <main className="flex flex-1 items-center justify-center px-4">
             <div className="w-full max-w-md rounded-2xl border border-border/40 bg-white p-8 shadow-sm">
@@ -10,66 +50,49 @@ export default function AuthPage() {
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-danger text-white">
                         <Flame className="h-6 w-6" />
                     </div>
-                    <h1 className="mt-4 text-2xl font-semibold text-text-primary">
-                        Forno Vivo
-                    </h1>
-                    <p className="mt-1 text-sm text-text-secondary">
-                        Entre para gerenciar sua pizzaria
-                    </p>
+                    <h1 className="mt-4 text-2xl font-semibold text-text-primary">Forno Vivo</h1>
+                    <p className="mt-1 text-sm text-text-secondary">Entre para gerenciar sua pizzaria</p>
                 </div>
 
-                <form className="mt-8 space-y-5" onSubmit={(e) => e.preventDefault()}>
-                    <div className="space-y-1.5">
-                        <label
-                            htmlFor="email"
-                            className="block text-sm font-medium text-text-primary"
-                        >
-                            E-mail
-                        </label>
-                        <input
+                {expired ? (
+                    <div className="mt-6 rounded-lg border border-border/40 bg-secondary/20 px-3 py-2 text-xs text-text-primary">
+                        Sua sessão expirou. Faça login novamente.
+                    </div>
+                ) : null}
+
+                <form className="mt-8 space-y-5" onSubmit={onSubmit}>
+                    <Field label="E-mail" htmlFor="email">
+                        <Input
                             id="email"
                             type="email"
                             autoComplete="email"
-                            defaultValue="ana@pizzaria.com"
-                            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            disabled={submitting}
                         />
-                    </div>
+                    </Field>
 
-                    <div className="space-y-1.5">
-                        <div className="flex items-center justify-between">
-                            <label
-                                htmlFor="password"
-                                className="block text-sm font-medium text-text-primary"
-                            >
-                                Senha
-                            </label>
-                            <a
-                                href="#"
-                                className="text-sm font-medium text-text-primary hover:underline"
-                            >
-                                Esqueci minha senha
-                            </a>
-                        </div>
-                        <input
+                    <Field label="Senha" htmlFor="password">
+                        <Input
                             id="password"
                             type="password"
                             autoComplete="current-password"
-                            defaultValue="password"
-                            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            disabled={submitting}
                         />
-                    </div>
+                    </Field>
 
-                    <button
-                        type="submit"
-                        className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-primary/40"
-                    >
-                        Entrar
-                    </button>
+                    {formError ? (
+                        <p className="text-center text-sm text-danger">{formError}</p>
+                    ) : null}
+
+                    <Button type="submit" className="w-full" disabled={submitting}>
+                        {submitting ? "Entrando..." : "Entrar"}
+                    </Button>
                 </form>
-
-                <p className="mt-4 text-center text-xs text-text-secondary">
-                    Demo: qualquer credencial funciona.
-                </p>
             </div>
         </main>
     )
