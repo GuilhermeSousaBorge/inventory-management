@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import { changePasswordSchema, createUserSchema, updateUserSchema } from "@/lib/users"
 import { createUnitSchema, updateUnitSchema } from "@/lib/units"
 import { createCategorySchema, updateCategorySchema } from "@/lib/categories"
+import { createSupplierSchema, updateSupplierSchema } from "@/lib/suppliers"
 
 describe("createUserSchema", () => {
     it("accepts a valid input", () => {
@@ -189,6 +190,88 @@ describe("createCategorySchema", () => {
 describe("updateCategorySchema", () => {
     it("has the same shape as create", () => {
         const r = updateCategorySchema.safeParse({ name: "Massas", description: "" })
+        expect(r.success).toBe(true)
+    })
+})
+
+describe("createSupplierSchema", () => {
+    it("accepts only name (other fields empty)", () => {
+        const r = createSupplierSchema.safeParse({
+            name: "Distribuidora ABC",
+            contactName: "",
+            phone: "",
+            email: "",
+            address: "",
+        })
+        expect(r.success).toBe(true)
+    })
+
+    it("accepts a full payload", () => {
+        const r = createSupplierSchema.safeParse({
+            name: "Distribuidora ABC",
+            contactName: "João",
+            phone: "(11) 99999-9999",
+            email: "joao@abc.com",
+            address: "R. das Flores, 123",
+        })
+        expect(r.success).toBe(true)
+    })
+
+    it("rejects empty name", () => {
+        const r = createSupplierSchema.safeParse({
+            name: "",
+            contactName: "",
+            phone: "",
+            email: "",
+            address: "",
+        })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects invalid email", () => {
+        const r = createSupplierSchema.safeParse({
+            name: "ABC",
+            contactName: "",
+            phone: "",
+            email: "not-an-email",
+            address: "",
+        })
+        expect(r.success).toBe(false)
+    })
+
+    it("accepts empty email (optional)", () => {
+        const r = createSupplierSchema.safeParse({
+            name: "ABC",
+            contactName: "",
+            phone: "",
+            email: "",
+            address: "",
+        })
+        expect(r.success).toBe(true)
+    })
+})
+
+describe("updateSupplierSchema", () => {
+    it("requires active flag", () => {
+        const r = updateSupplierSchema.safeParse({
+            name: "ABC",
+            contactName: "",
+            phone: "",
+            email: "",
+            address: "",
+        })
+        expect(r.success).toBe(false)
+    })
+
+    it("accepts active flag", () => {
+        const r = updateSupplierSchema.safeParse({
+            name: "ABC",
+            contactName: "",
+            phone: "",
+            email: "",
+            address: "",
+            active: true,
+        })
         expect(r.success).toBe(true)
     })
 })
