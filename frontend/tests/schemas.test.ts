@@ -4,6 +4,7 @@ import { changePasswordSchema, createUserSchema, updateUserSchema } from "@/lib/
 import { createUnitSchema, updateUnitSchema } from "@/lib/units"
 import { createCategorySchema, updateCategorySchema } from "@/lib/categories"
 import { createSupplierSchema, updateSupplierSchema } from "@/lib/suppliers"
+import { createIngredientSchema, updateIngredientSchema, UNITS_OF_MEASURE } from "@/lib/ingredients"
 
 describe("createUserSchema", () => {
     it("accepts a valid input", () => {
@@ -270,6 +271,107 @@ describe("updateSupplierSchema", () => {
             phone: "",
             email: "",
             address: "",
+            active: true,
+        })
+        expect(r.success).toBe(true)
+    })
+})
+
+describe("createIngredientSchema", () => {
+    const validBase = {
+        name: "Mussarela",
+        description: "",
+        categoryId: "11111111-1111-1111-1111-111111111111",
+        unitOfMeasure: "kg",
+        minimumQty: 5,
+        expiryDate: "",
+        defaultSupplierId: "",
+    }
+
+    it("accepts a minimal valid input", () => {
+        const r = createIngredientSchema.safeParse(validBase)
+        expect(r.success).toBe(true)
+    })
+
+    it("accepts every unit_of_measure", () => {
+        for (const unit of UNITS_OF_MEASURE) {
+            const r = createIngredientSchema.safeParse({ ...validBase, unitOfMeasure: unit })
+            expect(r.success).toBe(true)
+        }
+    })
+
+    it("rejects unknown unit_of_measure", () => {
+        const r = createIngredientSchema.safeParse({ ...validBase, unitOfMeasure: "lb" })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects negative minimumQty", () => {
+        const r = createIngredientSchema.safeParse({ ...validBase, minimumQty: -1 })
+        expect(r.success).toBe(false)
+    })
+
+    it("coerces minimumQty from string", () => {
+        const r = createIngredientSchema.safeParse({ ...validBase, minimumQty: "5.5" })
+        expect(r.success).toBe(true)
+    })
+
+    it("rejects empty name", () => {
+        const r = createIngredientSchema.safeParse({ ...validBase, name: "" })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects categoryId that is not a UUID", () => {
+        const r = createIngredientSchema.safeParse({ ...validBase, categoryId: "not-a-uuid" })
+        expect(r.success).toBe(false)
+    })
+
+    it("accepts empty defaultSupplierId (optional)", () => {
+        const r = createIngredientSchema.safeParse({ ...validBase, defaultSupplierId: "" })
+        expect(r.success).toBe(true)
+    })
+
+    it("accepts a valid UUID for defaultSupplierId", () => {
+        const r = createIngredientSchema.safeParse({
+            ...validBase,
+            defaultSupplierId: "22222222-2222-2222-2222-222222222222",
+        })
+        expect(r.success).toBe(true)
+    })
+
+    it("accepts empty expiryDate", () => {
+        const r = createIngredientSchema.safeParse({ ...validBase, expiryDate: "" })
+        expect(r.success).toBe(true)
+    })
+
+    it("accepts a valid ISO date for expiryDate", () => {
+        const r = createIngredientSchema.safeParse({ ...validBase, expiryDate: "2026-12-31" })
+        expect(r.success).toBe(true)
+    })
+})
+
+describe("updateIngredientSchema", () => {
+    it("requires active", () => {
+        const r = updateIngredientSchema.safeParse({
+            name: "Mussarela",
+            description: "",
+            categoryId: "11111111-1111-1111-1111-111111111111",
+            unitOfMeasure: "kg",
+            minimumQty: 5,
+            expiryDate: "",
+            defaultSupplierId: "",
+        })
+        expect(r.success).toBe(false)
+    })
+
+    it("accepts active flag", () => {
+        const r = updateIngredientSchema.safeParse({
+            name: "Mussarela",
+            description: "",
+            categoryId: "11111111-1111-1111-1111-111111111111",
+            unitOfMeasure: "kg",
+            minimumQty: 5,
+            expiryDate: "",
+            defaultSupplierId: "",
             active: true,
         })
         expect(r.success).toBe(true)
