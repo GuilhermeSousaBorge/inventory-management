@@ -11,7 +11,7 @@ export default function EditIngredientPage() {
     const { user } = useAuth()
     const params = useParams<{ id: string }>()
     const id = params.id
-    const ingredientQuery = useIngredient(id)
+    const ingredientQuery = useIngredient(user?.role === "OWNER" ? id : "")
 
     if (user?.role !== "OWNER") return <NoAccess />
 
@@ -30,18 +30,27 @@ export default function EditIngredientPage() {
             <div className="mx-auto max-w-2xl rounded-xl border border-border/40 bg-white p-6">
                 {ingredientQuery.isLoading ? (
                     <div className="space-y-3">
-                        {Array.from({ length: 6 }).map((_, i) => (
+                        {Array.from({ length: 8 }).map((_, i) => (
                             <div key={i} className="h-10 animate-pulse rounded-lg bg-text-primary/5" />
                         ))}
                     </div>
                 ) : ingredientQuery.isError ? (
                     <div className="text-center">
-                        <p className="text-sm text-danger">Ingrediente não encontrado.</p>
-                        <Link href="/ingredients">
-                            <Button variant="ghost" size="sm" className="mt-3">
-                                Voltar
+                        <p className="text-sm text-danger">Não foi possível carregar o ingrediente.</p>
+                        <div className="mt-3 flex items-center justify-center gap-2">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => ingredientQuery.refetch()}
+                            >
+                                Tentar novamente
                             </Button>
-                        </Link>
+                            <Link href="/ingredients">
+                                <Button variant="ghost" size="sm">
+                                    Voltar
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
                 ) : ingredientQuery.data ? (
                     <IngredientForm mode="edit" initial={ingredientQuery.data} />
