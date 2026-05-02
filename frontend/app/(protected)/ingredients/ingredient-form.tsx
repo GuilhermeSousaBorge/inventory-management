@@ -35,6 +35,12 @@ export function IngredientForm({ mode, initial }: Props) {
     const update = useUpdateIngredient()
 
     const form = useForm<UpdateIngredientInput>({
+        // Zod v4's z.coerce.number() on minimumQty produces an input/output
+        // mismatch that RHF's Resolver cannot unify across the
+        // CreateIngredientInput | UpdateIngredientInput union. We type the
+        // form as the superset (UpdateIngredientInput); the correct schema
+        // is still selected at runtime by `mode`, and the `active` field is
+        // gated to edit mode in JSX so RHF never registers it on create.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         resolver: zodResolver(mode === "edit" ? updateIngredientSchema : createIngredientSchema) as any,
         defaultValues:
@@ -101,8 +107,12 @@ export function IngredientForm({ mode, initial }: Props) {
                 htmlFor="ingredient-category"
                 error={form.formState.errors.categoryId?.message}
             >
-                <Select id="ingredient-category" {...form.register("categoryId")}>
-                    <option value="">Selecione...</option>
+                <Select
+                    id="ingredient-category"
+                    disabled={categories.isPending}
+                    {...form.register("categoryId")}
+                >
+                    <option value="">{categories.isPending ? "Carregando..." : "Selecione..."}</option>
                     {categories.data?.map((c) => (
                         <option key={c.id} value={c.id}>
                             {c.name}
@@ -156,8 +166,12 @@ export function IngredientForm({ mode, initial }: Props) {
                 htmlFor="ingredient-supplier"
                 error={form.formState.errors.defaultSupplierId?.message}
             >
-                <Select id="ingredient-supplier" {...form.register("defaultSupplierId")}>
-                    <option value="">Nenhum</option>
+                <Select
+                    id="ingredient-supplier"
+                    disabled={suppliers.isPending}
+                    {...form.register("defaultSupplierId")}
+                >
+                    <option value="">{suppliers.isPending ? "Carregando..." : "Nenhum"}</option>
                     {suppliers.data?.map((s) => (
                         <option key={s.id} value={s.id}>
                             {s.name}
