@@ -140,7 +140,7 @@ Sem campo `active` — categorias não têm soft-delete.
 
 Submit:
 - Sucesso → fecha modal, invalida `['categories']`, toast.
-- 400 com `fieldErrors` → banner no topo do form.
+- Erro → toast vermelho com `err.message` (vide nota em "Tratamento de erros (UX)").
 
 ### Delete
 
@@ -241,12 +241,13 @@ Layout: card centrado max-w-2xl com:
 - Loading do botão "Salvar" durante request.
 - Sucesso → toast "Ingrediente criado/atualizado", invalida `['ingredients']`,
   `router.replace('/ingredients')`.
-- 400 com `fieldErrors` → banner no topo do form.
+- Erro → toast vermelho com `err.message` (vide nota em "Tratamento de erros (UX)").
 
 **Página de edição (`/ingredients/[id]/editar`):**
 - Pre-fetch via `useIngredient(id)` para popular `defaultValues` do RHF.
 - Loading: esqueleto do form.
-- 404: mensagem inline "Ingrediente não encontrado" + link "Voltar".
+- Erro de carregamento → mensagem "Não foi possível carregar o ingrediente."
+  com botões "Tentar novamente" (refetch) e "Voltar".
 
 ---
 
@@ -390,13 +391,18 @@ invalidam `['ingredients']`.
 
 ## Tratamento de erros (UX)
 
-Mesmas regras do SP1 anterior. Notas específicas desta rodada:
+**Padrão atual do projeto: toast-only.** Erros de mutation (`POST`/`PUT`/`DELETE`)
+são exibidos via `toast.error(err.message)`. Não há banner inline no topo dos
+forms — esta decisão foi tomada para manter consistência com `/users` e
+`/units`, que já estão em produção. Banners por campo (`fieldErrors`) ficam
+deferidos para uma rodada futura, quando puderem ser introduzidos
+uniformemente nos 5 forms (Users, Units, Categories, Suppliers, Ingredients).
 
 | Cenário | Tratamento |
 |---------|------------|
-| `DELETE /categories/{id}` retorna 409/400 com ingredientes vinculados | Toast vermelho com mensagem amigável (acima); listagem não muda |
-| 400 em `POST/PUT /ingredients` com `categoryId` inexistente | Banner no topo do form com mensagem do backend |
-| Categoria/Supplier excluído entre o load da lista e o submit do ingrediente | Backend retorna 400 → banner; usuário recarrega e tenta de novo |
+| `DELETE /categories/{id}` retorna 409/400 com ingredientes vinculados | Toast vermelho com mensagem amigável: *"Não é possível remover: existem ingredientes nesta categoria."* |
+| 400 em `POST/PUT /ingredients` com `categoryId` inexistente | Toast vermelho com `err.message` do backend |
+| Categoria/Supplier excluído entre o load da lista e o submit do ingrediente | Backend retorna 400 → toast; usuário recarrega e tenta de novo |
 
 ---
 
