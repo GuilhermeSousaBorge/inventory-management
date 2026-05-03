@@ -110,7 +110,7 @@ export function useDeactivateIngredient() {
     })
 }
 
-export function useAllingredients() {
+export function useAllIngredients() {
     return useQuery({
         queryKey: ["ingredients", "all-active"],
         queryFn: () =>
