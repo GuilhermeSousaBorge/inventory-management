@@ -63,10 +63,10 @@ const SECTIONS: NavSection[] = [
     {
         title: "Suprimentos",
         items: [
-            { label: "Compras", href: "/compras", icon: ShoppingCart },
+            { label: "Compras", href: "/purchase-orders", icon: ShoppingCart },
             { label: "Fornecedores", href: "/suppliers", icon: Truck },
             { label: "Estoque", href: "/stock", icon: Boxes },
-            { label: "Movimentações", href: "/movments", icon: ArrowLeftRight },
+            { label: "Movimentações", href: "/stock-movements", icon: ArrowLeftRight },
         ],
     },
     {
