@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest"
 
-import { changePasswordSchema, createUserSchema, updateUserSchema } from "@/lib/users"
-import { createUnitSchema, updateUnitSchema } from "@/lib/units"
 import { createCategorySchema, updateCategorySchema } from "@/lib/categories"
+import { createIngredientSchema, UNITS_OF_MEASURE, updateIngredientSchema } from "@/lib/ingredients"
+import { createAdjustmentSchema } from "@/lib/stock-movements"
 import { createSupplierSchema, updateSupplierSchema } from "@/lib/suppliers"
-import { createIngredientSchema, updateIngredientSchema, UNITS_OF_MEASURE } from "@/lib/ingredients"
+import { createUnitSchema, updateUnitSchema } from "@/lib/units"
+import { changePasswordSchema, createUserSchema, updateUserSchema } from "@/lib/users"
 
 describe("createUserSchema", () => {
     it("accepts a valid input", () => {
@@ -375,5 +376,57 @@ describe("updateIngredientSchema", () => {
             active: true,
         })
         expect(r.success).toBe(true)
+    })
+})
+
+describe("createAdjustmentSchema", () => {
+    const validBase = {
+        ingredientId: "11111111-1111-1111-1111-111111111111",
+        unitId: "22222222-2222-2222-2222-222222222222",
+        quantity: 5,
+        direction: "INCREASE" as const,
+        reason: "Sobra de evento",
+    }
+
+    it("accepts a minimal valid input", () => {
+        const r = createAdjustmentSchema.safeParse(validBase)
+        expect(r.success).toBe(true)
+    })
+
+    it("accepts both directions", () => {
+        for (const d of ["INCREASE", "DECREASE"]) {
+            const r = createAdjustmentSchema.safeParse({ ...validBase, direction: d })
+            expect(r.success).toBe(true)
+        }
+    })
+
+    it("rejects unknown direction", () => {
+        const r = createAdjustmentSchema.safeParse({ ...validBase, direction: "OTHER" })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects non-positive quantity", () => {
+        expect(createAdjustmentSchema.safeParse({ ...validBase, quantity: 0 }).success).toBe(false)
+        expect(createAdjustmentSchema.safeParse({ ...validBase, quantity: -1 }).success).toBe(false)
+    })
+
+    it("coerces quantity from string", () => {
+        const r = createAdjustmentSchema.safeParse({ ...validBase, quantity: "5.5" })
+        expect(r.success).toBe(true)
+    })
+
+    it("rejects empty reason", () => {
+        const r = createAdjustmentSchema.safeParse({ ...validBase, reason: "" })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects reason > 255 chars", () => {
+        const r = createAdjustmentSchema.safeParse({ ...validBase, reason: "x".repeat(256) })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects non-uuid ingredientId/unitId", () => {
+        expect(createAdjustmentSchema.safeParse({ ...validBase, ingredientId: "no" }).success).toBe(false)
+        expect(createAdjustmentSchema.safeParse({ ...validBase, unitId: "no" }).success).toBe(false)
     })
 })
