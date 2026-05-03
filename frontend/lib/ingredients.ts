@@ -109,3 +109,12 @@ export function useDeactivateIngredient() {
         onSuccess: () => qc.invalidateQueries({ queryKey: ["ingredients"] }),
     })
 }
+
+export function useAllIngredients() {
+    return useQuery({
+        queryKey: ["ingredients", "all-active"],
+        queryFn: () =>
+            api.get<Page<Ingredient>>("/ingredients", {params: {page: 0, size: 1000, active: true}}).then((r) => r.data.data),
+            staleTime: 5 * 60 * 1000, // 5 minutos
+    })
+}

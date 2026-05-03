@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest"
 
-import { changePasswordSchema, createUserSchema, updateUserSchema } from "@/lib/users"
-import { createUnitSchema, updateUnitSchema } from "@/lib/units"
 import { createCategorySchema, updateCategorySchema } from "@/lib/categories"
+import { createIngredientSchema, UNITS_OF_MEASURE, updateIngredientSchema } from "@/lib/ingredients"
+import { createPurchaseOrderSchema } from "@/lib/purchase-orders"
+import { createAdjustmentSchema } from "@/lib/stock-movements"
 import { createSupplierSchema, updateSupplierSchema } from "@/lib/suppliers"
-import { createIngredientSchema, updateIngredientSchema, UNITS_OF_MEASURE } from "@/lib/ingredients"
+import { createUnitSchema, updateUnitSchema } from "@/lib/units"
+import { changePasswordSchema, createUserSchema, updateUserSchema } from "@/lib/users"
 
 describe("createUserSchema", () => {
     it("accepts a valid input", () => {
@@ -375,5 +377,134 @@ describe("updateIngredientSchema", () => {
             active: true,
         })
         expect(r.success).toBe(true)
+    })
+})
+
+describe("createAdjustmentSchema", () => {
+    const validBase = {
+        ingredientId: "11111111-1111-1111-1111-111111111111",
+        unitId: "22222222-2222-2222-2222-222222222222",
+        quantity: 5,
+        direction: "INCREASE" as const,
+        reason: "Sobra de evento",
+    }
+
+    it("accepts a minimal valid input", () => {
+        const r = createAdjustmentSchema.safeParse(validBase)
+        expect(r.success).toBe(true)
+    })
+
+    it("accepts both directions", () => {
+        for (const d of ["INCREASE", "DECREASE"]) {
+            const r = createAdjustmentSchema.safeParse({ ...validBase, direction: d })
+            expect(r.success).toBe(true)
+        }
+    })
+
+    it("rejects unknown direction", () => {
+        const r = createAdjustmentSchema.safeParse({ ...validBase, direction: "OTHER" })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects non-positive quantity", () => {
+        expect(createAdjustmentSchema.safeParse({ ...validBase, quantity: 0 }).success).toBe(false)
+        expect(createAdjustmentSchema.safeParse({ ...validBase, quantity: -1 }).success).toBe(false)
+    })
+
+    it("coerces quantity from string", () => {
+        const r = createAdjustmentSchema.safeParse({ ...validBase, quantity: "5.5" })
+        expect(r.success).toBe(true)
+    })
+
+    it("rejects empty reason", () => {
+        const r = createAdjustmentSchema.safeParse({ ...validBase, reason: "" })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects reason > 255 chars", () => {
+        const r = createAdjustmentSchema.safeParse({ ...validBase, reason: "x".repeat(256) })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects non-uuid ingredientId/unitId", () => {
+        expect(createAdjustmentSchema.safeParse({ ...validBase, ingredientId: "no" }).success).toBe(false)
+        expect(createAdjustmentSchema.safeParse({ ...validBase, unitId: "no" }).success).toBe(false)
+    })
+})
+
+describe("createPurchaseOrderSchema", () => {
+    const validBase = {
+        supplierId: "11111111-1111-1111-1111-111111111111",
+        unitId: "22222222-2222-2222-2222-222222222222",
+        expectedAt: "",
+        notes: "",
+        items: [
+            {
+                ingredientId: "33333333-3333-3333-3333-333333333333",
+                quantity: 5,
+                unitPrice: 10,
+            },
+        ],
+    }
+
+    it("accepts a minimal valid input", () => {
+        const r = createPurchaseOrderSchema.safeParse(validBase)
+        expect(r.success).toBe(true)
+    })
+
+    it("rejects when items is empty", () => {
+        const r = createPurchaseOrderSchema.safeParse({ ...validBase, items: [] })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects duplicate ingredients in items", () => {
+        const r = createPurchaseOrderSchema.safeParse({
+            ...validBase,
+            items: [
+                { ingredientId: "33333333-3333-3333-3333-333333333333", quantity: 1, unitPrice: 1 },
+                { ingredientId: "33333333-3333-3333-3333-333333333333", quantity: 2, unitPrice: 2 },
+            ],
+        })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects non-positive quantity in item", () => {
+        const r = createPurchaseOrderSchema.safeParse({
+            ...validBase,
+            items: [
+                { ingredientId: "33333333-3333-3333-3333-333333333333", quantity: 0, unitPrice: 1 },
+            ],
+        })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects non-positive unitPrice in item", () => {
+        const r = createPurchaseOrderSchema.safeParse({
+            ...validBase,
+            items: [
+                { ingredientId: "33333333-3333-3333-3333-333333333333", quantity: 1, unitPrice: 0 },
+            ],
+        })
+        expect(r.success).toBe(false)
+    })
+
+    it("accepts valid expectedAt", () => {
+        const r = createPurchaseOrderSchema.safeParse({ ...validBase, expectedAt: "2026-12-31" })
+        expect(r.success).toBe(true)
+    })
+
+    it("rejects invalid expectedAt", () => {
+        const r = createPurchaseOrderSchema.safeParse({ ...validBase, expectedAt: "31/12/2026" })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects notes > 500 chars", () => {
+        const r = createPurchaseOrderSchema.safeParse({ ...validBase, notes: "x".repeat(501) })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects non-uuid supplierId/unitId", () => {
+        expect(createPurchaseOrderSchema.safeParse({ ...validBase, supplierId: "no" }).success).toBe(false)
+        expect(createPurchaseOrderSchema.safeParse({ ...validBase, unitId: "no" }).success).toBe(false)
     })
 })
