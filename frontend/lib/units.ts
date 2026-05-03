@@ -57,3 +57,13 @@ export function useDeactivateUnit() {
         onSuccess: () => qc.invalidateQueries({ queryKey: ["units"] }),
     })
 }
+
+export function useAllUnits() {
+    return useQuery({
+        queryKey: ["units", "all-active"],
+        queryFn: () =>
+            api.get<Page<Unit>>("/units", { 
+                params: { page: 0, size: 1000, active: true } }).then((r) => r.data.data),
+            staleTime: 5 * 60 * 1000, // 5 minutes
+    })
+}
