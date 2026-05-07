@@ -291,4 +291,39 @@ describe("ProductForm (edit)", () => {
         const rows = within(ingredientsBlock).getAllByTestId("prod-ingredient-row")
         expect(rows).toHaveLength(2)
     })
+
+    it("submits as PUT and redirects to detail on edit", async () => {
+        tokenStorage.setAccess("a1")
+        setHandler((cfg) => {
+            const r = selectsHandler(cfg)
+            if (r) return r
+            const url = cfg.url ?? ""
+            if (url.endsWith(`/products/${initial.id}`) && cfg.method === "put") {
+                return { status: 200, data: { data: { id: initial.id } } }
+            }
+            return { status: 500 }
+        })
+
+        renderWithProviders(<ProductForm mode="edit" initial={initial} />)
+
+        await waitFor(() =>
+            expect((screen.getByLabelText(/nome/i) as HTMLInputElement).value).toBe("Calabresa"),
+        )
+
+        fireEvent.change(screen.getByLabelText(/nome/i), {
+            target: { value: "Calabresa Especial" },
+        })
+
+        fireEvent.click(screen.getByRole("button", { name: /salvar/i }))
+
+        await waitFor(() => {
+            const put = getCalls().find(
+                (c) =>
+                    (c.method ?? "").toLowerCase() === "put" &&
+                    (c.url ?? "").endsWith(`/products/${initial.id}`),
+            )
+            expect(put).toBeTruthy()
+            expect(replaceMock).toHaveBeenCalledWith(`/products/${initial.id}`)
+        })
+    })
 })

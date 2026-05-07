@@ -1,5 +1,17 @@
 # SP3 Frontend — Products + Orders Implementation Plan
 
+> **Note (post-implementation):** Several literal code blocks below diverge
+> from what was actually shipped. The plan was written before re-reading the
+> SP2 codebase pattern. The implementation deliberately follows the SP2
+> idiom in `frontend/app/(protected)/purchase-orders/` and
+> `frontend/lib/purchase-orders.ts` instead — form props are
+> `{ mode, initial? }` (mutations encapsulated; not callback-based);
+> permission UI is an inline `<div>` (no `<NoAccess />` component exists);
+> `Field` uses prop `hint` (not `helperText`); `Badge` uses `variant`
+> (not `tone`); listings wrap an inner component in `<Suspense>`. Read the
+> commit history (`git log --oneline main..feat/sp3-frontend-products-orders`)
+> and the SP2 reference files for the actual idiom.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Implementar frontend completo do SP3 — cardápio com fichas técnicas (`/products`) e pedidos de cliente com state machine PENDING → IN_PROGRESS → COMPLETED ou PENDING → CANCELED (`/orders`), incluindo a ação `start` que dispara baixa automática de estoque.

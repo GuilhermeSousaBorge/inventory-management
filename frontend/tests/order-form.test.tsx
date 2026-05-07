@@ -209,3 +209,93 @@ describe("OrderForm (create)", () => {
         expect(removeBtn).toBeDisabled()
     })
 })
+
+describe("OrderForm (edit)", () => {
+    const initial = {
+        id: "o-existing-id",
+        unitId: UNIT_1,
+        unitName: "Centro",
+        status: "PENDING" as const,
+        totalPrice: 91.8,
+        notes: "sem cebola",
+        createdById: "u1",
+        startedAt: null,
+        completedAt: null,
+        canceledAt: null,
+        createdAt: "2026-04-01T00:00:00Z",
+        items: [
+            {
+                id: "oi1",
+                productId: PROD_1,
+                productName: "Margherita G",
+                quantity: 2,
+                unitPrice: 45.9,
+                subtotal: 91.8,
+            },
+        ],
+    }
+
+    it("pre-populates fields from initial", async () => {
+        tokenStorage.setAccess("a1")
+        setHandler((cfg) => {
+            const r = selectsHandler(cfg)
+            if (r) return r
+            return { status: 500 }
+        })
+
+        renderWithProviders(<OrderForm mode="edit" initial={initial} />)
+
+        // Notes is a text input — pre-populated immediately from initial
+        await waitFor(() =>
+            expect((screen.getByLabelText(/observações/i) as HTMLInputElement).value).toBe(
+                "sem cebola",
+            ),
+        )
+        // Quantity is a number input — also pre-populated from initial.items[0].quantity = 2
+        const itemsBlock = screen.getByTestId("ord-items")
+        const rows = within(itemsBlock).getAllByTestId("ord-item-row")
+        expect(rows).toHaveLength(1)
+        expect((within(rows[0]).getByLabelText(/quantidade/i) as HTMLInputElement).value).toBe("2")
+    })
+
+    it("submits as PUT and redirects to detail on edit", async () => {
+        tokenStorage.setAccess("a1")
+        setHandler((cfg) => {
+            const r = selectsHandler(cfg)
+            if (r) return r
+            const url = cfg.url ?? ""
+            if (url.endsWith(`/orders/${initial.id}`) && cfg.method === "put") {
+                return { status: 200, data: { data: { id: initial.id } } }
+            }
+            return { status: 500 }
+        })
+
+        renderWithProviders(<OrderForm mode="edit" initial={initial} />)
+
+        // Wait for the form to settle (notes input + unit option both ready)
+        await waitFor(() =>
+            expect((screen.getByLabelText(/observações/i) as HTMLInputElement).value).toBe(
+                "sem cebola",
+            ),
+        )
+        await waitFor(() => expect(screen.getByText("Centro")).toBeInTheDocument())
+
+        const itemsBlock = screen.getByTestId("ord-items")
+        const firstRow = within(itemsBlock).getAllByTestId("ord-item-row")[0]
+        fireEvent.change(within(firstRow).getByLabelText(/quantidade/i), {
+            target: { value: "3" },
+        })
+
+        fireEvent.click(screen.getByRole("button", { name: /salvar/i }))
+
+        await waitFor(() => {
+            const put = getCalls().find(
+                (c) =>
+                    (c.method ?? "").toLowerCase() === "put" &&
+                    (c.url ?? "").endsWith(`/orders/${initial.id}`),
+            )
+            expect(put).toBeTruthy()
+            expect(replaceMock).toHaveBeenCalledWith(`/orders/${initial.id}`)
+        })
+    })
+})
