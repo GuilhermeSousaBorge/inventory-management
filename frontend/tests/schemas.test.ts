@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { createCategorySchema, updateCategorySchema } from "@/lib/categories"
 import { createIngredientSchema, UNITS_OF_MEASURE, updateIngredientSchema } from "@/lib/ingredients"
+import { createOrderSchema } from "@/lib/orders"
 import { createProductSchema } from "@/lib/products"
 import { createPurchaseOrderSchema } from "@/lib/purchase-orders"
 import { createAdjustmentSchema } from "@/lib/stock-movements"
@@ -596,3 +597,77 @@ describe("createProductSchema", () => {
         expect(result.success).toBe(false)
     })
 })
+
+describe("createOrderSchema", () => {
+    const VALID_UUID = "11111111-1111-1111-1111-111111111111"
+    const VALID_UUID_2 = "22222222-2222-2222-2222-222222222222"
+    const UNIT_UUID = "33333333-3333-3333-3333-333333333333"
+
+    function baseInput() {
+        return {
+            unitId: UNIT_UUID,
+            notes: "",
+            items: [{ productId: VALID_UUID, quantity: 1 }],
+        }
+    }
+
+    it("accepts a valid order with one item", () => {
+        const result = createOrderSchema.safeParse(baseInput())
+        expect(result.success).toBe(true)
+    })
+
+    it("rejects empty items array", () => {
+        const result = createOrderSchema.safeParse({ ...baseInput(), items: [] })
+        expect(result.success).toBe(false)
+    })
+
+    it("rejects duplicated product ids", () => {
+        const result = createOrderSchema.safeParse({
+            ...baseInput(),
+            items: [
+                { productId: VALID_UUID, quantity: 1 },
+                { productId: VALID_UUID, quantity: 2 },
+            ],
+        })
+        expect(result.success).toBe(false)
+        if (!result.success) {
+            expect(result.error.issues.some((i) => /duplicad/i.test(i.message))).toBe(true)
+        }
+    })
+
+    it("accepts two distinct products", () => {
+        const result = createOrderSchema.safeParse({
+            ...baseInput(),
+            items: [
+                { productId: VALID_UUID, quantity: 1 },
+                { productId: VALID_UUID_2, quantity: 1 },
+            ],
+        })
+        expect(result.success).toBe(true)
+    })
+
+    it("rejects quantity 0", () => {
+        const result = createOrderSchema.safeParse({
+            ...baseInput(),
+            items: [{ productId: VALID_UUID, quantity: 0 }],
+        })
+        expect(result.success).toBe(false)
+    })
+
+    it("rejects non-integer quantity", () => {
+        const result = createOrderSchema.safeParse({
+            ...baseInput(),
+            items: [{ productId: VALID_UUID, quantity: 1.5 }],
+        })
+        expect(result.success).toBe(false)
+    })
+
+    it("rejects notes above 500 chars", () => {
+        const result = createOrderSchema.safeParse({
+            ...baseInput(),
+            notes: "x".repeat(501),
+        })
+        expect(result.success).toBe(false)
+    })
+})
+
