@@ -48,10 +48,12 @@ export function ProductForm({ mode, initial }: Props) {
                       categoryId: initial.categoryId ?? "",
                       price: initial.price,
                       description: initial.description ?? "",
-                      ingredients: initial.ingredients.map((i) => ({
-                          ingredientId: i.ingredientId,
-                          quantity: i.quantity,
-                      })),
+                      ingredients: (initial.ingredients ?? []).length
+                          ? initial.ingredients.map((i) => ({
+                                ingredientId: i.ingredientId,
+                                quantity: i.quantity,
+                            }))
+                          : [{ ingredientId: "", quantity: 0 }],
                   }
                 : {
                       name: "",

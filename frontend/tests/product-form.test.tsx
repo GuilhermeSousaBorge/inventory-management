@@ -204,4 +204,91 @@ describe("ProductForm (create)", () => {
         })
         expect(removeBtn).toBeDisabled()
     })
+
+    it("redirects to detail page after successful create", async () => {
+        tokenStorage.setAccess("a1")
+        setHandler((cfg) => {
+            const r = selectsHandler(cfg)
+            if (r) return r
+            const url = cfg.url ?? ""
+            if (url.endsWith("/products") && cfg.method === "post") {
+                return { status: 201, data: { data: { id: "p-created-123" } } }
+            }
+            return { status: 500 }
+        })
+
+        renderWithProviders(<ProductForm mode="create" />)
+        await waitFor(() => expect(screen.getByText("Mussarela")).toBeInTheDocument())
+
+        fireEvent.change(screen.getByLabelText(/nome/i), { target: { value: "Margherita" } })
+        fireEvent.change(screen.getByLabelText(/preço/i), { target: { value: "45.9" } })
+
+        const ingredientsBlock = screen.getByTestId("prod-ingredients")
+        const firstRow = within(ingredientsBlock).getAllByTestId("prod-ingredient-row")[0]
+        fireEvent.change(within(firstRow).getByLabelText(/ingrediente/i), {
+            target: { value: ING_1 },
+        })
+        fireEvent.change(within(firstRow).getByLabelText(/quantidade/i), {
+            target: { value: "0.3" },
+        })
+
+        fireEvent.click(screen.getByRole("button", { name: /salvar/i }))
+
+        await waitFor(() => {
+            expect(replaceMock).toHaveBeenCalledWith("/products/p-created-123")
+        })
+    })
+})
+
+describe("ProductForm (edit)", () => {
+    const initial = {
+        id: "p-existing-id",
+        name: "Calabresa",
+        size: "M" as const,
+        categoryId: CAT_1,
+        categoryName: "Pizzas",
+        price: 39.9,
+        description: "com cebola",
+        active: true,
+        createdAt: "2026-04-01T00:00:00Z",
+        ingredients: [
+            {
+                id: "pi1",
+                ingredientId: ING_1,
+                ingredientName: "Mussarela",
+                quantity: 0.25,
+                unitOfMeasure: "kg",
+            },
+            {
+                id: "pi2",
+                ingredientId: ING_2,
+                ingredientName: "Manjericão",
+                quantity: 5,
+                unitOfMeasure: "g",
+            },
+        ],
+    }
+
+    it("pre-populates fields from initial", async () => {
+        tokenStorage.setAccess("a1")
+        setHandler((cfg) => {
+            const r = selectsHandler(cfg)
+            if (r) return r
+            return { status: 500 }
+        })
+
+        renderWithProviders(<ProductForm mode="edit" initial={initial} />)
+
+        // Form pre-populates immediately from `initial` (no async load needed for these inputs)
+        await waitFor(() =>
+            expect((screen.getByLabelText(/nome/i) as HTMLInputElement).value).toBe("Calabresa"),
+        )
+        expect((screen.getByLabelText(/tamanho/i) as HTMLSelectElement).value).toBe("M")
+        expect((screen.getByLabelText(/preço/i) as HTMLInputElement).value).toBe("39.9")
+
+        // Two ingredient rows pre-rendered from initial.ingredients
+        const ingredientsBlock = screen.getByTestId("prod-ingredients")
+        const rows = within(ingredientsBlock).getAllByTestId("prod-ingredient-row")
+        expect(rows).toHaveLength(2)
+    })
 })
