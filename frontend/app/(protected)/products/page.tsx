@@ -1,0 +1,277 @@
+"use client"
+
+import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Field } from "@/components/ui/field"
+import { Select } from "@/components/ui/select"
+import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { isApiError, useAuth } from "@/lib/auth"
+import { useAllCategories } from "@/lib/categories"
+import {
+    PRODUCT_SIZES,
+    useDeactivateProduct,
+    useProducts,
+    type ProductSize,
+} from "@/lib/products"
+import { Eye, Pencil, Plus, Trash2 } from "lucide-react"
+import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Suspense, useState } from "react"
+import { toast } from "sonner"
+
+function ProductsPageInner() {
+    const { user } = useAuth()
+    const isOwner = user?.role === "OWNER"
+    const router = useRouter()
+    const searchParams = useSearchParams()
+
+    const categoryParam = searchParams.get("category") ?? ""
+    const sizeParamRaw = searchParams.get("size")
+    const sizeParam: ProductSize | undefined =
+        sizeParamRaw && PRODUCT_SIZES.includes(sizeParamRaw as ProductSize)
+            ? (sizeParamRaw as ProductSize)
+            : undefined
+    const activeParamRaw = searchParams.get("active")
+    // default = active=true (only when nothing in URL)
+    const activeParam: boolean | undefined =
+        activeParamRaw === null
+            ? true
+            : activeParamRaw === ""
+              ? undefined
+              : activeParamRaw === "true"
+
+    const [page, setPage] = useState(0)
+    const pageSize = 20
+
+    const query = useProducts({
+        category: categoryParam || undefined,
+        size: sizeParam,
+        active: activeParam,
+        page,
+        pageSize,
+    })
+
+    const categories = useAllCategories()
+    const deactivate = useDeactivateProduct()
+
+    const [confirmTarget, setConfirmTarget] = useState<{ id: string; name: string } | null>(null)
+
+    function setFilter(key: string, value: string) {
+        const params = new URLSearchParams(searchParams.toString())
+        if (value === "") params.set(key, "")
+        else params.set(key, value)
+        setPage(0)
+        router.replace(`/products?${params.toString()}`)
+    }
+
+    async function handleDeactivate() {
+        if (!confirmTarget) return
+        try {
+            await deactivate.mutateAsync(confirmTarget.id)
+            toast.success("Produto desativado")
+            setConfirmTarget(null)
+        } catch (err) {
+            if (isApiError(err)) toast.error(err.message)
+            else toast.error("Erro ao desativar produto")
+        }
+    }
+
+    const data = query.data
+    const totalPages = data ? Math.max(1, Math.ceil(data.total / pageSize)) : 1
+
+    return (
+        <div className="space-y-6">
+            <header className="flex items-start justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-semibold text-text-primary">Produtos</h1>
+                    <p className="mt-1 text-sm text-text-secondary">Cardápio com fichas técnicas.</p>
+                </div>
+                {isOwner ? (
+                    <Link href="/products/nova">
+                        <Button>
+                            <Plus className="mr-2 h-4 w-4" /> Novo produto
+                        </Button>
+                    </Link>
+                ) : null}
+            </header>
+
+            <div className="flex flex-wrap items-end gap-3">
+                <Field label="Categoria" htmlFor="filter-category">
+                    <Select
+                        id="filter-category"
+                        value={categoryParam}
+                        onChange={(e) => setFilter("category", e.target.value)}
+                    >
+                        <option value="">Todas</option>
+                        {categories.data?.map((c) => (
+                            <option key={c.id} value={c.id}>
+                                {c.name}
+                            </option>
+                        ))}
+                    </Select>
+                </Field>
+                <Field label="Tamanho" htmlFor="filter-size">
+                    <Select
+                        id="filter-size"
+                        value={sizeParam ?? ""}
+                        onChange={(e) => setFilter("size", e.target.value)}
+                    >
+                        <option value="">Todos</option>
+                        {PRODUCT_SIZES.map((s) => (
+                            <option key={s} value={s}>
+                                {s}
+                            </option>
+                        ))}
+                    </Select>
+                </Field>
+                <Field label="Ativo" htmlFor="filter-active">
+                    <Select
+                        id="filter-active"
+                        value={activeParamRaw ?? "true"}
+                        onChange={(e) => setFilter("active", e.target.value)}
+                    >
+                        <option value="true">Sim</option>
+                        <option value="false">Não</option>
+                        <option value="">Todos</option>
+                    </Select>
+                </Field>
+            </div>
+
+            {query.isLoading ? (
+                <div className="space-y-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                    ))}
+                </div>
+            ) : query.isError ? (
+                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
+                    <p className="text-sm text-danger">Falha ao carregar produtos.</p>
+                    <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
+                        Tentar novamente
+                    </Button>
+                </div>
+            ) : data && data.data.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
+                    <p className="text-sm text-text-secondary">Nenhum produto cadastrado.</p>
+                    {isOwner ? (
+                        <Link href="/products/nova">
+                            <Button className="mt-4">Criar primeiro produto</Button>
+                        </Link>
+                    ) : null}
+                </div>
+            ) : (
+                <Table>
+                    <THead>
+                        <TR>
+                            <TH>Nome</TH>
+                            <TH>Tamanho</TH>
+                            <TH>Categoria</TH>
+                            <TH>Preço</TH>
+                            <TH>Status</TH>
+                            <TH className="w-px text-right">Ações</TH>
+                        </TR>
+                    </THead>
+                    <TBody>
+                        {data!.data.map((p) => (
+                            <TR key={p.id}>
+                                <TD className="font-medium">{p.name}</TD>
+                                <TD>
+                                    <Badge variant="neutral">{p.size}</Badge>
+                                </TD>
+                                <TD>{p.categoryName ?? "—"}</TD>
+                                <TD>R$ {p.price.toFixed(2)}</TD>
+                                <TD>
+                                    <Badge variant={p.active ? "success" : "neutral"}>
+                                        {p.active ? "Ativo" : "Inativo"}
+                                    </Badge>
+                                </TD>
+                                <TD className="text-right">
+                                    <div className="flex items-center justify-end gap-1">
+                                        <Link
+                                            href={`/products/${p.id}`}
+                                            className="rounded p-1.5 text-text-primary/70 hover:bg-text-primary/5 hover:text-text-primary"
+                                            aria-label={`Ver produto ${p.name} ${p.size}`}
+                                        >
+                                            <Eye className="h-4 w-4" />
+                                        </Link>
+                                        {isOwner ? (
+                                            <>
+                                                <Link
+                                                    href={`/products/${p.id}/editar`}
+                                                    className="rounded p-1.5 text-text-primary/70 hover:bg-text-primary/5 hover:text-text-primary"
+                                                    aria-label={`Editar ${p.name} ${p.size}`}
+                                                >
+                                                    <Pencil className="h-4 w-4" />
+                                                </Link>
+                                                {p.active ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            setConfirmTarget({
+                                                                id: p.id,
+                                                                name: `${p.name} ${p.size}`,
+                                                            })
+                                                        }
+                                                        className="rounded p-1.5 text-text-primary/70 hover:bg-danger/10 hover:text-danger"
+                                                        aria-label={`Desativar ${p.name} ${p.size}`}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </button>
+                                                ) : null}
+                                            </>
+                                        ) : null}
+                                    </div>
+                                </TD>
+                            </TR>
+                        ))}
+                    </TBody>
+                </Table>
+            )}
+
+            {data && data.total > pageSize ? (
+                <div className="flex items-center justify-between text-sm text-text-secondary">
+                    <span>
+                        Página {page + 1} de {totalPages} · {pageSize} por página
+                    </span>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setPage((p) => Math.max(0, p - 1))}
+                            disabled={page === 0}
+                        >
+                            Anterior
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setPage((p) => p + 1)}
+                            disabled={page + 1 >= totalPages}
+                        >
+                            Próximo
+                        </Button>
+                    </div>
+                </div>
+            ) : null}
+
+            <ConfirmDialog
+                open={!!confirmTarget}
+                onClose={() => setConfirmTarget(null)}
+                onConfirm={handleDeactivate}
+                title="Desativar produto"
+                message={`Tem certeza que deseja desativar "${confirmTarget?.name ?? ""}"? Ele deixará de aparecer no cardápio.`}
+                confirmLabel="Desativar"
+                loading={deactivate.isPending}
+            />
+        </div>
+    )
+}
+
+export default function ProductsPage() {
+    return (
+        <Suspense fallback={null}>
+            <ProductsPageInner />
+        </Suspense>
+    )
+}
