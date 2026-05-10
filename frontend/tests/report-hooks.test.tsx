@@ -8,14 +8,14 @@ import {
     useWasteReport,
 } from "@/lib/reports"
 
-import { getCalls, renderWithProviders, resetMockApi, setHandler } from "./helpers"
-import type { ReactNode } from "react"
+import { createWrapper, getCalls, resetMockApi, setHandler } from "./helpers"
 
-function wrapper({ children }: { children: ReactNode }) {
-    return renderWithProviders(<>{children}</>) as unknown as ReactNode
-}
+let wrapper: ReturnType<typeof createWrapper>
 
-beforeEach(() => resetMockApi())
+beforeEach(() => {
+    resetMockApi()
+    wrapper = createWrapper()
+})
 afterEach(() => resetMockApi())
 
 describe("useConsumptionReport", () => {
