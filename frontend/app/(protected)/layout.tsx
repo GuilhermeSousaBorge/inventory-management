@@ -1,5 +1,6 @@
 "use client"
 
+import { NotificationsBell } from "@/components/notifications/notifications-bell"
 import { useAuth, type Role } from "@/lib/auth"
 import {
     ArrowLeftRight,
@@ -72,8 +73,8 @@ const SECTIONS: NavSection[] = [
     {
         title: "Análise",
         items: [
-            { label: "Relatórios", href: "/relatorios", icon: BarChart3 },
-            { label: "Auditoria", href: "/auditoria", icon: FileText },
+            { label: "Relatórios", href: "/reports", icon: BarChart3 },
+            { label: "Auditoria", href: "/audit-logs", icon: FileText, requireRole: "OWNER" },
         ],
     },
     {
@@ -202,13 +203,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                     </div>
 
                     <div className="ml-auto flex items-center gap-3">
-                        <button
-                            type="button"
-                            className="relative flex h-9 w-9 items-center justify-center rounded-md text-text-primary/70 transition hover:bg-text-primary/5 hover:text-text-primary"
-                            aria-label="Notificações"
-                        >
-                            <Bell className="h-5 w-5" />
-                        </button>
+                        <NotificationsBell />
 
                         <div ref={menuRef} className="relative">
                             <button
