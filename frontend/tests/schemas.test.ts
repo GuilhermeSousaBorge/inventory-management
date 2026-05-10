@@ -5,6 +5,7 @@ import { createIngredientSchema, UNITS_OF_MEASURE, updateIngredientSchema } from
 import { createOrderSchema } from "@/lib/orders"
 import { createProductSchema } from "@/lib/products"
 import { createPurchaseOrderSchema } from "@/lib/purchase-orders"
+import { reportsRangeFiltersSchema } from "@/lib/reports"
 import { createAdjustmentSchema } from "@/lib/stock-movements"
 import { createSupplierSchema, updateSupplierSchema } from "@/lib/suppliers"
 import { createUnitSchema, updateUnitSchema } from "@/lib/units"
@@ -671,3 +672,47 @@ describe("createOrderSchema", () => {
     })
 })
 
+describe("reportsRangeFiltersSchema", () => {
+    const valid = {
+        from: "2026-05-01",
+        to: "2026-05-07",
+        unit: "550e8400-e29b-41d4-a716-446655440000",
+    }
+
+    it("accepts valid input with optional unit", () => {
+        const r = reportsRangeFiltersSchema.safeParse(valid)
+        expect(r.success).toBe(true)
+    })
+
+    it("accepts empty optional fields", () => {
+        const r = reportsRangeFiltersSchema.safeParse({
+            from: "2026-05-01",
+            to: "2026-05-07",
+        })
+        expect(r.success).toBe(true)
+    })
+
+    it("rejects from > to", () => {
+        const r = reportsRangeFiltersSchema.safeParse({
+            from: "2026-05-10",
+            to: "2026-05-07",
+        })
+        expect(r.success).toBe(false)
+        if (!r.success) {
+            expect(r.error.issues[0]?.path).toEqual(["to"])
+        }
+    })
+
+    it("rejects empty from/to", () => {
+        const r = reportsRangeFiltersSchema.safeParse({ from: "", to: "" })
+        expect(r.success).toBe(false)
+    })
+
+    it("rejects invalid UUID in optional unit", () => {
+        const r = reportsRangeFiltersSchema.safeParse({
+            ...valid,
+            unit: "not-a-uuid",
+        })
+        expect(r.success).toBe(false)
+    })
+})

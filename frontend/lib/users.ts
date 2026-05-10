@@ -84,3 +84,14 @@ export function useChangeMyPassword() {
             api.put("/users/me/password", input).then(() => undefined),
     })
 }
+
+export function useAllUsers() {
+    return useQuery({
+        queryKey: ["users", "all"],
+        queryFn: () =>
+            api
+                .get<Page<User>>("/users", { params: { page: 0, size: 1000 } })
+                .then((r) => r.data.data),
+        staleTime: 5 * 60 * 1000,
+    })
+}

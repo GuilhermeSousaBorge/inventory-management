@@ -92,6 +92,7 @@ export function useCreateAdjustment() {
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["stock-movements"] })
             qc.invalidateQueries({ queryKey: ["stock"] })
+            qc.invalidateQueries({ queryKey: ["notifications"] })
         },
     })
 }

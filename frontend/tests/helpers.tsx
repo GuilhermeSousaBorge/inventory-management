@@ -59,3 +59,14 @@ function Providers({ children }: { children: ReactNode }) {
 export function renderWithProviders(ui: ReactElement, options?: RenderOptions) {
     return render(ui, { wrapper: Providers, ...options })
 }
+
+export function createWrapper() {
+    const client = makeQueryClient()
+    return function Wrapper({ children }: { children: ReactNode }) {
+        return (
+            <QueryClientProvider client={client}>
+                <AuthProvider>{children}</AuthProvider>
+            </QueryClientProvider>
+        )
+    }
+}
