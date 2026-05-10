@@ -129,6 +129,7 @@ export function useStartOrder() {
             qc.invalidateQueries({ queryKey: ["orders"] })
             qc.invalidateQueries({ queryKey: ["stock"] })
             qc.invalidateQueries({ queryKey: ["stock-movements"] })
+            qc.invalidateQueries({ queryKey: ["notifications"] })
         },
     })
 }
