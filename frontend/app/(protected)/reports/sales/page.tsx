@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAllProducts } from "@/lib/products"
 import {
@@ -18,7 +18,7 @@ import { useAllUnits } from "@/lib/units"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
 import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 
 function startOfMonthISO(): string {
     const d = new Date()
@@ -88,24 +88,52 @@ export default function SalesReportPage() {
                         <Input id="f-to" type="date" {...form.register("to")} />
                     </Field>
                     <Field label="Unidade" htmlFor="f-unit">
-                        <Select id="f-unit" {...form.register("unit")}>
-                            <option value="">Todas</option>
-                            {units.data?.map((u) => (
-                                <option key={u.id} value={u.id}>
-                                    {u.name}
-                                </option>
-                            ))}
-                        </Select>
+                        <Controller
+                            control={form.control}
+                            name="unit"
+                            render={({ field }) => (
+                                <Select
+                                    value={field.value || "__all"}
+                                    onValueChange={(v) => field.onChange(v === "__all" ? "" : v)}
+                                >
+                                    <SelectTrigger id="f-unit">
+                                        <SelectValue placeholder="Todas" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__all">Todas</SelectItem>
+                                        {units.data?.map((u) => (
+                                            <SelectItem key={u.id} value={u.id}>
+                                                {u.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
                     </Field>
                     <Field label="Produto" htmlFor="f-product">
-                        <Select id="f-product" {...form.register("product")}>
-                            <option value="">Todos</option>
-                            {products.data?.map((p) => (
-                                <option key={p.id} value={p.id}>
-                                    {p.name} {p.size}
-                                </option>
-                            ))}
-                        </Select>
+                        <Controller
+                            control={form.control}
+                            name="product"
+                            render={({ field }) => (
+                                <Select
+                                    value={field.value || "__all"}
+                                    onValueChange={(v) => field.onChange(v === "__all" ? "" : v)}
+                                >
+                                    <SelectTrigger id="f-product">
+                                        <SelectValue placeholder="Todos" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__all">Todos</SelectItem>
+                                        {products.data?.map((p) => (
+                                            <SelectItem key={p.id} value={p.id}>
+                                                {p.name} {p.size}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
                     </Field>
                     <Button type="submit">Aplicar</Button>
                 </div>

@@ -4,7 +4,7 @@ import { Modal } from "@/components/overlays/modal"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isApiError } from "@/lib/auth"
 import { useAllIngredients } from "@/lib/ingredients"
 import {
@@ -15,7 +15,7 @@ import {
 } from "@/lib/stock-movements"
 import { useAllUnits } from "@/lib/units"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 type Props = {
@@ -78,14 +78,24 @@ export function AdjustmentDialog({ open, onClose }: Props) {
                     htmlFor="adj-ingredient"
                     error={form.formState.errors.ingredientId?.message}
                 >
-                    <Select id="adj-ingredient" {...form.register("ingredientId")}>
-                        <option value="">Selecione...</option>
-                        {ingredients.data?.map((i) => (
-                            <option key={i.id} value={i.id}>
-                                {i.name}
-                            </option>
-                        ))}
-                    </Select>
+                    <Controller
+                        control={form.control}
+                        name="ingredientId"
+                        render={({ field }) => (
+                            <Select value={field.value || ""} onValueChange={field.onChange}>
+                                <SelectTrigger id="adj-ingredient">
+                                    <SelectValue placeholder="Selecione..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {ingredients.data?.map((i) => (
+                                        <SelectItem key={i.id} value={i.id}>
+                                            {i.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
                 </Field>
 
                 <Field
@@ -93,14 +103,24 @@ export function AdjustmentDialog({ open, onClose }: Props) {
                     htmlFor="adj-unit"
                     error={form.formState.errors.unitId?.message}
                 >
-                    <Select id="adj-unit" {...form.register("unitId")}>
-                        <option value="">Selecione...</option>
-                        {units.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
-                    </Select>
+                    <Controller
+                        control={form.control}
+                        name="unitId"
+                        render={({ field }) => (
+                            <Select value={field.value || ""} onValueChange={field.onChange}>
+                                <SelectTrigger id="adj-unit">
+                                    <SelectValue placeholder="Selecione..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {units.data?.map((u) => (
+                                        <SelectItem key={u.id} value={u.id}>
+                                            {u.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
                 </Field>
 
                 <Field

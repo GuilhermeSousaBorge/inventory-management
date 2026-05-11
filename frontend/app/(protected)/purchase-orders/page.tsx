@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAuth } from "@/lib/auth"
 import {
@@ -92,44 +92,56 @@ function PurchaseOrdersPageInner() {
             <div className="flex flex-wrap items-end gap-3">
                 <Field label="Status" htmlFor="filter-status">
                     <Select
-                        id="filter-status"
-                        value={statusParam ?? ""}
-                        onChange={(e) => setFilter("status", e.target.value)}
+                        value={statusParam ?? "__all"}
+                        onValueChange={(v) => setFilter("status", v === "__all" ? "" : v)}
                     >
-                        <option value="">Todos</option>
-                        {PURCHASE_ORDER_STATUSES.map((s) => (
-                            <option key={s} value={s}>
-                                {statusLabel(s)}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-status">
+                            <SelectValue placeholder="Todos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todos</SelectItem>
+                            {PURCHASE_ORDER_STATUSES.map((s) => (
+                                <SelectItem key={s} value={s}>
+                                    {statusLabel(s)}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
                 </Field>
                 <Field label="Fornecedor" htmlFor="filter-supplier">
                     <Select
-                        id="filter-supplier"
-                        value={supplierParam}
-                        onChange={(e) => setFilter("supplier", e.target.value)}
+                        value={supplierParam || "__all"}
+                        onValueChange={(v) => setFilter("supplier", v === "__all" ? "" : v)}
                     >
-                        <option value="">Todos</option>
-                        {suppliers.data?.map((s) => (
-                            <option key={s.id} value={s.id}>
-                                {s.name}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-supplier">
+                            <SelectValue placeholder="Todos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todos</SelectItem>
+                            {suppliers.data?.map((s) => (
+                                <SelectItem key={s.id} value={s.id}>
+                                    {s.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
                 </Field>
                 <Field label="Unidade" htmlFor="filter-unit">
                     <Select
-                        id="filter-unit"
-                        value={unitParam}
-                        onChange={(e) => setFilter("unit", e.target.value)}
+                        value={unitParam || "__all"}
+                        onValueChange={(v) => setFilter("unit", v === "__all" ? "" : v)}
                     >
-                        <option value="">Todas</option>
-                        {units.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-unit">
+                            <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todas</SelectItem>
+                            {units.data?.map((u) => (
+                                <SelectItem key={u.id} value={u.id}>
+                                    {u.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
                 </Field>
                 <Field label="De" htmlFor="filter-from">

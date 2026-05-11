@@ -5,7 +5,7 @@ import { KpiCard } from "@/components/reports/kpi-card"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table } from "@/components/ui/table"
 import { useAllIngredients } from "@/lib/ingredients"
 import {
@@ -17,7 +17,7 @@ import { useAllUnits } from "@/lib/units"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
 import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 
 function startOfMonthISO(): string {
     const d = new Date()
@@ -88,24 +88,52 @@ export default function WasteReportPage() {
                         <Input id="f-to" type="date" {...form.register("to")} />
                     </Field>
                     <Field label="Unidade" htmlFor="f-unit">
-                        <Select id="f-unit" {...form.register("unit")}>
-                            <option value="">Todas</option>
-                            {units.data?.map((u) => (
-                                <option key={u.id} value={u.id}>
-                                    {u.name}
-                                </option>
-                            ))}
-                        </Select>
+                        <Controller
+                            control={form.control}
+                            name="unit"
+                            render={({ field }) => (
+                                <Select
+                                    value={field.value || "__all"}
+                                    onValueChange={(v) => field.onChange(v === "__all" ? "" : v)}
+                                >
+                                    <SelectTrigger id="f-unit">
+                                        <SelectValue placeholder="Todas" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__all">Todas</SelectItem>
+                                        {units.data?.map((u) => (
+                                            <SelectItem key={u.id} value={u.id}>
+                                                {u.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
                     </Field>
                     <Field label="Ingrediente" htmlFor="f-ingredient">
-                        <Select id="f-ingredient" {...form.register("ingredient")}>
-                            <option value="">Todos</option>
-                            {ingredients.data?.map((i) => (
-                                <option key={i.id} value={i.id}>
-                                    {i.name}
-                                </option>
-                            ))}
-                        </Select>
+                        <Controller
+                            control={form.control}
+                            name="ingredient"
+                            render={({ field }) => (
+                                <Select
+                                    value={field.value || "__all"}
+                                    onValueChange={(v) => field.onChange(v === "__all" ? "" : v)}
+                                >
+                                    <SelectTrigger id="f-ingredient">
+                                        <SelectValue placeholder="Todos" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__all">Todos</SelectItem>
+                                        {ingredients.data?.map((i) => (
+                                            <SelectItem key={i.id} value={i.id}>
+                                                {i.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
                     </Field>
                     <Button type="submit">Aplicar</Button>
                 </div>

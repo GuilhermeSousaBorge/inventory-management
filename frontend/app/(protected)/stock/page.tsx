@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAllIngredients } from "@/lib/ingredients"
 import { useLowStock, useStock } from "@/lib/stock"
@@ -63,32 +63,40 @@ function StockPageInner() {
             <div className="flex flex-wrap items-end gap-3">
                 <Field label="Unidade" htmlFor="filter-unit">
                     <Select
-                        id="filter-unit"
-                        value={unitParam}
-                        onChange={(e) => setFilter("unit", e.target.value)}
+                        value={unitParam || "__all"}
+                        onValueChange={(v) => setFilter("unit", v === "__all" ? "" : v)}
                         disabled={belowMin}
                     >
-                        <option value="">Todas</option>
-                        {units.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-unit">
+                            <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todas</SelectItem>
+                            {units.data?.map((u) => (
+                                <SelectItem key={u.id} value={u.id}>
+                                    {u.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
                 </Field>
                 <Field label="Ingrediente" htmlFor="filter-ingredient">
                     <Select
-                        id="filter-ingredient"
-                        value={ingredientParam}
-                        onChange={(e) => setFilter("ingredient", e.target.value)}
+                        value={ingredientParam || "__all"}
+                        onValueChange={(v) => setFilter("ingredient", v === "__all" ? "" : v)}
                         disabled={belowMin}
                     >
-                        <option value="">Todos</option>
-                        {ingredients.data?.map((i) => (
-                            <option key={i.id} value={i.id}>
-                                {i.name}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-ingredient">
+                            <SelectValue placeholder="Todos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todos</SelectItem>
+                            {ingredients.data?.map((i) => (
+                                <SelectItem key={i.id} value={i.id}>
+                                    {i.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
                 </Field>
                 <label className="flex items-center gap-2 text-sm text-text-primary">

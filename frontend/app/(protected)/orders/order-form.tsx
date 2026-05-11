@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isApiError } from "@/lib/auth"
 import {
     createOrderSchema,
@@ -19,7 +19,7 @@ import { useAllUnits } from "@/lib/units"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus, Trash2 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useFieldArray, useForm, useWatch } from "react-hook-form"
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 
 type Props = {
@@ -111,14 +111,28 @@ export function OrderForm({ mode, initial }: Props) {
                     htmlFor="ord-unit"
                     error={form.formState.errors.unitId?.message}
                 >
-                    <Select id="ord-unit" disabled={units.isPending} {...form.register("unitId")}>
-                        <option value="">{units.isPending ? "Carregando..." : "Selecione..."}</option>
-                        {units.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
-                    </Select>
+                    <Controller
+                        control={form.control}
+                        name="unitId"
+                        render={({ field }) => (
+                            <Select
+                                value={field.value || ""}
+                                onValueChange={field.onChange}
+                                disabled={units.isPending}
+                            >
+                                <SelectTrigger id="ord-unit">
+                                    <SelectValue placeholder={units.isPending ? "Carregando..." : "Selecione..."} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {units.data?.map((u) => (
+                                        <SelectItem key={u.id} value={u.id}>
+                                            {u.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
                 </Field>
 
                 <Field
@@ -159,18 +173,28 @@ export function OrderForm({ mode, initial }: Props) {
                                     htmlFor={`ord-item-prod-${i}`}
                                     error={form.formState.errors.items?.[i]?.productId?.message}
                                 >
-                                    <Select
-                                        id={`ord-item-prod-${i}`}
-                                        disabled={products.isPending}
-                                        {...form.register(`items.${i}.productId`)}
-                                    >
-                                        <option value="">Selecione...</option>
-                                        {products.data?.map((p) => (
-                                            <option key={p.id} value={p.id}>
-                                                {p.name} {p.size} — R$ {p.price.toFixed(2)}
-                                            </option>
-                                        ))}
-                                    </Select>
+                                    <Controller
+                                        control={form.control}
+                                        name={`items.${i}.productId`}
+                                        render={({ field }) => (
+                                            <Select
+                                                value={field.value || ""}
+                                                onValueChange={field.onChange}
+                                                disabled={products.isPending}
+                                            >
+                                                <SelectTrigger id={`ord-item-prod-${i}`}>
+                                                    <SelectValue placeholder="Selecione..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {products.data?.map((p) => (
+                                                        <SelectItem key={p.id} value={p.id}>
+                                                            {p.name} {p.size} — R$ {p.price.toFixed(2)}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        )}
+                                    />
                                 </Field>
                                 <Field
                                     label="Quantidade"

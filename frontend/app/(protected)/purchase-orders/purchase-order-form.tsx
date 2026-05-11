@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isApiError } from "@/lib/auth"
 import { useAllIngredients } from "@/lib/ingredients"
 import {
@@ -20,7 +20,7 @@ import { useAllUnits } from "@/lib/units"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus, Trash2 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useFieldArray, useForm, useWatch } from "react-hook-form"
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 
 type Props = {
@@ -116,18 +116,28 @@ export function PurchaseOrderForm({ mode, initial }: Props) {
                     htmlFor="po-supplier"
                     error={form.formState.errors.supplierId?.message}
                 >
-                    <Select
-                        id="po-supplier"
-                        disabled={suppliers.isPending}
-                        {...form.register("supplierId")}
-                    >
-                        <option value="">{suppliers.isPending ? "Carregando..." : "Selecione..."}</option>
-                        {suppliers.data?.map((s) => (
-                            <option key={s.id} value={s.id}>
-                                {s.name}
-                            </option>
-                        ))}
-                    </Select>
+                    <Controller
+                        control={form.control}
+                        name="supplierId"
+                        render={({ field }) => (
+                            <Select
+                                value={field.value || ""}
+                                onValueChange={field.onChange}
+                                disabled={suppliers.isPending}
+                            >
+                                <SelectTrigger id="po-supplier">
+                                    <SelectValue placeholder={suppliers.isPending ? "Carregando..." : "Selecione..."} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {suppliers.data?.map((s) => (
+                                        <SelectItem key={s.id} value={s.id}>
+                                            {s.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
                 </Field>
 
                 <Field
@@ -135,14 +145,28 @@ export function PurchaseOrderForm({ mode, initial }: Props) {
                     htmlFor="po-unit"
                     error={form.formState.errors.unitId?.message}
                 >
-                    <Select id="po-unit" disabled={units.isPending} {...form.register("unitId")}>
-                        <option value="">{units.isPending ? "Carregando..." : "Selecione..."}</option>
-                        {units.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
-                    </Select>
+                    <Controller
+                        control={form.control}
+                        name="unitId"
+                        render={({ field }) => (
+                            <Select
+                                value={field.value || ""}
+                                onValueChange={field.onChange}
+                                disabled={units.isPending}
+                            >
+                                <SelectTrigger id="po-unit">
+                                    <SelectValue placeholder={units.isPending ? "Carregando..." : "Selecione..."} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {units.data?.map((u) => (
+                                        <SelectItem key={u.id} value={u.id}>
+                                            {u.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
                 </Field>
 
                 <Field
@@ -187,17 +211,20 @@ export function PurchaseOrderForm({ mode, initial }: Props) {
                                     error={form.formState.errors.items?.[i]?.ingredientId?.message}
                                 >
                                     <Select
-                                        id={`po-item-ing-${i}`}
+                                        value={watchedItems[i]?.ingredientId || ""}
+                                        onValueChange={(v) => onIngredientChange(i, v)}
                                         disabled={ingredients.isPending}
-                                        value={watchedItems[i]?.ingredientId ?? ""}
-                                        onChange={(e) => onIngredientChange(i, e.target.value)}
                                     >
-                                        <option value="">Selecione...</option>
-                                        {ingredients.data?.map((ing) => (
-                                            <option key={ing.id} value={ing.id}>
-                                                {ing.name}
-                                            </option>
-                                        ))}
+                                        <SelectTrigger id={`po-item-ing-${i}`}>
+                                            <SelectValue placeholder="Selecione..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {ingredients.data?.map((ing) => (
+                                                <SelectItem key={ing.id} value={ing.id}>
+                                                    {ing.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
                                     </Select>
                                 </Field>
                                 <Field

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isApiError } from "@/lib/auth"
 import { useAllCategories } from "@/lib/categories"
 import {
@@ -19,7 +19,7 @@ import {
 import { useActiveSuppliers } from "@/lib/suppliers"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 type Props = {
@@ -107,18 +107,28 @@ export function IngredientForm({ mode, initial }: Props) {
                 htmlFor="ingredient-category"
                 error={form.formState.errors.categoryId?.message}
             >
-                <Select
-                    id="ingredient-category"
-                    disabled={categories.isPending}
-                    {...form.register("categoryId")}
-                >
-                    <option value="">{categories.isPending ? "Carregando..." : "Selecione..."}</option>
-                    {categories.data?.map((c) => (
-                        <option key={c.id} value={c.id}>
-                            {c.name}
-                        </option>
-                    ))}
-                </Select>
+                <Controller
+                    control={form.control}
+                    name="categoryId"
+                    render={({ field }) => (
+                        <Select
+                            value={field.value || ""}
+                            onValueChange={field.onChange}
+                            disabled={categories.isPending}
+                        >
+                            <SelectTrigger id="ingredient-category">
+                                <SelectValue placeholder={categories.isPending ? "Carregando..." : "Selecione..."} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {categories.data?.map((c) => (
+                                    <SelectItem key={c.id} value={c.id}>
+                                        {c.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
+                />
             </Field>
 
             <Field
@@ -126,13 +136,24 @@ export function IngredientForm({ mode, initial }: Props) {
                 htmlFor="ingredient-unit"
                 error={form.formState.errors.unitOfMeasure?.message}
             >
-                <Select id="ingredient-unit" {...form.register("unitOfMeasure")}>
-                    {UNITS_OF_MEASURE.map((u) => (
-                        <option key={u} value={u}>
-                            {u}
-                        </option>
-                    ))}
-                </Select>
+                <Controller
+                    control={form.control}
+                    name="unitOfMeasure"
+                    render={({ field }) => (
+                        <Select value={field.value || ""} onValueChange={field.onChange}>
+                            <SelectTrigger id="ingredient-unit">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {UNITS_OF_MEASURE.map((u) => (
+                                    <SelectItem key={u} value={u}>
+                                        {u}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
+                />
             </Field>
 
             <Field
@@ -166,18 +187,29 @@ export function IngredientForm({ mode, initial }: Props) {
                 htmlFor="ingredient-supplier"
                 error={form.formState.errors.defaultSupplierId?.message}
             >
-                <Select
-                    id="ingredient-supplier"
-                    disabled={suppliers.isPending}
-                    {...form.register("defaultSupplierId")}
-                >
-                    <option value="">{suppliers.isPending ? "Carregando..." : "Nenhum"}</option>
-                    {suppliers.data?.map((s) => (
-                        <option key={s.id} value={s.id}>
-                            {s.name}
-                        </option>
-                    ))}
-                </Select>
+                <Controller
+                    control={form.control}
+                    name="defaultSupplierId"
+                    render={({ field }) => (
+                        <Select
+                            value={field.value || "__none"}
+                            onValueChange={(v) => field.onChange(v === "__none" ? "" : v)}
+                            disabled={suppliers.isPending}
+                        >
+                            <SelectTrigger id="ingredient-supplier">
+                                <SelectValue placeholder={suppliers.isPending ? "Carregando..." : "Nenhum"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="__none">Nenhum</SelectItem>
+                                {suppliers.data?.map((s) => (
+                                    <SelectItem key={s.id} value={s.id}>
+                                        {s.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
+                />
             </Field>
 
             {mode === "edit" ? (

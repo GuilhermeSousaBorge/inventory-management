@@ -4,7 +4,7 @@ import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import { useAllCategories } from "@/lib/categories"
@@ -98,42 +98,55 @@ function ProductsPageInner() {
 
             <div className="flex flex-wrap items-end gap-3">
                 <Field label="Categoria" htmlFor="filter-category">
+                    {/* Radix Select cannot have value="" on SelectItem; use "__all" sentinel and translate at URL boundary */}
                     <Select
-                        id="filter-category"
-                        value={categoryParam}
-                        onChange={(e) => setFilter("category", e.target.value)}
+                        value={categoryParam || "__all"}
+                        onValueChange={(v) => setFilter("category", v === "__all" ? "" : v)}
                     >
-                        <option value="">Todas</option>
-                        {categories.data?.map((c) => (
-                            <option key={c.id} value={c.id}>
-                                {c.name}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-category">
+                            <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todas</SelectItem>
+                            {categories.data?.map((c) => (
+                                <SelectItem key={c.id} value={c.id}>
+                                    {c.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
                 </Field>
                 <Field label="Tamanho" htmlFor="filter-size">
                     <Select
-                        id="filter-size"
-                        value={sizeParam ?? ""}
-                        onChange={(e) => setFilter("size", e.target.value)}
+                        value={sizeParam ?? "__all"}
+                        onValueChange={(v) => setFilter("size", v === "__all" ? "" : v)}
                     >
-                        <option value="">Todos</option>
-                        {PRODUCT_SIZES.map((s) => (
-                            <option key={s} value={s}>
-                                {s}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-size">
+                            <SelectValue placeholder="Todos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todos</SelectItem>
+                            {PRODUCT_SIZES.map((s) => (
+                                <SelectItem key={s} value={s}>
+                                    {s}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
                 </Field>
                 <Field label="Ativo" htmlFor="filter-active">
                     <Select
-                        id="filter-active"
-                        value={activeParamRaw ?? "true"}
-                        onChange={(e) => setFilter("active", e.target.value)}
+                        value={activeParamRaw === "" ? "__all" : (activeParamRaw ?? "true")}
+                        onValueChange={(v) => setFilter("active", v === "__all" ? "" : v)}
                     >
-                        <option value="true">Sim</option>
-                        <option value="false">Não</option>
-                        <option value="">Todos</option>
+                        <SelectTrigger id="filter-active">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="true">Sim</SelectItem>
+                            <SelectItem value="false">Não</SelectItem>
+                            <SelectItem value="__all">Todos</SelectItem>
+                        </SelectContent>
                     </Select>
                 </Field>
             </div>

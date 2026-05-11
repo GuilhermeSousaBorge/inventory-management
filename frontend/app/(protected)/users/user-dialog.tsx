@@ -4,7 +4,7 @@ import { Modal } from "@/components/overlays/modal"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isApiError } from "@/lib/auth"
 import {
     createUserSchema,
@@ -17,7 +17,7 @@ import {
 } from "@/lib/users"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect } from "react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 type Props = {
@@ -99,10 +99,21 @@ export function UserDialog({ open, onClose, user }: Props) {
                     </Field>
                 ) : null}
                 <Field label="Perfil" htmlFor="role" error={form.formState.errors.role?.message}>
-                    <Select id="role" {...form.register("role")}>
-                        <option value="EMPLOYEE">EMPLOYEE</option>
-                        <option value="OWNER">OWNER</option>
-                    </Select>
+                    <Controller
+                        control={form.control}
+                        name="role"
+                        render={({ field }) => (
+                            <Select value={field.value || ""} onValueChange={field.onChange}>
+                                <SelectTrigger id="role">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="EMPLOYEE">EMPLOYEE</SelectItem>
+                                    <SelectItem value="OWNER">OWNER</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
                 </Field>
                 {editing ? (
                     <label className="flex items-center gap-2 text-sm text-text-primary">

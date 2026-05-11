@@ -4,7 +4,7 @@ import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import { useAllCategories } from "@/lib/categories"
@@ -114,27 +114,35 @@ function IngredientsPageInner() {
             <div className="flex flex-wrap items-end gap-3">
                 <Field label="Categoria" htmlFor="filter-category">
                     <Select
-                        id="filter-category"
-                        value={categoryParam}
-                        onChange={(e) => setFilter("category", e.target.value)}
+                        value={categoryParam || "__all"}
+                        onValueChange={(v) => setFilter("category", v === "__all" ? "" : v)}
                     >
-                        <option value="">Todas</option>
-                        {categories.data?.map((c) => (
-                            <option key={c.id} value={c.id}>
-                                {c.name}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-category">
+                            <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todas</SelectItem>
+                            {categories.data?.map((c) => (
+                                <SelectItem key={c.id} value={c.id}>
+                                    {c.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
                 </Field>
                 <Field label="Status" htmlFor="filter-status">
                     <Select
-                        id="filter-status"
-                        value={activeParam ?? "true"}
-                        onChange={(e) => setFilter("active", e.target.value)}
+                        value={activeParam === "" ? "__all" : (activeParam ?? "true")}
+                        onValueChange={(v) => setFilter("active", v === "__all" ? "" : v)}
                     >
-                        <option value="true">Ativos</option>
-                        <option value="false">Inativos</option>
-                        <option value="">Todos</option>
+                        <SelectTrigger id="filter-status">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="true">Ativos</SelectItem>
+                            <SelectItem value="false">Inativos</SelectItem>
+                            <SelectItem value="__all">Todos</SelectItem>
+                        </SelectContent>
                     </Select>
                 </Field>
             </div>

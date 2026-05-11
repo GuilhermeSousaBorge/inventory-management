@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isApiError } from "@/lib/auth"
 import { useAllCategories } from "@/lib/categories"
 import { useAllIngredients } from "@/lib/ingredients"
@@ -20,7 +20,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus, Trash2 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useFieldArray, useForm, useWatch } from "react-hook-form"
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 
 type Props = {
@@ -118,13 +118,24 @@ export function ProductForm({ mode, initial }: Props) {
                         htmlFor="prod-size"
                         error={form.formState.errors.size?.message}
                     >
-                        <Select id="prod-size" {...form.register("size")}>
-                            {PRODUCT_SIZES.map((s) => (
-                                <option key={s} value={s}>
-                                    {s}
-                                </option>
-                            ))}
-                        </Select>
+                        <Controller
+                            control={form.control}
+                            name="size"
+                            render={({ field }) => (
+                                <Select value={field.value || ""} onValueChange={field.onChange}>
+                                    <SelectTrigger id="prod-size">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {PRODUCT_SIZES.map((s) => (
+                                            <SelectItem key={s} value={s}>
+                                                {s}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
                     </Field>
 
                     <Field
@@ -133,18 +144,29 @@ export function ProductForm({ mode, initial }: Props) {
                         hint="Opcional"
                         error={form.formState.errors.categoryId?.message}
                     >
-                        <Select
-                            id="prod-category"
-                            disabled={categories.isPending}
-                            {...form.register("categoryId")}
-                        >
-                            <option value="">Sem categoria</option>
-                            {categories.data?.map((c) => (
-                                <option key={c.id} value={c.id}>
-                                    {c.name}
-                                </option>
-                            ))}
-                        </Select>
+                        <Controller
+                            control={form.control}
+                            name="categoryId"
+                            render={({ field }) => (
+                                <Select
+                                    value={field.value || "__none"}
+                                    onValueChange={(v) => field.onChange(v === "__none" ? "" : v)}
+                                    disabled={categories.isPending}
+                                >
+                                    <SelectTrigger id="prod-category">
+                                        <SelectValue placeholder="Sem categoria" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__none">Sem categoria</SelectItem>
+                                        {categories.data?.map((c) => (
+                                            <SelectItem key={c.id} value={c.id}>
+                                                {c.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
                     </Field>
                 </div>
 
@@ -203,18 +225,28 @@ export function ProductForm({ mode, initial }: Props) {
                                     htmlFor={`prod-ing-${i}`}
                                     error={form.formState.errors.ingredients?.[i]?.ingredientId?.message}
                                 >
-                                    <Select
-                                        id={`prod-ing-${i}`}
-                                        disabled={ingredients.isPending}
-                                        {...form.register(`ingredients.${i}.ingredientId`)}
-                                    >
-                                        <option value="">Selecione...</option>
-                                        {ingredients.data?.map((ing) => (
-                                            <option key={ing.id} value={ing.id}>
-                                                {ing.name}
-                                            </option>
-                                        ))}
-                                    </Select>
+                                    <Controller
+                                        control={form.control}
+                                        name={`ingredients.${i}.ingredientId`}
+                                        render={({ field }) => (
+                                            <Select
+                                                value={field.value || ""}
+                                                onValueChange={field.onChange}
+                                                disabled={ingredients.isPending}
+                                            >
+                                                <SelectTrigger id={`prod-ing-${i}`}>
+                                                    <SelectValue placeholder="Selecione..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {ingredients.data?.map((ing) => (
+                                                        <SelectItem key={ing.id} value={ing.id}>
+                                                            {ing.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        )}
+                                    />
                                 </Field>
                                 <Field
                                     label="Quantidade"

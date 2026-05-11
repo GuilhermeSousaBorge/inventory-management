@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
     actionBadgeVariant,
@@ -80,36 +80,60 @@ function AuditLogsPageInner() {
 
             <div className="flex flex-wrap items-end gap-3">
                 <Field label="Tipo de entidade" htmlFor="f-entity-type">
-                    <Select id="f-entity-type" value={entityTypeParam} onChange={(e) => setFilter("entityType", e.target.value)} >
-                        <option value="">Todos</option>
-                        {AUDIT_ENTITY_TYPES.map((t) => (
-                            <option key={t} value={t}>
-                                {t}
-                            </option>
-                        ))}
+                    <Select
+                        value={entityTypeParam || "__all"}
+                        onValueChange={(v) => setFilter("entityType", v === "__all" ? "" : v)}
+                    >
+                        <SelectTrigger id="f-entity-type">
+                            <SelectValue placeholder="Todos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todos</SelectItem>
+                            {AUDIT_ENTITY_TYPES.map((t) => (
+                                <SelectItem key={t} value={t}>
+                                    {t}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
                 </Field>
                 <Field label="ID da entidade" htmlFor="f-entity-id">
                     <Input id="f-entity-id" value={entityIdParam} onChange={(e) => setFilter("entityId", e.target.value)} placeholder="UUID" />
                 </Field>
                 <Field label="Ação" htmlFor="f-action">
-                    <Select id="f-action" value={actionParam} onChange={(e) => setFilter("action", e.target.value)} >
-                        <option value="">Todas</option>
-                        {AUDIT_ACTIONS.map((a) => (
-                            <option key={a} value={a}>
-                                {formatAuditAction(a)}
-                            </option>
-                        ))}
+                    <Select
+                        value={actionParam || "__all"}
+                        onValueChange={(v) => setFilter("action", v === "__all" ? "" : v)}
+                    >
+                        <SelectTrigger id="f-action">
+                            <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todas</SelectItem>
+                            {AUDIT_ACTIONS.map((a) => (
+                                <SelectItem key={a} value={a}>
+                                    {formatAuditAction(a)}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
                 </Field>
                 <Field label="Ator" htmlFor="f-actor">
-                    <Select id="f-actor" value={actorParam} onChange={(e) => setFilter("actorId", e.target.value)} >
-                        <option value="">Todos</option>
-                        {users.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
+                    <Select
+                        value={actorParam || "__all"}
+                        onValueChange={(v) => setFilter("actorId", v === "__all" ? "" : v)}
+                    >
+                        <SelectTrigger id="f-actor">
+                            <SelectValue placeholder="Todos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todos</SelectItem>
+                            {users.data?.map((u) => (
+                                <SelectItem key={u.id} value={u.id}>
+                                    {u.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
                 </Field>
                 <Field label="De" htmlFor="f-from">

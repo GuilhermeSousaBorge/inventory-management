@@ -5,7 +5,7 @@ import { KpiCard } from "@/components/reports/kpi-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useStockStatusReport, type StockStatusRow } from "@/lib/reports"
 import { useAllUnits } from "@/lib/units"
@@ -53,13 +53,21 @@ export default function StockStatusReportPage() {
 
             <div className="rounded-xl border border-border/40 bg-white p-5">
                 <Field label="Unidade" htmlFor="f-unit">
-                    <Select id="f-unit" value={unit} onChange={(e) => setUnit(e.target.value)} >
-                        <option value="">Todas</option>
-                        {units.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
+                    <Select
+                        value={unit || "__all"}
+                        onValueChange={(v) => setUnit(v === "__all" ? "" : v)}
+                    >
+                        <SelectTrigger id="f-unit">
+                            <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todas</SelectItem>
+                            {units.data?.map((u) => (
+                                <SelectItem key={u.id} value={u.id}>
+                                    {u.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
                 </Field>
             </div>
