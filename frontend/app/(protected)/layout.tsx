@@ -1,6 +1,14 @@
 "use client"
 
 import { NotificationsBell } from "@/components/notifications/notifications-bell"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useAuth, type Role } from "@/lib/auth"
 import {
     ArrowLeftRight,
@@ -26,7 +34,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 
 type NavItem = {
     label: string
@@ -98,22 +106,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     const pathname = usePathname()
     const { user, status, logout } = useAuth()
     const [collapsed, setCollapsed] = useState(false)
-    const [menuOpen, setMenuOpen] = useState(false)
-    const menuRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         if (status === "unauthenticated") router.replace("/auth")
     }, [status, router])
-
-    useEffect(() => {
-        function onClickOutside(e: MouseEvent) {
-            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-                setMenuOpen(false)
-            }
-        }
-        if (menuOpen) document.addEventListener("mousedown", onClickOutside)
-        return () => document.removeEventListener("mousedown", onClickOutside)
-    }, [menuOpen])
 
     if (status !== "authenticated" || !user) {
         return (
@@ -205,38 +201,35 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                     <div className="ml-auto flex items-center gap-3">
                         <NotificationsBell />
 
-                        <div ref={menuRef} className="relative">
-                            <button
-                                type="button"
-                                onClick={() => setMenuOpen((o) => !o)}
-                                className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white"
-                                aria-label={user.name}
-                            >
-                                {initials(user.name)}
-                            </button>
-                            {menuOpen ? (
-                                <div className="absolute right-0 mt-2 w-48 overflow-hidden rounded-lg border border-border/40 bg-white shadow-lg">
-                                    <div className="border-b border-border/40 px-3 py-2">
-                                        <p className="truncate text-sm font-medium text-text-primary">{user.name}</p>
-                                        <p className="truncate text-xs text-text-secondary">{user.email}</p>
-                                    </div>
-                                    <Link
-                                        href="/me"
-                                        onClick={() => setMenuOpen(false)}
-                                        className="flex items-center gap-2 px-3 py-2 text-sm text-text-primary hover:bg-text-primary/5"
-                                    >
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button
+                                    type="button"
+                                    className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white"
+                                    aria-label={user.name}
+                                >
+                                    {initials(user.name)}
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuLabel className="font-normal">
+                                    <p className="truncate text-sm font-medium">{user.name}</p>
+                                    <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
+                                    <Link href="/me">
                                         <UserIcon className="h-4 w-4" /> Meu perfil
                                     </Link>
-                                    <button
-                                        type="button"
-                                        onClick={onLogout}
-                                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-danger hover:bg-danger/5"
-                                    >
-                                        <LogOut className="h-4 w-4" /> Sair
-                                    </button>
-                                </div>
-                            ) : null}
-                        </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={onLogout}
+                                    className="text-destructive focus:text-destructive"
+                                >
+                                    <LogOut className="h-4 w-4" /> Sair
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </header>
 
