@@ -274,7 +274,7 @@ export function ProductForm({ mode, initial }: Props) {
                                 />
                                 <FormItem>
                                     <FormLabel>Unidade</FormLabel>
-                                    <Input readOnly value={ingredientUnit(ingredientId)} />
+                                    <Input readOnly data-testid="prod-unidade-value" value={ingredientUnit(ingredientId)} />
                                 </FormItem>
                                 <Button
                                     type="button"

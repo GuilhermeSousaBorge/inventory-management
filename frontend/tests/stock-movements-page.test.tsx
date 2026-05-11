@@ -1,4 +1,5 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 vi.mock("next/navigation", () => ({
@@ -78,6 +79,7 @@ describe("StockMovementsPage", () => {
     })
 
     it("OWNER opens modal, submits adjustment, list refetches", async () => {
+        const user = userEvent.setup()
         tokenStorage.setAccess("a1")
         let postCount = 0
         setHandler((cfg) => {
@@ -147,17 +149,29 @@ describe("StockMovementsPage", () => {
         })
         renderWithProviders(<StockMovementsPage />)
         await waitFor(() => expect(screen.getByRole("cell", {name: "Mussarela"})).toBeInTheDocument())
-        fireEvent.click(screen.getByRole("button", { name: /novo ajuste/i }))
-        // wait for modal
-        await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument())
-        const dialog = within(screen.getByRole("dialog"))
-        fireEvent.change(dialog.getByLabelText(/ingrediente/i), {
-            target: { value: "11111111-1111-1111-1111-111111111111" },
+        await user.click(screen.getByRole("button", { name: /novo ajuste/i }))
+        await waitFor(() => expect(screen.queryByRole("dialog")).toBeInTheDocument())
+        const dialog = screen.getByRole("dialog")
+
+        const ingredientTrigger = within(dialog).getByRole("combobox", { name: /ingrediente/i })
+        await user.click(ingredientTrigger)
+        await waitFor(() => {
+            const content = document.body.querySelector('[data-slot="select-content"]')
+            expect(content).toBeInTheDocument()
         })
-        fireEvent.change(dialog.getByLabelText(/unidade/i), { target: { value: "22222222-2222-2222-2222-222222222222" } })
-        fireEvent.change(dialog.getByLabelText(/quantidade/i), { target: { value: "1" } })
-        fireEvent.change(dialog.getByLabelText(/motivo/i), { target: { value: "Sobra" } })
-        fireEvent.click(dialog.getByRole("button", { name: /salvar/i }))
+        await user.click(document.body.querySelector('[data-slot="select-content"] [data-slot="select-item"]')!)
+
+        const unitTrigger = within(dialog).getByRole("combobox", { name: /unidade/i })
+        await user.click(unitTrigger)
+        await waitFor(() => {
+            const content = document.body.querySelector('[data-slot="select-content"]')
+            expect(content).toBeInTheDocument()
+        })
+        await user.click(document.body.querySelector('[data-slot="select-content"] [data-slot="select-item"]')!)
+
+        fireEvent.change(within(dialog).getByLabelText(/quantidade/i), { target: { value: "1" } })
+        fireEvent.change(within(dialog).getByLabelText(/motivo/i), { target: { value: "Sobra" } })
+        await user.click(within(dialog).getByRole("button", { name: /salvar/i }))
         await waitFor(() => expect(postCount).toBe(1))
     })
 })

@@ -1,4 +1,5 @@
-import { fireEvent, screen, waitFor, within } from "@testing-library/react"
+import { screen, waitFor, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import NotificationDetailPage from "@/app/(protected)/notifications/[id]/page"
@@ -78,6 +79,7 @@ describe("/notifications/[id]", () => {
     })
 
     it("clicking Resolver opens dialog and confirming POSTs", async () => {
+        const user = userEvent.setup()
         tokenStorage.setAccess("a1")
         setHandler((cfg) => {
             const url = cfg.url ?? ""
@@ -92,10 +94,15 @@ describe("/notifications/[id]", () => {
         })
         renderWithProviders(<NotificationDetailPage />)
         await waitFor(() => expect(screen.getByText("Resolver")).toBeInTheDocument())
-        fireEvent.click(screen.getByText("Resolver"))
-        const dialog = await screen.findByRole("dialog")
-        const confirmBtn = within(dialog).getByRole("button", { name: "Resolver" })
-        fireEvent.click(confirmBtn)
+        await user.click(screen.getByText("Resolver"))
+
+        await waitFor(() => {
+            const alertContent = document.body.querySelector('[data-slot="alert-dialog-content"]')
+            expect(alertContent).toBeInTheDocument()
+        })
+        const alertContent = document.body.querySelector('[data-slot="alert-dialog-content"]')!
+        const confirmBtn = within(alertContent).getByRole("button", { name: "Resolver" })
+        await user.click(confirmBtn)
         await waitFor(() => {
             const post = getCalls().find((c) => c.method === "post")
             expect(post?.url).toBe("/notifications/n-1/resolve")

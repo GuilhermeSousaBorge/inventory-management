@@ -1,4 +1,5 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const replaceMock = vi.fn()
@@ -99,6 +100,19 @@ function selectsHandler(cfg: { url?: string; method?: string }) {
     return null
 }
 
+async function pickFirstIngredient(row: HTMLElement) {
+    const user = userEvent.setup()
+    const trigger = within(row).getByRole("combobox", { name: /ingrediente/i })
+    await user.click(trigger)
+    await waitFor(() => {
+        const content = document.body.querySelector('[data-slot="select-content"]')
+        expect(content).toBeInTheDocument()
+    })
+    const items = document.body.querySelectorAll('[data-slot="select-item"]')
+    expect(items.length).toBeGreaterThan(0)
+    await user.click(items[0])
+}
+
 describe("ProductForm (create)", () => {
     it("renders, fills in fields, submits valid product", async () => {
         tokenStorage.setAccess("a1")
@@ -122,12 +136,10 @@ describe("ProductForm (create)", () => {
         const ingredientsBlock = screen.getByTestId("prod-ingredients")
         const firstRow = within(ingredientsBlock).getAllByTestId("prod-ingredient-row")[0]
 
-        fireEvent.change(within(firstRow).getByLabelText(/ingrediente/i), {
-            target: { value: ING_1 },
-        })
+        await pickFirstIngredient(firstRow)
 
         await waitFor(() =>
-            expect((within(firstRow).getByLabelText(/^unidade$/i) as HTMLInputElement).value).toBe("kg")
+            expect((within(firstRow).getByTestId("prod-unidade-value") as HTMLInputElement).value).toBe("kg")
         )
 
         fireEvent.change(within(firstRow).getByLabelText(/quantidade/i), {
@@ -158,25 +170,17 @@ describe("ProductForm (create)", () => {
         fireEvent.change(screen.getByLabelText(/nome/i), { target: { value: "Margherita" } })
         fireEvent.change(screen.getByLabelText(/preço/i), { target: { value: "45.9" } })
 
-        // Add a second row
         fireEvent.click(screen.getByRole("button", { name: /adicionar ingrediente/i }))
 
         const ingredientsBlock = screen.getByTestId("prod-ingredients")
         const rows = within(ingredientsBlock).getAllByTestId("prod-ingredient-row")
         expect(rows).toHaveLength(2)
 
-        fireEvent.change(within(rows[0]).getByLabelText(/ingrediente/i), {
-            target: { value: ING_1 },
-        })
+        await pickFirstIngredient(rows[0])
         fireEvent.change(within(rows[0]).getByLabelText(/quantidade/i), {
             target: { value: "0.3" },
         })
-        fireEvent.change(within(rows[1]).getByLabelText(/ingrediente/i), {
-            target: { value: ING_1 },
-        })
-        fireEvent.change(within(rows[1]).getByLabelText(/quantidade/i), {
-            target: { value: "0.2" },
-        })
+        await pickFirstIngredient(rows[1])
 
         fireEvent.click(screen.getByRole("button", { name: /salvar/i }))
 
@@ -225,9 +229,7 @@ describe("ProductForm (create)", () => {
 
         const ingredientsBlock = screen.getByTestId("prod-ingredients")
         const firstRow = within(ingredientsBlock).getAllByTestId("prod-ingredient-row")[0]
-        fireEvent.change(within(firstRow).getByLabelText(/ingrediente/i), {
-            target: { value: ING_1 },
-        })
+        await pickFirstIngredient(firstRow)
         fireEvent.change(within(firstRow).getByLabelText(/quantidade/i), {
             target: { value: "0.3" },
         })
@@ -279,14 +281,13 @@ describe("ProductForm (edit)", () => {
 
         renderWithProviders(<ProductForm mode="edit" initial={initial} />)
 
-        // Form pre-populates immediately from `initial` (no async load needed for these inputs)
         await waitFor(() =>
             expect((screen.getByLabelText(/nome/i) as HTMLInputElement).value).toBe("Calabresa"),
         )
-        expect((screen.getByLabelText(/tamanho/i) as HTMLSelectElement).value).toBe("M")
+        const sizeTrigger = screen.getByRole("combobox", { name: /tamanho/i })
+        expect(sizeTrigger).toBeInTheDocument()
         expect((screen.getByLabelText(/preço/i) as HTMLInputElement).value).toBe("39.9")
 
-        // Two ingredient rows pre-rendered from initial.ingredients
         const ingredientsBlock = screen.getByTestId("prod-ingredients")
         const rows = within(ingredientsBlock).getAllByTestId("prod-ingredient-row")
         expect(rows).toHaveLength(2)

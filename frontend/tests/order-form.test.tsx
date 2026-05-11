@@ -1,4 +1,5 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const replaceMock = vi.fn()
@@ -98,8 +99,22 @@ function selectsHandler(cfg: { url?: string; method?: string }) {
     return null
 }
 
+async function pickFirstProduct(row: HTMLElement) {
+    const user = userEvent.setup()
+    const trigger = within(row).getByRole("combobox", { name: /produto/i })
+    await user.click(trigger)
+    await waitFor(() => {
+        const content = document.body.querySelector('[data-slot="select-content"]')
+        expect(content).toBeInTheDocument()
+    })
+    const items = document.body.querySelectorAll('[data-slot="select-item"]')
+    expect(items.length).toBeGreaterThan(0)
+    await user.click(items[0])
+}
+
 describe("OrderForm (create)", () => {
     it("renders, picks unit and product, computes total, submits without unitPrice", async () => {
+        const user = userEvent.setup()
         tokenStorage.setAccess("a1")
         setHandler((cfg) => {
             const r = selectsHandler(cfg)
@@ -114,14 +129,18 @@ describe("OrderForm (create)", () => {
         renderWithProviders(<OrderForm mode="create" />)
         await waitFor(() => expect(screen.getByText(/Margherita G/i)).toBeInTheDocument())
 
-        fireEvent.change(screen.getByLabelText(/unidade/i), { target: { value: UNIT_1 } })
+        const unitTrigger = screen.getByRole("combobox", { name: /unidade/i })
+        await user.click(unitTrigger)
+        await waitFor(() => {
+            const content = document.body.querySelector('[data-slot="select-content"]')
+            expect(content).toBeInTheDocument()
+        })
+        await user.click(document.body.querySelector('[data-slot="select-content"] [data-slot="select-item"]')!)
 
         const itemsBlock = screen.getByTestId("ord-items")
         const firstRow = within(itemsBlock).getAllByTestId("ord-item-row")[0]
 
-        fireEvent.change(within(firstRow).getByLabelText(/produto/i), {
-            target: { value: PROD_1 },
-        })
+        await pickFirstProduct(firstRow)
         fireEvent.change(within(firstRow).getByLabelText(/quantidade/i), {
             target: { value: "2" },
         })
@@ -137,7 +156,6 @@ describe("OrderForm (create)", () => {
                 (c) => c.method === "post" && c.url?.endsWith("/orders"),
             )
             expect(post).toBeTruthy()
-            // body may be string-serialized by axios; parse if needed
             const raw = post?.data
             const body =
                 typeof raw === "string"
@@ -158,6 +176,7 @@ describe("OrderForm (create)", () => {
     })
 
     it("rejects duplicated products", async () => {
+        const user = userEvent.setup()
         tokenStorage.setAccess("a1")
         setHandler((cfg) => {
             const r = selectsHandler(cfg)
@@ -168,19 +187,22 @@ describe("OrderForm (create)", () => {
         renderWithProviders(<OrderForm mode="create" />)
         await waitFor(() => expect(screen.getByText(/Margherita G/i)).toBeInTheDocument())
 
-        fireEvent.change(screen.getByLabelText(/unidade/i), { target: { value: UNIT_1 } })
+        const unitTrigger = screen.getByRole("combobox", { name: /unidade/i })
+        await user.click(unitTrigger)
+        await waitFor(() => {
+            const content = document.body.querySelector('[data-slot="select-content"]')
+            expect(content).toBeInTheDocument()
+        })
+        await user.click(document.body.querySelector('[data-slot="select-content"] [data-slot="select-item"]')!)
+
         fireEvent.click(screen.getByRole("button", { name: /adicionar item/i }))
 
         const itemsBlock = screen.getByTestId("ord-items")
         const rows = within(itemsBlock).getAllByTestId("ord-item-row")
         expect(rows).toHaveLength(2)
 
-        fireEvent.change(within(rows[0]).getByLabelText(/produto/i), {
-            target: { value: PROD_1 },
-        })
-        fireEvent.change(within(rows[1]).getByLabelText(/produto/i), {
-            target: { value: PROD_1 },
-        })
+        await pickFirstProduct(rows[0])
+        await pickFirstProduct(rows[1])
 
         fireEvent.click(screen.getByRole("button", { name: /salvar/i }))
 
@@ -245,13 +267,11 @@ describe("OrderForm (edit)", () => {
 
         renderWithProviders(<OrderForm mode="edit" initial={initial} />)
 
-        // Notes is a text input — pre-populated immediately from initial
         await waitFor(() =>
             expect((screen.getByLabelText(/observações/i) as HTMLInputElement).value).toBe(
                 "sem cebola",
             ),
         )
-        // Quantity is a number input — also pre-populated from initial.items[0].quantity = 2
         const itemsBlock = screen.getByTestId("ord-items")
         const rows = within(itemsBlock).getAllByTestId("ord-item-row")
         expect(rows).toHaveLength(1)
@@ -272,13 +292,12 @@ describe("OrderForm (edit)", () => {
 
         renderWithProviders(<OrderForm mode="edit" initial={initial} />)
 
-        // Wait for the form to settle (notes input + unit option both ready)
         await waitFor(() =>
             expect((screen.getByLabelText(/observações/i) as HTMLInputElement).value).toBe(
                 "sem cebola",
             ),
         )
-        await waitFor(() => expect(screen.getByText("Centro")).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByText("Centro", { selector: '[data-slot="select-value"]' })).toBeInTheDocument())
 
         const itemsBlock = screen.getByTestId("ord-items")
         const firstRow = within(itemsBlock).getAllByTestId("ord-item-row")[0]
