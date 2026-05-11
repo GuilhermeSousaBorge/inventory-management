@@ -1,6 +1,15 @@
 "use client"
 
-import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -214,38 +223,56 @@ export default function OrderDetailPage() {
                 </div>
             </section>
 
-            <ConfirmDialog
-                open={action === "start"}
-                onClose={() => setAction(null)}
-                onConfirm={runAction}
-                title="Iniciar pedido"
-                message="Os ingredientes serão descontados do estoque conforme as fichas técnicas, e a ação não pode ser desfeita."
-                confirmLabel="Iniciar"
-                confirmVariant="primary"
-                loading={actionLoading}
-            />
+            <AlertDialog open={action === "start"} onOpenChange={(o) => !o && setAction(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Iniciar pedido</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Os ingredientes serão descontados do estoque conforme as fichas técnicas, e a ação não pode ser desfeita.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={actionLoading}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={runAction} disabled={actionLoading}>
+                            {actionLoading ? "Processando..." : "Iniciar"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
-            <ConfirmDialog
-                open={action === "complete"}
-                onClose={() => setAction(null)}
-                onConfirm={runAction}
-                title="Concluir pedido"
-                message="Marcar este pedido como concluído?"
-                confirmLabel="Concluir"
-                confirmVariant="primary"
-                loading={actionLoading}
-            />
+            <AlertDialog open={action === "complete"} onOpenChange={(o) => !o && setAction(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Concluir pedido</AlertDialogTitle>
+                        <AlertDialogDescription>Marcar este pedido como concluído?</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={actionLoading}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={runAction} disabled={actionLoading}>
+                            {actionLoading ? "Processando..." : "Concluir"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
-            <ConfirmDialog
-                open={action === "cancel"}
-                onClose={() => setAction(null)}
-                onConfirm={runAction}
-                title="Cancelar pedido"
-                message="Esta ação não pode ser desfeita."
-                confirmLabel="Cancelar pedido"
-                confirmVariant="danger"
-                loading={actionLoading}
-            />
+            <AlertDialog open={action === "cancel"} onOpenChange={(o) => !o && setAction(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Cancelar pedido</AlertDialogTitle>
+                        <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={actionLoading}>Voltar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={runAction}
+                            disabled={actionLoading}
+                            className="bg-destructive text-white hover:bg-destructive/90"
+                        >
+                            {actionLoading ? "Processando..." : "Cancelar pedido"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

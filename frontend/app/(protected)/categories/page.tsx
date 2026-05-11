@@ -1,6 +1,15 @@
 "use client"
 
-import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
@@ -172,16 +181,26 @@ export default function CategoriesPage() {
                 />
             ) : null}
 
-            <ConfirmDialog
-                open={!!confirm}
-                onClose={() => setConfirm(null)}
-                onConfirm={onConfirm}
-                title="Remover categoria"
-                message={confirm ? `Confirma remover ${confirm.name}? Esta ação não pode ser desfeita.` : ""}
-                confirmLabel="Remover"
-                confirmVariant="danger"
-                loading={remove.isPending}
-            />
+            <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Remover categoria</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {confirm ? `Confirma remover ${confirm.name}? Esta ação não pode ser desfeita.` : ""}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={remove.isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={onConfirm}
+                            disabled={remove.isPending}
+                            className="bg-destructive text-white hover:bg-destructive/90"
+                        >
+                            {remove.isPending ? "Processando..." : "Remover"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

@@ -1,6 +1,15 @@
 "use client"
 
-import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -151,16 +160,26 @@ export default function ProductDetailPage() {
                 </Table>
             </section>
 
-            <ConfirmDialog
-                open={confirmOpen}
-                onClose={() => setConfirmOpen(false)}
-                onConfirm={onConfirmDeactivate}
-                title="Desativar produto"
-                message={`Tem certeza que deseja desativar "${p.name} ${p.size}"?`}
-                confirmLabel="Desativar"
-                confirmVariant="danger"
-                loading={deactivate.isPending}
-            />
+            <AlertDialog open={confirmOpen} onOpenChange={(o) => !o && setConfirmOpen(false)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Desativar produto</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {`Tem certeza que deseja desativar "${p.name} ${p.size}"?`}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deactivate.isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={onConfirmDeactivate}
+                            disabled={deactivate.isPending}
+                            className="bg-destructive text-white hover:bg-destructive/90"
+                        >
+                            {deactivate.isPending ? "Processando..." : "Desativar"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

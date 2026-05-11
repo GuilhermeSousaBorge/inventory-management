@@ -1,7 +1,7 @@
 "use client"
 
-import { Modal } from "@/components/overlays/modal"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { isApiError } from "@/lib/auth"
@@ -66,57 +66,56 @@ export function UnitDialog({ open, onClose, unit }: Props) {
     const submitting = create.isPending || update.isPending
 
     return (
-        <Modal
-            open={open}
-            onClose={onClose}
-            title={editing ? "Editar unidade" : "Nova unidade"}
-            footer={
-                <>
+        <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{editing ? "Editar unidade" : "Nova unidade"}</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
+                    <form id="unit-form" className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Nome</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="address"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Endereço</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} value={field.value ?? ""} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        {editing ? (
+                            <label className="flex items-center gap-2 text-sm text-text-primary">
+                                <input type="checkbox" {...form.register("active" as never)} />
+                                Ativa
+                            </label>
+                        ) : null}
+                    </form>
+                </Form>
+                <DialogFooter>
                     <Button variant="ghost" onClick={onClose} disabled={submitting}>
                         Cancelar
                     </Button>
                     <Button type="submit" form="unit-form" disabled={submitting}>
                         {submitting ? "Salvando..." : "Salvar"}
                     </Button>
-                </>
-            }
-        >
-            <Form {...form}>
-                <form id="unit-form" className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-                    <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Nome</FormLabel>
-                                <FormControl>
-                                    <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="address"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Endereço</FormLabel>
-                                <FormControl>
-                                    <Input {...field} value={field.value ?? ""} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    {editing ? (
-                        <label className="flex items-center gap-2 text-sm text-text-primary">
-                            <input type="checkbox" {...form.register("active" as never)} />
-                            Ativa
-                        </label>
-                    ) : null}
-                </form>
-            </Form>
-        </Modal>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }

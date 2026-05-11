@@ -1,7 +1,7 @@
 "use client"
 
-import { Modal } from "@/components/overlays/modal"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -67,22 +67,12 @@ export function UserDialog({ open, onClose, user }: Props) {
     const submitting = createUser.isPending || updateUser.isPending
 
     return (
-        <Modal
-            open={open}
-            onClose={onClose}
-            title={editing ? "Editar usuário" : "Novo usuário"}
-            footer={
-                <>
-                    <Button variant="ghost" onClick={onClose} disabled={submitting}>
-                        Cancelar
-                    </Button>
-                    <Button type="submit" form="user-form" disabled={submitting}>
-                        {submitting ? "Salvando..." : "Salvar"}
-                    </Button>
-                </>
-            }
-        >
-            <Form {...form}>
+        <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{editing ? "Editar usuário" : "Novo usuário"}</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
                 <form id="user-form" className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField
                         control={form.control}
@@ -154,6 +144,15 @@ export function UserDialog({ open, onClose, user }: Props) {
                     ) : null}
                 </form>
             </Form>
-        </Modal>
+                <DialogFooter>
+                    <Button variant="ghost" onClick={onClose} disabled={submitting}>
+                        Cancelar
+                    </Button>
+                    <Button type="submit" form="user-form" disabled={submitting}>
+                        {submitting ? "Salvando..." : "Salvar"}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }

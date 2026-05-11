@@ -1,7 +1,7 @@
 "use client"
 
-import { Modal } from "@/components/overlays/modal"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { isApiError } from "@/lib/auth"
@@ -80,22 +80,12 @@ export function SupplierDialog({ open, onClose, supplier }: Props) {
     const submitting = create.isPending || update.isPending
 
     return (
-        <Modal
-            open={open}
-            onClose={onClose}
-            title={editing ? "Editar fornecedor" : "Novo fornecedor"}
-            footer={
-                <>
-                    <Button variant="ghost" onClick={onClose} disabled={submitting}>
-                        Cancelar
-                    </Button>
-                    <Button type="submit" form="supplier-form" disabled={submitting}>
-                        {submitting ? "Salvando..." : "Salvar"}
-                    </Button>
-                </>
-            }
-        >
-            <Form {...form}>
+        <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{editing ? "Editar fornecedor" : "Novo fornecedor"}</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
                 <form id="supplier-form" className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField
                         control={form.control}
@@ -170,6 +160,15 @@ export function SupplierDialog({ open, onClose, supplier }: Props) {
                     ) : null}
                 </form>
             </Form>
-        </Modal>
+                <DialogFooter>
+                    <Button variant="ghost" onClick={onClose} disabled={submitting}>
+                        Cancelar
+                    </Button>
+                    <Button type="submit" form="supplier-form" disabled={submitting}>
+                        {submitting ? "Salvando..." : "Salvar"}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }

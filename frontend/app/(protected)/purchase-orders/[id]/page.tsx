@@ -1,6 +1,15 @@
 "use client"
 
-import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -185,27 +194,41 @@ export default function PurchaseOrderDetailPage() {
                 </div>
             </section>
 
-            <ConfirmDialog
-                open={action === "receive"}
-                onClose={() => setAction(null)}
-                onConfirm={onConfirmReceive}
-                title="Confirmar recebimento"
-                message="Esta ação adiciona os itens ao estoque, atualiza o custo médio dos ingredientes e não pode ser desfeita."
-                confirmLabel="Receber"
-                confirmVariant="primary"
-                loading={receive.isPending}
-            />
+            <AlertDialog open={action === "receive"} onOpenChange={(o) => !o && setAction(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Confirmar recebimento</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Esta ação adiciona os itens ao estoque, atualiza o custo médio dos ingredientes e não pode ser desfeita.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={receive.isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={onConfirmReceive} disabled={receive.isPending}>
+                            {receive.isPending ? "Processando..." : "Receber"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
-            <ConfirmDialog
-                open={action === "cancel"}
-                onClose={() => setAction(null)}
-                onConfirm={onConfirmCancel}
-                title="Cancelar compra"
-                message="Esta ação não pode ser desfeita."
-                confirmLabel="Cancelar"
-                confirmVariant="danger"
-                loading={cancel.isPending}
-            />
+            <AlertDialog open={action === "cancel"} onOpenChange={(o) => !o && setAction(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Cancelar compra</AlertDialogTitle>
+                        <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={cancel.isPending}>Voltar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={onConfirmCancel}
+                            disabled={cancel.isPending}
+                            className="bg-destructive text-white hover:bg-destructive/90"
+                        >
+                            {cancel.isPending ? "Processando..." : "Cancelar"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

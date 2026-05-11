@@ -1,6 +1,15 @@
 "use client"
 
-import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { isApiError, useAuth } from "@/lib/auth"
@@ -173,7 +182,22 @@ export default function NotificationDetailPage() {
                 </div>
             </div>
 
-            <ConfirmDialog open={confirmOpen} onClose={() => setConfirmOpen(false)} onConfirm={onConfirmResolve} title="Resolver alerta" message="Marcar este alerta como resolvido? A resolução manual não recoloca estoque — confirme apenas se o problema já foi tratado (compra recebida, ajuste lançado, etc.)." confirmLabel="Resolver" confirmVariant="primary" loading={resolveMutation.isPending} />
+            <AlertDialog open={confirmOpen} onOpenChange={(o) => !o && setConfirmOpen(false)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Resolver alerta</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Marcar este alerta como resolvido? A resolução manual não recoloca estoque — confirme apenas se o problema já foi tratado (compra recebida, ajuste lançado, etc.).
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={resolveMutation.isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={onConfirmResolve} disabled={resolveMutation.isPending}>
+                            {resolveMutation.isPending ? "Processando..." : "Resolver"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

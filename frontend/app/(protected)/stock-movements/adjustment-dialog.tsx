@@ -1,7 +1,7 @@
 "use client"
 
-import { Modal } from "@/components/overlays/modal"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -53,26 +53,12 @@ export function AdjustmentDialog({ open, onClose }: Props) {
     }
 
     return (
-        <Modal
-            open={open}
-            onClose={onClose}
-            title="Novo ajuste de estoque"
-            footer={
-                <>
-                    <Button type="button" variant="ghost" onClick={onClose} disabled={create.isPending}>
-                        Cancelar
-                    </Button>
-                    <Button
-                        type="submit"
-                        form="adjustment-form"
-                        disabled={create.isPending}
-                    >
-                        {create.isPending ? "Salvando..." : "Salvar"}
-                    </Button>
-                </>
-            }
-        >
-            <Form {...form}>
+        <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Novo ajuste de estoque</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
                 <form id="adjustment-form" className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField
                         control={form.control}
@@ -171,6 +157,19 @@ export function AdjustmentDialog({ open, onClose }: Props) {
                     />
                 </form>
             </Form>
-        </Modal>
+                <DialogFooter>
+                    <Button type="button" variant="ghost" onClick={onClose} disabled={create.isPending}>
+                        Cancelar
+                    </Button>
+                    <Button
+                        type="submit"
+                        form="adjustment-form"
+                        disabled={create.isPending}
+                    >
+                        {create.isPending ? "Salvando..." : "Salvar"}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }

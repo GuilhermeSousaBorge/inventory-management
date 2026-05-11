@@ -1,6 +1,15 @@
 "use client"
 
-import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -185,20 +194,40 @@ export default function UsersPage() {
 
             <UserDialog open={dialogOpen} onClose={() => setDialogOpen(false)} user={editing} />
 
-            <ConfirmDialog
-                open={!!confirm}
-                onClose={() => setConfirm(null)}
-                onConfirm={onConfirm}
-                title={confirm?.action === "deactivate" ? "Desativar usuário" : "Reativar usuário"}
-                message={
-                    confirm?.action === "deactivate"
-                        ? `Confirma desativar ${confirm.user.name}? Ele perderá acesso ao sistema.`
-                        : `Confirma reativar ${confirm?.user.name}?`
-                }
-                confirmLabel={confirm?.action === "deactivate" ? "Desativar" : "Reativar"}
-                confirmVariant={confirm?.action === "deactivate" ? "danger" : "primary"}
-                loading={deactivate.isPending || reactivate.isPending}
-            />
+            <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            {confirm?.action === "deactivate" ? "Desativar usuário" : "Reativar usuário"}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {confirm?.action === "deactivate"
+                                ? `Confirma desativar ${confirm.user.name}? Ele perderá acesso ao sistema.`
+                                : `Confirma reativar ${confirm?.user.name}?`}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deactivate.isPending || reactivate.isPending}>
+                            Cancelar
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={onConfirm}
+                            disabled={deactivate.isPending || reactivate.isPending}
+                            className={
+                                confirm?.action === "deactivate"
+                                    ? "bg-destructive text-white hover:bg-destructive/90"
+                                    : undefined
+                            }
+                        >
+                            {deactivate.isPending || reactivate.isPending
+                                ? "Processando..."
+                                : confirm?.action === "deactivate"
+                                  ? "Desativar"
+                                  : "Reativar"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

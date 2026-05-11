@@ -174,23 +174,22 @@ export function OrderForm({ mode, initial }: Props) {
                                 data-testid="ord-item-row"
                                 className="grid grid-cols-[1fr_100px_120px_140px_auto] items-end gap-3"
                             >
-                                <Field
-                                    label="Produto"
-                                    htmlFor={`ord-item-prod-${i}`}
-                                    error={form.formState.errors.items?.[i]?.productId?.message}
-                                >
-                                    <Controller
-                                        control={form.control}
-                                        name={`items.${i}.productId`}
-                                        render={({ field }) => (
+                                <FormField
+                                    control={form.control}
+                                    name={`items.${i}.productId`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Produto</FormLabel>
                                             <Select
                                                 value={field.value || ""}
                                                 onValueChange={field.onChange}
                                                 disabled={products.isPending}
                                             >
-                                                <SelectTrigger id={`ord-item-prod-${i}`}>
-                                                    <SelectValue placeholder="Selecione..." />
-                                                </SelectTrigger>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Selecione..." />
+                                                    </SelectTrigger>
+                                                </FormControl>
                                                 <SelectContent>
                                                     {products.data?.map((p) => (
                                                         <SelectItem key={p.id} value={p.id}>
@@ -199,36 +198,43 @@ export function OrderForm({ mode, initial }: Props) {
                                                     ))}
                                                 </SelectContent>
                                             </Select>
-                                        )}
-                                    />
-                                </Field>
-                                <Field
-                                    label="Quantidade"
-                                    htmlFor={`ord-item-qty-${i}`}
-                                    error={form.formState.errors.items?.[i]?.quantity?.message}
-                                >
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name={`items.${i}.quantity`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Quantidade</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    step="1"
+                                                    min="1"
+                                                    {...field}
+                                                    value={field.value ?? 0}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <div className="space-y-1">
+                                    <label className="text-sm font-medium leading-none">Preço</label>
                                     <Input
-                                        id={`ord-item-qty-${i}`}
-                                        type="number"
-                                        step="1"
-                                        min="1"
-                                        {...form.register(`items.${i}.quantity`)}
-                                    />
-                                </Field>
-                                <Field label="Preço" htmlFor={`ord-item-price-${i}`}>
-                                    <Input
-                                        id={`ord-item-price-${i}`}
                                         readOnly
                                         value={`R$ ${price.toFixed(2)}`}
                                     />
-                                </Field>
-                                <Field label="Subtotal" htmlFor={`ord-item-sub-${i}`}>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-sm font-medium leading-none">Subtotal</label>
                                     <Input
-                                        id={`ord-item-sub-${i}`}
                                         readOnly
                                         value={`R$ ${subtotal.toFixed(2)}`}
                                     />
-                                </Field>
+                                </div>
                                 <Button
                                     type="button"
                                     variant="ghost"
@@ -278,5 +284,6 @@ export function OrderForm({ mode, initial }: Props) {
                 </Button>
             </div>
         </form>
+        </Form>
     )
 }

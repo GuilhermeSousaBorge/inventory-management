@@ -1,6 +1,15 @@
 "use client"
 
-import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -168,15 +177,26 @@ export default function UnitsPage() {
                 <UnitDialog open={dialogOpen} onClose={() => setDialogOpen(false)} unit={editing} />
             ) : null}
 
-            <ConfirmDialog
-                open={!!confirm}
-                onClose={() => setConfirm(null)}
-                onConfirm={onConfirm}
-                title="Desativar unidade"
-                message={confirm ? `Confirma desativar ${confirm.name}?` : ""}
-                confirmLabel="Desativar"
-                loading={deactivate.isPending}
-            />
+            <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Desativar unidade</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {confirm ? `Confirma desativar ${confirm.name}?` : ""}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deactivate.isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={onConfirm}
+                            disabled={deactivate.isPending}
+                            className="bg-destructive text-white hover:bg-destructive/90"
+                        >
+                            {deactivate.isPending ? "Processando..." : "Desativar"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }
