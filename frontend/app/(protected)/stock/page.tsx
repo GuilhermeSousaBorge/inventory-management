@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAllIngredients } from "@/lib/ingredients"
 import { useLowStock, useStock } from "@/lib/stock"
 import { useAllUnits } from "@/lib/units"
@@ -120,41 +120,41 @@ function StockPageInner() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Ingrediente</TH>
-                            <TH>Unidade</TH>
-                            <TH>Quantidade</TH>
-                            <TH>Mínimo</TH>
-                            <TH>Custo médio</TH>
-                            <TH>Status</TH>
-                            <TH>Atualizado em</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Ingrediente</TableHead>
+                            <TableHead>Unidade</TableHead>
+                            <TableHead>Quantidade</TableHead>
+                            <TableHead>Mínimo</TableHead>
+                            <TableHead>Custo médio</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Atualizado em</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((s) => {
                             const uom = ingredientById.get(s.ingredientId)?.unitOfMeasure ?? ""
                             return (
-                                <TR key={s.id}>
-                                    <TD>{s.ingredientName}</TD>
-                                    <TD>{s.unitName}</TD>
-                                    <TD>
+                                <TableRow key={s.id}>
+                                    <TableCell>{s.ingredientName}</TableCell>
+                                    <TableCell>{s.unitName}</TableCell>
+                                    <TableCell>
                                         {s.quantity} {uom}
-                                    </TD>
-                                    <TD>
+                                    </TableCell>
+                                    <TableCell>
                                         {s.minimumQty} {uom}
-                                    </TD>
-                                    <TD>R$ {s.averageCost.toFixed(4)}</TD>
-                                    <TD>
-                                        <Badge variant={s.belowMinimum ? "danger" : "success"}>
+                                    </TableCell>
+                                    <TableCell>R$ {s.averageCost.toFixed(4)}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={s.belowMinimum ? "destructive" : "default"}>
                                             {s.belowMinimum ? "Abaixo" : "OK"}
                                         </Badge>
-                                    </TD>
-                                    <TD>{new Date(s.updatedAt).toLocaleString("pt-BR")}</TD>
-                                </TR>
+                                    </TableCell>
+                                    <TableCell>{new Date(s.updatedAt).toLocaleString("pt-BR")}</TableCell>
+                                </TableRow>
                             )
                         })}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 

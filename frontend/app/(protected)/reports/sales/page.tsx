@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAllProducts } from "@/lib/products"
 import {
     reportsRangeFiltersSchema,
@@ -150,27 +150,27 @@ export default function SalesReportPage() {
                         </div>
                     ) : (
                         <Table>
-                            <THead>
-                                <TR>
-                                    <TH>Produto</TH>
-                                    <TH>Unidades</TH>
-                                    <TH>Receita</TH>
-                                    <TH># pedidos</TH>
-                                </TR>
-                            </THead>
-                            <TBody>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Produto</TableHead>
+                                    <TableHead>Unidades</TableHead>
+                                    <TableHead>Receita</TableHead>
+                                    <TableHead># pedidos</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {data.map((r) => (
-                                    <TR key={r.productId}>
-                                        <TD>
+                                    <TableRow key={r.productId}>
+                                        <TableCell>
                                             {r.productName}{" "}
-                                            <Badge variant="neutral">{r.size}</Badge>
-                                        </TD>
-                                        <TD>{r.unitsSold}</TD>
-                                        <TD>{brl(r.revenue)}</TD>
-                                        <TD>{r.ordersCount}</TD>
-                                    </TR>
+                                            <Badge variant="outline">{r.size}</Badge>
+                                        </TableCell>
+                                        <TableCell>{r.unitsSold}</TableCell>
+                                        <TableCell>{brl(r.revenue)}</TableCell>
+                                        <TableCell>{r.ordersCount}</TableCell>
+                                    </TableRow>
                                 ))}
-                            </TBody>
+                            </TableBody>
                         </Table>
                     )}
                 </>

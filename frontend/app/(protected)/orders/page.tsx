@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAuth } from "@/lib/auth"
 import {
     ORDER_STATUSES,
@@ -28,12 +28,12 @@ function statusLabel(s: OrderStatus) {
             : "Cancelado"
 }
 
-function statusVariant(s: OrderStatus): "warning" | "success" | "neutral" {
+function statusVariant(s: OrderStatus): "warning" | "default" | "outline" {
     return s === "PENDING" || s === "IN_PROGRESS"
         ? "warning"
         : s === "COMPLETED"
-          ? "success"
-          : "neutral"
+          ? "default"
+          : "outline"
 }
 
 function OrdersPageInner() {
@@ -168,30 +168,30 @@ function OrdersPageInner() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Nº</TH>
-                            <TH>Unidade</TH>
-                            <TH>Status</TH>
-                            <TH>Itens</TH>
-                            <TH>Total</TH>
-                            <TH>Criado</TH>
-                            <TH className="w-px text-right">Ações</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nº</TableHead>
+                            <TableHead>Unidade</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Itens</TableHead>
+                            <TableHead>Total</TableHead>
+                            <TableHead>Criado</TableHead>
+                            <TableHead className="w-px text-right">Ações</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((o) => (
-                            <TR key={o.id}>
-                                <TD className="font-mono">#{o.id.slice(0, 8)}</TD>
-                                <TD>{o.unitName}</TD>
-                                <TD>
+                            <TableRow key={o.id}>
+                                <TableCell className="font-mono">#{o.id.slice(0, 8)}</TableCell>
+                                <TableCell>{o.unitName}</TableCell>
+                                <TableCell>
                                     <Badge variant={statusVariant(o.status)}>
                                         {statusLabel(o.status)}
                                     </Badge>
-                                </TD>
-                                <TD>{o.items?.length ?? "—"}</TD>
-                                <TD>R$ {o.totalPrice.toFixed(2)}</TD>
-                                <TD>
+                                </TableCell>
+                                <TableCell>{o.items?.length ?? "—"}</TableCell>
+                                <TableCell>R$ {o.totalPrice.toFixed(2)}</TableCell>
+                                <TableCell>
                                     {new Date(o.createdAt).toLocaleString("pt-BR", {
                                         day: "2-digit",
                                         month: "2-digit",
@@ -199,8 +199,8 @@ function OrdersPageInner() {
                                         hour: "2-digit",
                                         minute: "2-digit",
                                     })}
-                                </TD>
-                                <TD className="text-right">
+                                </TableCell>
+                                <TableCell className="text-right">
                                     <div className="flex items-center justify-end gap-1">
                                         <Link
                                             href={`/orders/${o.id}`}
@@ -219,10 +219,10 @@ function OrdersPageInner() {
                                             </Link>
                                         ) : null}
                                     </div>
-                                </TD>
-                            </TR>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 

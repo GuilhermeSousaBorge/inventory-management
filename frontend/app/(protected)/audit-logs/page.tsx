@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
     actionBadgeVariant,
     AUDIT_ACTIONS,
@@ -141,43 +141,43 @@ function AuditLogsPageInner() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Data</TH>
-                            <TH>Ação</TH>
-                            <TH>Entidade</TH>
-                            <TH>Ator</TH>
-                            <TH>Detalhes</TH>
-                            <TH>Ações</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Data</TableHead>
+                            <TableHead>Ação</TableHead>
+                            <TableHead>Entidade</TableHead>
+                            <TableHead>Ator</TableHead>
+                            <TableHead>Detalhes</TableHead>
+                            <TableHead>Ações</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((log) => (
-                            <TR key={log.id}>
-                                <TD>{new Date(log.createdAt).toLocaleString("pt-BR")}</TD>
-                                <TD>
+                            <TableRow key={log.id}>
+                                <TableCell>{new Date(log.createdAt).toLocaleString("pt-BR")}</TableCell>
+                                <TableCell>
                                     <Badge variant={actionBadgeVariant(log.action)}>
                                         {formatAuditAction(log.action)}
                                     </Badge>
-                                </TD>
-                                <TD>
+                                </TableCell>
+                                <TableCell>
                                     {log.entityType}{" "}
                                     <span className="font-mono text-xs text-text-secondary">
                                         #{log.entityId.slice(0, 8)}
                                     </span>
-                                </TD>
-                                <TD>{log.actorName}</TD>
-                                <TD className="max-w-xs truncate">
+                                </TableCell>
+                                <TableCell>{log.actorName}</TableCell>
+                                <TableCell className="max-w-xs truncate">
                                     {summarizeAuditDetails(log.action, log.details)}
-                                </TD>
-                                <TD>
+                                </TableCell>
+                                <TableCell>
                                     <Link href={`/audit-logs/${log.id}`} className="inline-flex items-center gap-1 text-primary hover:underline" >
                                         <Eye className="h-4 w-4" /> Ver
                                     </Link>
-                                </TD>
-                            </TR>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 

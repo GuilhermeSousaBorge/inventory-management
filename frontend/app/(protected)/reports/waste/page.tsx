@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table } from "@/components/ui/table"
 import { useAllIngredients } from "@/lib/ingredients"
 import {
     reportsRangeFiltersSchema,

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAllIngredients } from "@/lib/ingredients"
 import {
     reportsRangeFiltersSchema,
@@ -146,24 +146,24 @@ export default function ConsumptionReportPage() {
                         </div>
                     ) : (
                         <Table>
-                            <THead>
-                                <TR>
-                                    <TH>Ingrediente</TH>
-                                    <TH>Unidade de medida</TH>
-                                    <TH>Total</TH>
-                                    <TH># movimentos</TH>
-                                </TR>
-                            </THead>
-                            <TBody>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Ingrediente</TableHead>
+                                    <TableHead>Unidade de medida</TableHead>
+                                    <TableHead>Total</TableHead>
+                                    <TableHead># movimentos</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {data.map((r) => (
-                                    <TR key={r.ingredientId}>
-                                        <TD>{r.ingredientName}</TD>
-                                        <TD>{r.unitOfMeasure}</TD>
-                                        <TD>{r.totalQuantity.toLocaleString("pt-BR")}</TD>
-                                        <TD>{r.movementCount}</TD>
-                                    </TR>
+                                    <TableRow key={r.ingredientId}>
+                                        <TableCell>{r.ingredientName}</TableCell>
+                                        <TableCell>{r.unitOfMeasure}</TableCell>
+                                        <TableCell>{r.totalQuantity.toLocaleString("pt-BR")}</TableCell>
+                                        <TableCell>{r.movementCount}</TableCell>
+                                    </TableRow>
                                 ))}
-                            </TBody>
+                            </TableBody>
                         </Table>
                     )}
                 </>

@@ -15,7 +15,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 
 function statusVariant(s: NotificationStatus) {
-    return s === "ACTIVE" ? "danger" : "neutral"
+    return s === "ACTIVE" ? "destructive" : "outline"
 }
 
 function statusLabel(s: NotificationStatus) {

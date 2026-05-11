@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useStockStatusReport, type StockStatusRow } from "@/lib/reports"
 import { useAllUnits } from "@/lib/units"
 import Link from "next/link"
@@ -17,7 +17,7 @@ function todayISO(): string {
 }
 
 function levelVariant(l: StockStatusRow["level"]) {
-    return l === "LOW" ? "danger" : l === "WARNING" ? "warning" : "success"
+    return l === "LOW" ? "destructive" : l === "WARNING" ? "warning" : "default"
 }
 
 function levelLabel(l: StockStatusRow["level"]) {
@@ -97,30 +97,30 @@ export default function StockStatusReportPage() {
                         </div>
                     ) : (
                         <Table>
-                            <THead>
-                                <TR>
-                                    <TH>Ingrediente</TH>
-                                    <TH>UoM</TH>
-                                    <TH>Saldo</TH>
-                                    <TH>Mínimo</TH>
-                                    <TH>Nível</TH>
-                                </TR>
-                            </THead>
-                            <TBody>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Ingrediente</TableHead>
+                                    <TableHead>UoM</TableHead>
+                                    <TableHead>Saldo</TableHead>
+                                    <TableHead>Mínimo</TableHead>
+                                    <TableHead>Nível</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {data.map((r) => (
-                                    <TR key={r.ingredientId}>
-                                        <TD>{r.ingredientName}</TD>
-                                        <TD>{r.unitOfMeasure}</TD>
-                                        <TD>{r.currentQuantity.toLocaleString("pt-BR")}</TD>
-                                        <TD>{r.minQuantity.toLocaleString("pt-BR")}</TD>
-                                        <TD>
+                                    <TableRow key={r.ingredientId}>
+                                        <TableCell>{r.ingredientName}</TableCell>
+                                        <TableCell>{r.unitOfMeasure}</TableCell>
+                                        <TableCell>{r.currentQuantity.toLocaleString("pt-BR")}</TableCell>
+                                        <TableCell>{r.minQuantity.toLocaleString("pt-BR")}</TableCell>
+                                        <TableCell>
                                             <Badge variant={levelVariant(r.level)}>
                                                 {levelLabel(r.level)}
                                             </Badge>
-                                        </TD>
-                                    </TR>
+                                        </TableCell>
+                                    </TableRow>
                                 ))}
-                            </TBody>
+                            </TableBody>
                         </Table>
                     )}
                 </>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
     NOTIFICATION_STATUSES,
     useNotifications,
@@ -18,7 +18,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useState } from "react"
 
 function statusVariant(s: NotificationStatus) {
-    return s === "ACTIVE" ? "danger" : "neutral"
+    return s === "ACTIVE" ? "destructive" : "outline"
 }
 
 function statusLabel(s: NotificationStatus) {
@@ -122,54 +122,54 @@ function NotificationsPageInner() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Ingrediente</TH>
-                            <TH>Unidade</TH>
-                            <TH>Mensagem</TH>
-                            <TH>Saldo / Mínimo</TH>
-                            <TH>Status</TH>
-                            <TH>Disparado em</TH>
-                            <TH>Resolvido em</TH>
-                            <TH>Ações</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Ingrediente</TableHead>
+                            <TableCell>Unidade</TableCell>
+                            <TableCell>Mensagem</TableCell>
+                            <TableCell>Saldo / Mínimo</TableCell>
+                            <TableCell>Status</TableCell>
+                            <TableCell>Disparado em</TableCell>
+                            <TableCell>Resolvido em</TableCell>
+                            <TableCell>Ações</TableCell>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((n) => {
                             const uom = extractUom(n.message)
                             return (
-                                <TR key={n.id}>
-                                    <TD>{n.ingredientName}</TD>
-                                    <TD>{n.unitName}</TD>
-                                    <TD className="max-w-xs truncate" title={n.message}>
+                                <TableRow key={n.id}>
+                                    <TableCell>{n.ingredientName}</TableCell>
+                                    <TableCell>{n.unitName}</TableCell>
+                                    <TableCell className="max-w-xs truncate" title={n.message}>
                                         {n.message}
-                                    </TD>
-                                    <TD>
+                                    </TableCell>
+                                    <TableCell>
                                         {n.triggeredQuantity} / {n.minQuantity} {uom}
-                                    </TD>
-                                    <TD>
+                                    </TableCell>
+                                    <TableCell>
                                         <Badge variant={statusVariant(n.status)}>
                                             {statusLabel(n.status)}
                                         </Badge>
-                                    </TD>
-                                    <TD>
+                                    </TableCell>
+                                    <TableCell>
                                         {new Date(n.createdAt).toLocaleString("pt-BR")}
-                                    </TD>
-                                    <TD>
+                                    </TableCell>
+                                    <TableCell>
                                         {n.resolvedAt
                                             ? new Date(n.resolvedAt).toLocaleString("pt-BR")
                                             : "—"}
-                                    </TD>
-                                    <TD>
+                                    </TableCell>
+                                    <TableCell>
                                         <Link href={`/notifications/${n.id}`} className="inline-flex items-center gap-1 text-primary hover:underline" >
                                             <Eye className="h-4 w-4" />
                                             Ver
                                         </Link>
-                                    </TD>
-                                </TR>
+                                    </TableCell>
+                                </TableRow>
                             )
                         })}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 
