@@ -74,8 +74,8 @@ export default function UsersPage() {
         <div className="space-y-6">
             <header className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-text-primary">Usuários</h1>
-                    <p className="mt-1 text-sm text-text-secondary">
+                    <h1 className="text-2xl font-semibold text-foreground">Usuários</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">
                         Gerencie quem tem acesso ao sistema.
                     </p>
                 </div>
@@ -134,7 +134,7 @@ export default function UsersPage() {
                                                 setEditing(u)
                                                 setDialogOpen(true)
                                             }}
-                                            className="rounded p-1.5 text-text-primary/70 hover:bg-text-primary/5 hover:text-text-primary"
+                                            className="rounded p-1.5 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
                                             aria-label={`Editar ${u.name}`}
                                         >
                                             <Pencil className="h-4 w-4" />
@@ -143,7 +143,7 @@ export default function UsersPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => setConfirm({ user: u, action: "deactivate" })}
-                                                className="rounded p-1.5 text-danger/80 hover:bg-danger/10"
+                                                className="rounded p-1.5 text-destructive/80 hover:bg-destructive/10"
                                                 aria-label={`Desativar ${u.name}`}
                                             >
                                                 <Power className="h-4 w-4" />
@@ -152,7 +152,7 @@ export default function UsersPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => setConfirm({ user: u, action: "reactivate" })}
-                                                className="rounded p-1.5 text-text-primary/70 hover:bg-text-primary/5"
+                                                className="rounded p-1.5 text-foreground/70 hover:bg-foreground/5"
                                                 aria-label={`Reativar ${u.name}`}
                                             >
                                                 <RotateCcw className="h-4 w-4" />
@@ -167,7 +167,7 @@ export default function UsersPage() {
             )}
 
             {data && data.total > size ? (
-                <div className="flex items-center justify-between text-sm text-text-secondary">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>
                         Página {page + 1} de {totalPages} · {size} por página
                     </span>
@@ -236,7 +236,7 @@ function SkeletonRows() {
     return (
         <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
             ))}
         </div>
     )
@@ -245,7 +245,7 @@ function SkeletonRows() {
 function EmptyState({ onCreate }: { onCreate: () => void }) {
     return (
         <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-            <p className="text-sm text-text-secondary">Nenhum usuário cadastrado.</p>
+            <p className="text-sm text-muted-foreground">Nenhum usuário cadastrado.</p>
             <Button className="mt-4" onClick={onCreate}>
                 Criar primeiro usuário
             </Button>
@@ -255,8 +255,8 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
 
 function ErrorBanner({ onRetry }: { onRetry: () => void }) {
     return (
-        <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-            <p className="text-sm text-danger">Falha ao carregar usuários.</p>
+        <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+            <p className="text-sm text-destructive">Falha ao carregar usuários.</p>
             <Button variant="ghost" size="sm" onClick={onRetry}>
                 Tentar novamente
             </Button>
@@ -267,8 +267,8 @@ function ErrorBanner({ onRetry }: { onRetry: () => void }) {
 function NoAccess() {
     return (
         <div className="mx-auto max-w-md rounded-xl border border-border/40 bg-white p-8 text-center">
-            <h2 className="text-base font-semibold text-text-primary">Sem permissão</h2>
-            <p className="mt-2 text-sm text-text-secondary">
+            <h2 className="text-base font-semibold text-foreground">Sem permissão</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
                 Apenas o proprietário pode gerenciar usuários.
             </p>
         </div>

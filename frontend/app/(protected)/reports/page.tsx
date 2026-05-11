@@ -32,8 +32,8 @@ export default function ReportsHubPage() {
     return (
         <div className="space-y-6">
             <header>
-                <h1 className="text-2xl font-semibold text-text-primary">Relatórios</h1>
-                <p className="mt-1 text-sm text-text-secondary">
+                <h1 className="text-2xl font-semibold text-foreground">Relatórios</h1>
+                <p className="mt-1 text-sm text-muted-foreground">
                     Indicadores operacionais para a gestão diária.
                 </p>
             </header>
@@ -45,10 +45,10 @@ export default function ReportsHubPage() {
                             <Icon className="h-5 w-5" />
                         </div>
                         <div>
-                            <p className="text-base font-semibold text-text-primary">
+                            <p className="text-base font-semibold text-foreground">
                                 {title}
                             </p>
-                            <p className="mt-1 text-sm text-text-secondary">
+                            <p className="mt-1 text-sm text-muted-foreground">
                                 {description}
                             </p>
                         </div>

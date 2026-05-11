@@ -63,15 +63,15 @@ export default function OrderDetailPage() {
         return (
             <div className="space-y-2">
                 {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="h-16 animate-pulse rounded-lg bg-text-primary/5" />
+                    <div key={i} className="h-16 animate-pulse rounded-lg bg-foreground/5" />
                 ))}
             </div>
         )
     }
     if (query.isError) {
         return (
-            <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                <p className="text-sm text-danger">Não foi possível carregar o pedido.</p>
+            <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                <p className="text-sm text-destructive">Não foi possível carregar o pedido.</p>
                 <div className="flex gap-2">
                     <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
                         Tentar novamente
@@ -119,16 +119,16 @@ export default function OrderDetailPage() {
 
     return (
         <div className="space-y-6">
-            <nav className="text-sm text-text-secondary">
+            <nav className="text-sm text-muted-foreground">
                 <Link href="/orders" className="hover:underline">
                     Pedidos
                 </Link>{" "}
-                › <span className="text-text-primary">#{o.id.slice(0, 8)}</span>
+                › <span className="text-foreground">#{o.id.slice(0, 8)}</span>
             </nav>
 
             <header className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <h1 className="text-2xl font-semibold text-text-primary">
+                    <h1 className="text-2xl font-semibold text-foreground">
                         Pedido #{o.id.slice(0, 8)}
                     </h1>
                     <Badge variant={statusVariant(o.status)}>{statusLabel(o.status)}</Badge>
@@ -155,49 +155,49 @@ export default function OrderDetailPage() {
 
             <section className="grid gap-3 rounded-xl border border-border/40 bg-white p-5 sm:grid-cols-2">
                 <div>
-                    <p className="text-xs text-text-secondary">Unidade</p>
-                    <p className="text-sm text-text-primary">{o.unitName}</p>
+                    <p className="text-xs text-muted-foreground">Unidade</p>
+                    <p className="text-sm text-foreground">{o.unitName}</p>
                 </div>
                 <div>
-                    <p className="text-xs text-text-secondary">Criado em</p>
-                    <p className="text-sm text-text-primary">
+                    <p className="text-xs text-muted-foreground">Criado em</p>
+                    <p className="text-sm text-foreground">
                         {new Date(o.createdAt).toLocaleString("pt-BR")}
                     </p>
                 </div>
                 {o.startedAt ? (
                     <div>
-                        <p className="text-xs text-text-secondary">Iniciado em</p>
-                        <p className="text-sm text-text-primary">
+                        <p className="text-xs text-muted-foreground">Iniciado em</p>
+                        <p className="text-sm text-foreground">
                             {new Date(o.startedAt).toLocaleString("pt-BR")}
                         </p>
                     </div>
                 ) : null}
                 {o.completedAt ? (
                     <div>
-                        <p className="text-xs text-text-secondary">Concluído em</p>
-                        <p className="text-sm text-text-primary">
+                        <p className="text-xs text-muted-foreground">Concluído em</p>
+                        <p className="text-sm text-foreground">
                             {new Date(o.completedAt).toLocaleString("pt-BR")}
                         </p>
                     </div>
                 ) : null}
                 {o.canceledAt ? (
                     <div>
-                        <p className="text-xs text-text-secondary">Cancelado em</p>
-                        <p className="text-sm text-text-primary">
+                        <p className="text-xs text-muted-foreground">Cancelado em</p>
+                        <p className="text-sm text-foreground">
                             {new Date(o.canceledAt).toLocaleString("pt-BR")}
                         </p>
                     </div>
                 ) : null}
                 {o.notes ? (
                     <div className="sm:col-span-2">
-                        <p className="text-xs text-text-secondary">Observações</p>
-                        <p className="text-sm text-text-primary">{o.notes}</p>
+                        <p className="text-xs text-muted-foreground">Observações</p>
+                        <p className="text-sm text-foreground">{o.notes}</p>
                     </div>
                 ) : null}
             </section>
 
             <section className="space-y-3 rounded-xl border border-border/40 bg-white p-5">
-                <h2 className="text-base font-semibold text-text-primary">Itens</h2>
+                <h2 className="text-base font-semibold text-foreground">Itens</h2>
                 <Table>
                     <TableHeader>
                         <TableRow>

@@ -48,7 +48,7 @@ export default function NotificationDetailPage() {
         return (
             <div className="space-y-3">
                 {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="h-10 animate-pulse rounded-lg bg-text-primary/5" />
+                    <div key={i} className="h-10 animate-pulse rounded-lg bg-foreground/5" />
                 ))}
             </div>
         )
@@ -57,7 +57,7 @@ export default function NotificationDetailPage() {
     if (query.isError || !query.data) {
         return (
             <div className="text-center">
-                <p className="text-sm text-danger">Não foi possível carregar o alerta.</p>
+                <p className="text-sm text-destructive">Não foi possível carregar o alerta.</p>
                 <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
                     Tentar novamente
                 </Button>
@@ -84,13 +84,13 @@ export default function NotificationDetailPage() {
         <div className="space-y-6">
             <header className="flex items-start justify-between gap-4">
                 <div>
-                    <p className="text-sm text-text-secondary">
+                    <p className="text-sm text-muted-foreground">
                         <Link href="/notifications" className="hover:underline">
                             Alertas
                         </Link>{" "}
                         › #{n.id.slice(0, 8)}
                     </p>
-                    <h1 className="mt-1 text-2xl font-semibold text-text-primary">
+                    <h1 className="mt-1 text-2xl font-semibold text-foreground">
                         Alerta de estoque baixo
                     </h1>
                 </div>
@@ -101,14 +101,14 @@ export default function NotificationDetailPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-border/40 bg-white p-5">
-                    <h2 className="text-base font-semibold text-text-primary">Alerta</h2>
+                    <h2 className="text-base font-semibold text-foreground">Alerta</h2>
                     <dl className="mt-3 space-y-2 text-sm">
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-secondary">Tipo</dt>
-                            <dd className="text-text-primary">{n.type}</dd>
+                            <dt className="text-muted-foreground">Tipo</dt>
+                            <dd className="text-foreground">{n.type}</dd>
                         </div>
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-secondary">Status</dt>
+                            <dt className="text-muted-foreground">Status</dt>
                             <dd>
                                 <Badge variant={statusVariant(n.status)}>
                                     {statusLabel(n.status)}
@@ -116,7 +116,7 @@ export default function NotificationDetailPage() {
                             </dd>
                         </div>
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-secondary">Ingrediente</dt>
+                            <dt className="text-muted-foreground">Ingrediente</dt>
                             <dd>
                                 <Link href={`/ingredients/${n.ingredientId}`} className="text-primary hover:underline" >
                                     {n.ingredientName}
@@ -124,30 +124,30 @@ export default function NotificationDetailPage() {
                             </dd>
                         </div>
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-secondary">Unidade</dt>
-                            <dd className="text-text-primary">{n.unitName}</dd>
+                            <dt className="text-muted-foreground">Unidade</dt>
+                            <dd className="text-foreground">{n.unitName}</dd>
                         </div>
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-secondary">Mensagem</dt>
-                            <dd className="text-right text-text-primary">{n.message}</dd>
+                            <dt className="text-muted-foreground">Mensagem</dt>
+                            <dd className="text-right text-foreground">{n.message}</dd>
                         </div>
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-secondary">Disparado em</dt>
-                            <dd className="text-text-primary">
+                            <dt className="text-muted-foreground">Disparado em</dt>
+                            <dd className="text-foreground">
                                 {new Date(n.createdAt).toLocaleString("pt-BR")}
                             </dd>
                         </div>
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-secondary">Resolvido em</dt>
-                            <dd className="text-text-primary">
+                            <dt className="text-muted-foreground">Resolvido em</dt>
+                            <dd className="text-foreground">
                                 {n.resolvedAt
                                     ? new Date(n.resolvedAt).toLocaleString("pt-BR")
                                     : "—"}
                             </dd>
                         </div>
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-secondary">Resolvido por</dt>
-                            <dd className="text-text-primary">
+                            <dt className="text-muted-foreground">Resolvido por</dt>
+                            <dd className="text-foreground">
                                 {n.resolvedBy
                                     ? n.resolvedBy.name
                                     : n.status === "RESOLVED"
@@ -159,19 +159,19 @@ export default function NotificationDetailPage() {
                 </div>
 
                 <div className="rounded-xl border border-border/40 bg-white p-5">
-                    <h2 className="text-base font-semibold text-text-primary">
+                    <h2 className="text-base font-semibold text-foreground">
                         Saldo no disparo
                     </h2>
                     <dl className="mt-3 space-y-2 text-sm">
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-secondary">Quantidade no momento</dt>
-                            <dd className="text-text-primary">
+                            <dt className="text-muted-foreground">Quantidade no momento</dt>
+                            <dd className="text-foreground">
                                 {n.triggeredQuantity} {uom}
                             </dd>
                         </div>
                         <div className="flex justify-between gap-3">
-                            <dt className="text-text-secondary">Mínimo configurado</dt>
-                            <dd className="text-text-primary">
+                            <dt className="text-muted-foreground">Mínimo configurado</dt>
+                            <dd className="text-foreground">
                                 {n.minQuantity} {uom}
                             </dd>
                         </div>

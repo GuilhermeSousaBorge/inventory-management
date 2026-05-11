@@ -39,26 +39,26 @@ export default function MePage() {
 
     return (
         <div className="mx-auto max-w-2xl space-y-6">
-            <h1 className="text-2xl font-semibold text-text-primary">Meu perfil</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Meu perfil</h1>
 
             <section className="rounded-xl border border-border/40 bg-white p-5">
-                <h2 className="text-base font-semibold text-text-primary">Dados</h2>
+                <h2 className="text-base font-semibold text-foreground">Dados</h2>
                 <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                     <div>
-                        <dt className="text-text-secondary">Nome</dt>
-                        <dd className="text-text-primary">{user.name}</dd>
+                        <dt className="text-muted-foreground">Nome</dt>
+                        <dd className="text-foreground">{user.name}</dd>
                     </div>
                     <div>
-                        <dt className="text-text-secondary">E-mail</dt>
-                        <dd className="text-text-primary">{user.email}</dd>
+                        <dt className="text-muted-foreground">E-mail</dt>
+                        <dd className="text-foreground">{user.email}</dd>
                     </div>
                     <div>
-                        <dt className="text-text-secondary">Perfil</dt>
-                        <dd className="text-text-primary">{user.role}</dd>
+                        <dt className="text-muted-foreground">Perfil</dt>
+                        <dd className="text-foreground">{user.role}</dd>
                     </div>
                     <div>
-                        <dt className="text-text-secondary">Ativo desde</dt>
-                        <dd className="text-text-primary">
+                        <dt className="text-muted-foreground">Ativo desde</dt>
+                        <dd className="text-foreground">
                             {new Date(user.createdAt).toLocaleDateString("pt-BR")}
                         </dd>
                     </div>
@@ -66,7 +66,7 @@ export default function MePage() {
             </section>
 
             <section className="rounded-xl border border-border/40 bg-white p-5">
-                <h2 className="text-base font-semibold text-text-primary">Alterar senha</h2>
+                <h2 className="text-base font-semibold text-foreground">Alterar senha</h2>
                 <Form {...form}>
                     <form className="mt-4 space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
                         <FormField

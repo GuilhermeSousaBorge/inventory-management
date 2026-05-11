@@ -233,7 +233,7 @@ export function IngredientForm({ mode, initial }: Props) {
                     name="active"
                     render={({ field }) => (
                         <FormItem>
-                            <label className="flex items-center gap-2 text-sm text-text-primary">
+                            <label className="flex items-center gap-2 text-sm text-foreground">
                                 <FormControl>
                                     <input
                                         type="checkbox"

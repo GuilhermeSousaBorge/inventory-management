@@ -12,10 +12,10 @@ export default function HomePage() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-2xl font-semibold text-text-primary">
+                <h1 className="text-2xl font-semibold text-foreground">
                     Bem-vinda, {firstName} 👋
                 </h1>
-                <p className="mt-1 text-sm text-text-secondary">
+                <p className="mt-1 text-sm text-muted-foreground">
                     Aqui está o resumo da operação. Em breve: dashboard completo (vendas, estoque, alertas).
                 </p>
             </div>
@@ -25,15 +25,15 @@ export default function HomePage() {
                     href="/unidades"
                     className="rounded-xl border border-border/40 bg-white p-5 transition hover:border-primary"
                 >
-                    <p className="text-xs uppercase tracking-wide text-text-secondary">Unidades</p>
-                    <p className="mt-1 text-base font-semibold text-text-primary">Ver unidades</p>
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Unidades</p>
+                    <p className="mt-1 text-base font-semibold text-foreground">Ver unidades</p>
                 </Link>
                 <Link
                     href="/me"
                     className="rounded-xl border border-border/40 bg-white p-5 transition hover:border-primary"
                 >
-                    <p className="text-xs uppercase tracking-wide text-text-secondary">Seu perfil</p>
-                    <p className="mt-1 text-base font-semibold text-text-primary">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Seu perfil</p>
+                    <p className="mt-1 text-base font-semibold text-foreground">
                         {user.role} · {user.name}
                     </p>
                 </Link>

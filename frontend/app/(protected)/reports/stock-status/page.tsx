@@ -37,16 +37,16 @@ export default function StockStatusReportPage() {
     return (
         <div className="space-y-6">
             <header>
-                <p className="text-sm text-text-secondary">
+                <p className="text-sm text-muted-foreground">
                     <Link href="/reports" className="hover:underline">
                         Relatórios
                     </Link>{" "}
                     › Status de estoque
                 </p>
-                <h1 className="mt-1 text-2xl font-semibold text-text-primary">
+                <h1 className="mt-1 text-2xl font-semibold text-foreground">
                     Status de estoque
                 </h1>
-                <p className="mt-1 text-sm text-text-secondary">
+                <p className="mt-1 text-sm text-muted-foreground">
                     Visão atual de saldos vs. mínimos por unidade.
                 </p>
             </header>
@@ -76,12 +76,12 @@ export default function StockStatusReportPage() {
             {query.isLoading ? (
                 <div className="space-y-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
                     ))}
                 </div>
             ) : query.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                    <p className="text-sm text-danger">Falha ao carregar relatório.</p>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <p className="text-sm text-destructive">Falha ao carregar relatório.</p>
                     <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
                         Tentar novamente
                     </Button>
@@ -100,7 +100,7 @@ export default function StockStatusReportPage() {
 
                     {data.length === 0 ? (
                         <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                            <p className="text-sm text-text-secondary">
+                            <p className="text-sm text-muted-foreground">
                                 Nenhum dado para os filtros selecionados.
                             </p>
                         </div>

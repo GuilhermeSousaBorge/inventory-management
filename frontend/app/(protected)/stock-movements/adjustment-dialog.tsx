@@ -131,7 +131,7 @@ export function AdjustmentDialog({ open, onClose }: Props) {
                     />
 
                     <fieldset>
-                        <legend className="mb-1 text-sm font-medium text-text-primary">Direção</legend>
+                        <legend className="mb-1 text-sm font-medium text-foreground">Direção</legend>
                         <div className="flex gap-4">
                             {ADJUSTMENT_DIRECTIONS.map((d) => (
                                 <label key={d} className="flex items-center gap-2 text-sm">

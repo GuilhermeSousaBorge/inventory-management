@@ -65,16 +65,16 @@ export default function SalesReportPage() {
     return (
         <div className="space-y-6">
             <header>
-                <p className="text-sm text-text-secondary">
+                <p className="text-sm text-muted-foreground">
                     <Link href="/reports" className="hover:underline">
                         Relatórios
                     </Link>{" "}
                     › Vendas
                 </p>
-                <h1 className="mt-1 text-2xl font-semibold text-text-primary">
+                <h1 className="mt-1 text-2xl font-semibold text-foreground">
                     Relatório de vendas
                 </h1>
-                <p className="mt-1 text-sm text-text-secondary">
+                <p className="mt-1 text-sm text-muted-foreground">
                     Pedidos concluídos por produto e receita gerada.
                 </p>
             </header>
@@ -85,14 +85,14 @@ export default function SalesReportPage() {
                         <Label htmlFor="f-from">De</Label>
                         <Input id="f-from" type="date" {...form.register("from")} />
                         {form.formState.errors.from?.message ? (
-                            <p className="text-sm text-danger">{form.formState.errors.from.message}</p>
+                            <p className="text-sm text-destructive">{form.formState.errors.from.message}</p>
                         ) : null}
                     </div>
                     <div className="space-y-1">
                         <Label htmlFor="f-to">Até</Label>
                         <Input id="f-to" type="date" {...form.register("to")} />
                         {form.formState.errors.to?.message ? (
-                            <p className="text-sm text-danger">{form.formState.errors.to.message}</p>
+                            <p className="text-sm text-destructive">{form.formState.errors.to.message}</p>
                         ) : null}
                     </div>
                     <div className="space-y-1">
@@ -151,19 +151,19 @@ export default function SalesReportPage() {
 
             {!applied ? (
                 <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                    <p className="text-sm text-text-secondary">
+                    <p className="text-sm text-muted-foreground">
                         Selecione um período e clique em Aplicar.
                     </p>
                 </div>
             ) : query.isLoading ? (
                 <div className="space-y-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
                     ))}
                 </div>
             ) : query.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                    <p className="text-sm text-danger">Falha ao carregar relatório.</p>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <p className="text-sm text-destructive">Falha ao carregar relatório.</p>
                     <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
                         Tentar novamente
                     </Button>
@@ -182,7 +182,7 @@ export default function SalesReportPage() {
 
                     {data.length === 0 ? (
                         <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                            <p className="text-sm text-text-secondary">
+                            <p className="text-sm text-muted-foreground">
                                 Nenhum dado para os filtros selecionados.
                             </p>
                         </div>

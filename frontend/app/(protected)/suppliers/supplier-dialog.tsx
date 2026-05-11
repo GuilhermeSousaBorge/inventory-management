@@ -153,7 +153,7 @@ export function SupplierDialog({ open, onClose, supplier }: Props) {
                         )}
                     />
                     {editing ? (
-                        <label className="flex items-center gap-2 text-sm text-text-primary">
+                        <label className="flex items-center gap-2 text-sm text-foreground">
                             <input type="checkbox" {...form.register("active" as never)} />
                             Ativo
                         </label>

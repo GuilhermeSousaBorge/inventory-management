@@ -105,7 +105,7 @@ export function OrderForm({ mode, initial }: Props) {
         <Form {...form}>
         <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
             <section className="space-y-4 rounded-xl border border-border/40 bg-white p-5">
-                <h2 className="text-base font-semibold text-text-primary">Dados do pedido</h2>
+                <h2 className="text-base font-semibold text-foreground">Dados do pedido</h2>
 
                 <FormField
                     control={form.control}
@@ -156,9 +156,9 @@ export function OrderForm({ mode, initial }: Props) {
                 data-testid="ord-items"
             >
                 <div className="flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-text-primary">Itens</h2>
+                    <h2 className="text-base font-semibold text-foreground">Itens</h2>
                     {itemsRootMessage ? (
-                        <span className="text-sm text-danger">{itemsRootMessage}</span>
+                        <span className="text-sm text-destructive">{itemsRootMessage}</span>
                     ) : null}
                 </div>
 

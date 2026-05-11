@@ -14,7 +14,7 @@ export default function RootPage() {
     }, [status, router])
 
     return (
-        <div className="flex min-h-screen items-center justify-center text-sm text-text-secondary">
+        <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
             Carregando...
         </div>
     )

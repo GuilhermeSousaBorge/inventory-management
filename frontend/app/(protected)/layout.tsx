@@ -113,7 +113,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
     if (status !== "authenticated" || !user) {
         return (
-            <div className="flex flex-1 items-center justify-center text-sm text-text-secondary">
+            <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
                 Carregando...
             </div>
         )
@@ -132,21 +132,21 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     return (
         <div className="flex flex-1 min-h-0">
             {!collapsed && (
-                <aside className="flex w-64 shrink-0 flex-col border-r border-border/40 bg-bg">
+                <aside className="flex w-64 shrink-0 flex-col border-r border-border/40 bg-background">
                     <div className="flex items-center gap-3 px-5 py-4">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-danger text-white">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-destructive text-white">
                             <Flame className="h-5 w-5" />
                         </div>
                         <div className="leading-tight">
-                            <p className="text-sm font-semibold text-text-primary">Forno Vivo</p>
-                            <p className="text-xs text-text-secondary">Gestão de pizzaria</p>
+                            <p className="text-sm font-semibold text-foreground">Forno Vivo</p>
+                            <p className="text-xs text-muted-foreground">Gestão de pizzaria</p>
                         </div>
                     </div>
 
                     <nav className="flex-1 overflow-y-auto px-3 pb-6">
                         {visibleSections.map((section) => (
                             <div key={section.title} className="mt-4">
-                                <p className="px-3 pb-1 text-xs font-medium text-text-secondary">
+                                <p className="px-3 pb-1 text-xs font-medium text-muted-foreground">
                                     {section.title}
                                 </p>
                                 <ul className="space-y-0.5">
@@ -159,8 +159,8 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                                                     href={item.href}
                                                     className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition ${
                                                         active
-                                                            ? "bg-text-primary font-medium text-bg"
-                                                            : "text-text-primary/70 hover:bg-text-primary/5 hover:text-text-primary"
+                                                            ? "bg-foreground font-medium text-background"
+                                                            : "text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
                                                     }`}
                                                 >
                                                     <Icon
@@ -179,22 +179,22 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
             )}
 
             <div className="flex min-w-0 flex-1 flex-col">
-                <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border/40 bg-bg px-4">
+                <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border/40 bg-background px-4">
                     <button
                         type="button"
                         onClick={() => setCollapsed((c) => !c)}
-                        className="flex h-9 w-9 items-center justify-center rounded-md text-text-primary/70 transition hover:bg-text-primary/5 hover:text-text-primary"
+                        className="flex h-9 w-9 items-center justify-center rounded-md text-foreground/70 transition hover:bg-foreground/5 hover:text-foreground"
                         aria-label="Alternar menu lateral"
                     >
                         <PanelLeft className="h-5 w-5" />
                     </button>
 
                     <div className="relative flex-1 max-w-2xl">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-primary/50" />
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/50" />
                         <input
                             type="search"
                             placeholder="Buscar pedidos, produtos, ingredientes..."
-                            className="w-full rounded-lg border border-border bg-white py-2 pl-9 pr-3 text-sm text-text-primary outline-none transition placeholder:text-text-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/30"
+                            className="w-full rounded-lg border border-border bg-white py-2 pl-9 pr-3 text-sm text-foreground outline-none transition placeholder:text-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/30"
                         />
                     </div>
 

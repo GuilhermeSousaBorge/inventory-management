@@ -30,7 +30,7 @@ export function NotificationsBell() {
             <DropdownMenuTrigger asChild>
                 <button
                     type="button"
-                    className="relative flex h-9 w-9 items-center justify-center rounded-md text-text-primary/70 transition hover:bg-text-primary/5 hover:text-text-primary"
+                    className="relative flex h-9 w-9 items-center justify-center rounded-md text-foreground/70 transition hover:bg-foreground/5 hover:text-foreground"
                     aria-label="Notificações"
                 >
                     <Bell className="h-5 w-5" />
@@ -51,7 +51,7 @@ export function NotificationsBell() {
                 {isLoading ? (
                     <div className="space-y-2 p-3">
                         {Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className="h-12 animate-pulse rounded-md bg-text-primary/5" />
+                            <div key={i} className="h-12 animate-pulse rounded-md bg-foreground/5" />
                         ))}
                     </div>
                 ) : isError ? (
@@ -77,7 +77,7 @@ export function NotificationsBell() {
                             <li key={n.id} className="border-b border-border/30 last:border-0">
                                 <Link
                                     href={`/notifications/${n.id}`}
-                                    className="block px-4 py-2 hover:bg-text-primary/5"
+                                    className="block px-4 py-2 hover:bg-foreground/5"
                                 >
                                     <p className="truncate text-sm font-medium">
                                         {n.ingredientName} · {n.unitName}

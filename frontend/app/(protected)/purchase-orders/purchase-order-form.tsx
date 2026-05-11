@@ -110,7 +110,7 @@ export function PurchaseOrderForm({ mode, initial }: Props) {
         <Form {...form}>
             <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
                 <section className="space-y-4 rounded-xl border border-border/40 bg-white p-5">
-                    <h2 className="text-base font-semibold text-text-primary">Dados da compra</h2>
+                    <h2 className="text-base font-semibold text-foreground">Dados da compra</h2>
 
                     <FormField
                         control={form.control}
@@ -201,9 +201,9 @@ export function PurchaseOrderForm({ mode, initial }: Props) {
 
                 <section className="space-y-4 rounded-xl border border-border/40 bg-white p-5" data-testid="po-items">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-base font-semibold text-text-primary">Itens</h2>
+                        <h2 className="text-base font-semibold text-foreground">Itens</h2>
                         {form.formState.errors.items?.message ? (
-                            <span className="text-sm text-danger">{form.formState.errors.items.message}</span>
+                            <span className="text-sm text-destructive">{form.formState.errors.items.message}</span>
                         ) : null}
                     </div>
 

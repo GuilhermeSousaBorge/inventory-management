@@ -106,8 +106,8 @@ function IngredientsPageInner() {
         <div className="space-y-6">
             <header className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-text-primary">Ingredientes</h1>
-                    <p className="mt-1 text-sm text-text-secondary">
+                    <h1 className="text-2xl font-semibold text-foreground">Ingredientes</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">
                         Insumos controlados no estoque.
                     </p>
                 </div>
@@ -161,19 +161,19 @@ function IngredientsPageInner() {
             {ingredientsQuery.isLoading ? (
                 <div className="space-y-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
                     ))}
                 </div>
             ) : ingredientsQuery.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                    <p className="text-sm text-danger">Falha ao carregar ingredientes.</p>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <p className="text-sm text-destructive">Falha ao carregar ingredientes.</p>
                     <Button variant="ghost" size="sm" onClick={() => ingredientsQuery.refetch()}>
                         Tentar novamente
                     </Button>
                 </div>
             ) : data && data.data.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                    <p className="text-sm text-text-secondary">Nenhum ingrediente cadastrado.</p>
+                    <p className="text-sm text-muted-foreground">Nenhum ingrediente cadastrado.</p>
                     {isOwner ? (
                         <Link href="/ingredients/novo">
                             <Button className="mt-4">Criar primeiro ingrediente</Button>
@@ -215,7 +215,7 @@ function IngredientsPageInner() {
                                         <div className="flex items-center justify-end gap-1">
                                             <Link
                                                 href={`/ingredients/${ing.id}/editar`}
-                                                className="rounded p-1.5 text-text-primary/70 hover:bg-text-primary/5 hover:text-text-primary"
+                                                className="rounded p-1.5 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
                                                 aria-label={`Editar ${ing.name}`}
                                             >
                                                 <Pencil className="h-4 w-4" />
@@ -224,7 +224,7 @@ function IngredientsPageInner() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setConfirm(ing)}
-                                                    className="rounded p-1.5 text-danger/80 hover:bg-danger/10"
+                                                    className="rounded p-1.5 text-destructive/80 hover:bg-destructive/10"
                                                     aria-label={`Desativar ${ing.name}`}
                                                 >
                                                     <Power className="h-4 w-4" />
@@ -240,7 +240,7 @@ function IngredientsPageInner() {
             )}
 
             {data && data.total > size ? (
-                <div className="flex items-center justify-between text-sm text-text-secondary">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>
                         Página {page + 1} de {totalPages} · {size} por página
                     </span>

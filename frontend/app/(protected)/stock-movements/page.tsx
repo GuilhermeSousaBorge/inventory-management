@@ -73,8 +73,8 @@ function StockMovementsPageInner() {
         <div className="space-y-6">
             <header className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-text-primary">Movimentações</h1>
-                    <p className="mt-1 text-sm text-text-secondary">
+                    <h1 className="text-2xl font-semibold text-foreground">Movimentações</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">
                         Histórico de entradas, saídas e ajustes.
                     </p>
                 </div>
@@ -166,19 +166,19 @@ function StockMovementsPageInner() {
             {query.isLoading ? (
                 <div className="space-y-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
                     ))}
                 </div>
             ) : query.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                    <p className="text-sm text-danger">Falha ao carregar movimentações.</p>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <p className="text-sm text-destructive">Falha ao carregar movimentações.</p>
                     <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
                         Tentar novamente
                     </Button>
                 </div>
             ) : data && data.data.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                    <p className="text-sm text-text-secondary">Nenhuma movimentação registrada.</p>
+                    <p className="text-sm text-muted-foreground">Nenhuma movimentação registrada.</p>
                 </div>
             ) : (
                 <Table>
@@ -231,7 +231,7 @@ function StockMovementsPageInner() {
             )}
 
             {data && data.total > size ? (
-                <div className="flex items-center justify-between text-sm text-text-secondary">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>
                         Página {page + 1} de {totalPages} · {size} por página
                     </span>

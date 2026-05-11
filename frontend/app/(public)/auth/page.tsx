@@ -19,7 +19,7 @@ export default function AuthPage() {
 function AuthFallback() {
     return (
         <main className="flex flex-1 items-center justify-center px-4">
-            <div className="text-sm text-text-secondary">Carregando...</div>
+            <div className="text-sm text-muted-foreground">Carregando...</div>
         </main>
     )
 }
@@ -63,15 +63,15 @@ function AuthForm() {
         <main className="flex flex-1 items-center justify-center px-4">
             <div className="w-full max-w-md rounded-2xl border border-border/40 bg-white p-8 shadow-sm">
                 <div className="flex flex-col items-center text-center">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-danger text-white">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-destructive text-white">
                         <Flame className="h-6 w-6" />
                     </div>
-                    <h1 className="mt-4 text-2xl font-semibold text-text-primary">Forno Vivo</h1>
-                    <p className="mt-1 text-sm text-text-secondary">Entre para gerenciar sua pizzaria</p>
+                    <h1 className="mt-4 text-2xl font-semibold text-foreground">Forno Vivo</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">Entre para gerenciar sua pizzaria</p>
                 </div>
 
                 {expired ? (
-                    <div className="mt-6 rounded-lg border border-border/40 bg-secondary/20 px-3 py-2 text-xs text-text-primary">
+                    <div className="mt-6 rounded-lg border border-border/40 bg-secondary/20 px-3 py-2 text-xs text-foreground">
                         Sua sessão expirou. Faça login novamente.
                     </div>
                 ) : null}
@@ -104,7 +104,7 @@ function AuthForm() {
                     </div>
 
                     {formError ? (
-                        <p className="text-center text-sm text-danger">{formError}</p>
+                        <p className="text-center text-sm text-destructive">{formError}</p>
                     ) : null}
 
                     <Button type="submit" className="w-full" disabled={submitting}>

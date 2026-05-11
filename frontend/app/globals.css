@@ -25,16 +25,6 @@
   --input: rgb(43 61 80 / 0.3);
   --ring: #28af60;
   --radius: 0.625rem;
-
-  /* legacy aliases — remove in Task 10 once migration is complete */
-  --color-bg: var(--background);
-  --color-text-primary: var(--foreground);
-  --color-text-secondary: rgb(43 61 80 / 0.65);
-  --color-primary: var(--primary);
-  --color-secondary: var(--secondary);
-  --color-danger: var(--destructive);
-  --color-border: var(--border);
-  --color-icon: rgb(43 61 80 / 0.5);
 }
 
 @theme inline {
@@ -61,13 +51,6 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-
-  /* legacy aliases (kept so old class names still work during migration) */
-  --color-bg: var(--background);
-  --color-text-primary: var(--foreground);
-  --color-text-secondary: rgb(43 61 80 / 0.65);
-  --color-danger: var(--destructive);
-  --color-icon: rgb(43 61 80 / 0.5);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
