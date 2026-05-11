@@ -3,10 +3,10 @@
 import { ExportCsvButton } from "@/components/reports/export-csv-button"
 import { KpiCard } from "@/components/reports/kpi-card"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAllIngredients } from "@/lib/ingredients"
 import {
     reportsRangeFiltersSchema,
@@ -81,13 +81,22 @@ export default function WasteReportPage() {
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="rounded-xl border border-border/40 bg-white p-5" >
                 <div className="flex flex-wrap items-end gap-3">
-                    <Field label="De" htmlFor="f-from" error={form.formState.errors.from?.message} >
+                    <div className="space-y-1">
+                        <Label htmlFor="f-from">De</Label>
                         <Input id="f-from" type="date" {...form.register("from")} />
-                    </Field>
-                    <Field label="Até" htmlFor="f-to" error={form.formState.errors.to?.message} >
+                        {form.formState.errors.from?.message ? (
+                            <p className="text-sm text-danger">{form.formState.errors.from.message}</p>
+                        ) : null}
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="f-to">Até</Label>
                         <Input id="f-to" type="date" {...form.register("to")} />
-                    </Field>
-                    <Field label="Unidade" htmlFor="f-unit">
+                        {form.formState.errors.to?.message ? (
+                            <p className="text-sm text-danger">{form.formState.errors.to.message}</p>
+                        ) : null}
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="f-unit">Unidade</Label>
                         <Controller
                             control={form.control}
                             name="unit"
@@ -110,8 +119,9 @@ export default function WasteReportPage() {
                                 </Select>
                             )}
                         />
-                    </Field>
-                    <Field label="Ingrediente" htmlFor="f-ingredient">
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="f-ingredient">Ingrediente</Label>
                         <Controller
                             control={form.control}
                             name="ingredient"
@@ -134,7 +144,7 @@ export default function WasteReportPage() {
                                 </Select>
                             )}
                         />
-                    </Field>
+                    </div>
                     <Button type="submit">Aplicar</Button>
                 </div>
             </form>
@@ -178,24 +188,24 @@ export default function WasteReportPage() {
                         </div>
                     ) : (
                         <Table>
-                            <THead>
-                                <TR>
-                                    <TH>Ingrediente</TH>
-                                    <TH>UoM</TH>
-                                    <TH>Desperdiçado</TH>
-                                    <TH># ajustes</TH>
-                                </TR>
-                            </THead>
-                            <TBody>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Ingrediente</TableHead>
+                                    <TableHead>UoM</TableHead>
+                                    <TableHead>Desperdiçado</TableHead>
+                                    <TableHead># ajustes</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {data.map((r) => (
-                                    <TR key={r.ingredientId}>
-                                        <TD>{r.ingredientName}</TD>
-                                        <TD>{r.unitOfMeasure}</TD>
-                                        <TD>{r.wasteQuantity.toLocaleString("pt-BR")}</TD>
-                                        <TD>{r.adjustmentCount}</TD>
-                                    </TR>
+                                    <TableRow key={r.ingredientId}>
+                                        <TableCell>{r.ingredientName}</TableCell>
+                                        <TableCell>{r.unitOfMeasure}</TableCell>
+                                        <TableCell>{r.wasteQuantity.toLocaleString("pt-BR")}</TableCell>
+                                        <TableCell>{r.adjustmentCount}</TableCell>
+                                    </TableRow>
                                 ))}
-                            </TBody>
+                            </TableBody>
                         </Table>
                     )}
                 </>

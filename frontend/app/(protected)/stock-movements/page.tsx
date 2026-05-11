@@ -2,8 +2,8 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAuth } from "@/lib/auth"
@@ -86,7 +86,8 @@ function StockMovementsPageInner() {
             </header>
 
             <div className="flex flex-wrap items-end gap-3">
-                <Field label="Ingrediente" htmlFor="filter-ingredient">
+                <div className="space-y-1">
+                    <Label htmlFor="filter-ingredient">Ingrediente</Label>
                     <Select
                         value={ingredientParam || "__all"}
                         onValueChange={(v) => setFilter("ingredient", v === "__all" ? "" : v)}
@@ -103,8 +104,9 @@ function StockMovementsPageInner() {
                             ))}
                         </SelectContent>
                     </Select>
-                </Field>
-                <Field label="Unidade" htmlFor="filter-unit">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-unit">Unidade</Label>
                     <Select
                         value={unitParam || "__all"}
                         onValueChange={(v) => setFilter("unit", v === "__all" ? "" : v)}
@@ -121,8 +123,9 @@ function StockMovementsPageInner() {
                             ))}
                         </SelectContent>
                     </Select>
-                </Field>
-                <Field label="Tipo" htmlFor="filter-type">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-type">Tipo</Label>
                     <Select
                         value={typeParam ?? "__all"}
                         onValueChange={(v) => setFilter("type", v === "__all" ? "" : v)}
@@ -139,23 +142,25 @@ function StockMovementsPageInner() {
                             ))}
                         </SelectContent>
                     </Select>
-                </Field>
-                <Field label="De" htmlFor="filter-from">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-from">De</Label>
                     <Input
                         id="filter-from"
                         type="date"
                         value={fromParam}
                         onChange={(e) => setFilter("from", e.target.value)}
                     />
-                </Field>
-                <Field label="Até" htmlFor="filter-to">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-to">Até</Label>
                     <Input
                         id="filter-to"
                         type="date"
                         value={toParam}
                         onChange={(e) => setFilter("to", e.target.value)}
                     />
-                </Field>
+                </div>
             </div>
 
             {query.isLoading ? (

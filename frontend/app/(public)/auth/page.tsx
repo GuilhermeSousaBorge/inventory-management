@@ -1,8 +1,8 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { isApiError, useAuth } from "@/lib/auth"
 import { Flame } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -77,7 +77,8 @@ function AuthForm() {
                 ) : null}
 
                 <form className="mt-8 space-y-5" onSubmit={onSubmit}>
-                    <Field label="E-mail" htmlFor="email">
+                    <div className="grid gap-2">
+                        <Label htmlFor="email">E-mail</Label>
                         <Input
                             id="email"
                             type="email"
@@ -87,9 +88,10 @@ function AuthForm() {
                             required
                             disabled={submitting}
                         />
-                    </Field>
+                    </div>
 
-                    <Field label="Senha" htmlFor="password">
+                    <div className="grid gap-2">
+                        <Label htmlFor="password">Senha</Label>
                         <Input
                             id="password"
                             type="password"
@@ -99,7 +101,7 @@ function AuthForm() {
                             required
                             disabled={submitting}
                         />
-                    </Field>
+                    </div>
 
                     {formError ? (
                         <p className="text-center text-sm text-danger">{formError}</p>

@@ -2,7 +2,7 @@
 
 import { Modal } from "@/components/overlays/modal"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isApiError } from "@/lib/auth"
@@ -17,7 +17,7 @@ import {
 } from "@/lib/users"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect } from "react"
-import { Controller, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 type Props = {
@@ -82,46 +82,78 @@ export function UserDialog({ open, onClose, user }: Props) {
                 </>
             }
         >
-            <form id="user-form" className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-                <Field label="Nome" htmlFor="name" error={form.formState.errors.name?.message}>
-                    <Input id="name" {...form.register("name")} />
-                </Field>
-                <Field label="E-mail" htmlFor="email" error={form.formState.errors.email?.message}>
-                    <Input id="email" type="email" {...form.register("email")} />
-                </Field>
-                {!editing ? (
-                    <Field
-                        label="Senha"
-                        htmlFor="password"
-                        error={(form.formState.errors as Record<string, { message?: string }>).password?.message}
-                    >
-                        <Input id="password" type="password" {...form.register("password" as never)} />
-                    </Field>
-                ) : null}
-                <Field label="Perfil" htmlFor="role" error={form.formState.errors.role?.message}>
-                    <Controller
+            <Form {...form}>
+                <form id="user-form" className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+                    <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Nome</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>E-mail</FormLabel>
+                                <FormControl>
+                                    <Input type="email" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    {!editing ? (
+                        <FormField
+                            control={form.control}
+                            name={"password" as never}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Senha</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    ) : null}
+                    <FormField
                         control={form.control}
                         name="role"
                         render={({ field }) => (
-                            <Select value={field.value || ""} onValueChange={field.onChange}>
-                                <SelectTrigger id="role">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="EMPLOYEE">EMPLOYEE</SelectItem>
-                                    <SelectItem value="OWNER">OWNER</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <FormItem>
+                                <FormLabel>Perfil</FormLabel>
+                                <Select value={field.value || ""} onValueChange={field.onChange}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="EMPLOYEE">EMPLOYEE</SelectItem>
+                                        <SelectItem value="OWNER">OWNER</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
                         )}
                     />
-                </Field>
-                {editing ? (
-                    <label className="flex items-center gap-2 text-sm text-text-primary">
-                        <input type="checkbox" {...form.register("active" as never)} />
-                        Ativo
-                    </label>
-                ) : null}
-            </form>
+                    {editing ? (
+                        <label className="flex items-center gap-2 text-sm text-text-primary">
+                            <input type="checkbox" {...form.register("active" as never)} />
+                            Ativo
+                        </label>
+                    ) : null}
+                </form>
+            </Form>
         </Modal>
     )
 }

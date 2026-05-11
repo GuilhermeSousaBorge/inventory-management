@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isApiError } from "@/lib/auth"
@@ -19,7 +19,7 @@ import {
 import { useActiveSuppliers } from "@/lib/suppliers"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
-import { Controller, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 type Props = {
@@ -85,40 +85,52 @@ export function IngredientForm({ mode, initial }: Props) {
     const submitting = create.isPending || update.isPending
 
     return (
+        <Form {...form}>
         <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-            <Field
-                label="Nome"
-                htmlFor="ingredient-name"
-                error={form.formState.errors.name?.message}
-            >
-                <Input id="ingredient-name" {...form.register("name")} />
-            </Field>
+            <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Nome</FormLabel>
+                        <FormControl>
+                            <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
 
-            <Field
-                label="Descrição"
-                htmlFor="ingredient-description"
-                error={form.formState.errors.description?.message}
-            >
-                <Input id="ingredient-description" {...form.register("description")} />
-            </Field>
+            <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Descrição</FormLabel>
+                        <FormControl>
+                            <Input {...field} value={field.value ?? ""} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
 
-            <Field
-                label="Categoria"
-                htmlFor="ingredient-category"
-                error={form.formState.errors.categoryId?.message}
-            >
-                <Controller
-                    control={form.control}
-                    name="categoryId"
-                    render={({ field }) => (
+            <FormField
+                control={form.control}
+                name="categoryId"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Categoria</FormLabel>
                         <Select
                             value={field.value || ""}
                             onValueChange={field.onChange}
                             disabled={categories.isPending}
                         >
-                            <SelectTrigger id="ingredient-category">
-                                <SelectValue placeholder={categories.isPending ? "Carregando..." : "Selecione..."} />
-                            </SelectTrigger>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder={categories.isPending ? "Carregando..." : "Selecione..."} />
+                                </SelectTrigger>
+                            </FormControl>
                             <SelectContent>
                                 {categories.data?.map((c) => (
                                     <SelectItem key={c.id} value={c.id}>
@@ -127,23 +139,23 @@ export function IngredientForm({ mode, initial }: Props) {
                                 ))}
                             </SelectContent>
                         </Select>
-                    )}
-                />
-            </Field>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
 
-            <Field
-                label="Unidade de medida"
-                htmlFor="ingredient-unit"
-                error={form.formState.errors.unitOfMeasure?.message}
-            >
-                <Controller
-                    control={form.control}
-                    name="unitOfMeasure"
-                    render={({ field }) => (
+            <FormField
+                control={form.control}
+                name="unitOfMeasure"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Unidade de medida</FormLabel>
                         <Select value={field.value || ""} onValueChange={field.onChange}>
-                            <SelectTrigger id="ingredient-unit">
-                                <SelectValue />
-                            </SelectTrigger>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                            </FormControl>
                             <SelectContent>
                                 {UNITS_OF_MEASURE.map((u) => (
                                     <SelectItem key={u} value={u}>
@@ -152,53 +164,55 @@ export function IngredientForm({ mode, initial }: Props) {
                                 ))}
                             </SelectContent>
                         </Select>
-                    )}
-                />
-            </Field>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
 
-            <Field
-                label="Quantidade mínima"
-                htmlFor="ingredient-min"
-                error={form.formState.errors.minimumQty?.message}
-            >
-                <Input
-                    id="ingredient-min"
-                    type="number"
-                    step="0.001"
-                    min="0"
-                    {...form.register("minimumQty")}
-                />
-            </Field>
+            <FormField
+                control={form.control}
+                name="minimumQty"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Quantidade mínima</FormLabel>
+                        <FormControl>
+                            <Input type="number" step="0.001" min="0" {...field} value={field.value ?? 0} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
 
-            <Field
-                label="Validade"
-                htmlFor="ingredient-expiry"
-                error={form.formState.errors.expiryDate?.message}
-            >
-                <Input
-                    id="ingredient-expiry"
-                    type="date"
-                    {...form.register("expiryDate")}
-                />
-            </Field>
+            <FormField
+                control={form.control}
+                name="expiryDate"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Validade</FormLabel>
+                        <FormControl>
+                            <Input type="date" {...field} value={field.value ?? ""} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
 
-            <Field
-                label="Fornecedor padrão"
-                htmlFor="ingredient-supplier"
-                error={form.formState.errors.defaultSupplierId?.message}
-            >
-                <Controller
-                    control={form.control}
-                    name="defaultSupplierId"
-                    render={({ field }) => (
+            <FormField
+                control={form.control}
+                name="defaultSupplierId"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Fornecedor padrão</FormLabel>
                         <Select
                             value={field.value || "__none"}
                             onValueChange={(v) => field.onChange(v === "__none" ? "" : v)}
                             disabled={suppliers.isPending}
                         >
-                            <SelectTrigger id="ingredient-supplier">
-                                <SelectValue placeholder={suppliers.isPending ? "Carregando..." : "Nenhum"} />
-                            </SelectTrigger>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder={suppliers.isPending ? "Carregando..." : "Nenhum"} />
+                                </SelectTrigger>
+                            </FormControl>
                             <SelectContent>
                                 <SelectItem value="__none">Nenhum</SelectItem>
                                 {suppliers.data?.map((s) => (
@@ -208,15 +222,33 @@ export function IngredientForm({ mode, initial }: Props) {
                                 ))}
                             </SelectContent>
                         </Select>
-                    )}
-                />
-            </Field>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
 
             {mode === "edit" ? (
-                <label className="flex items-center gap-2 text-sm text-text-primary">
-                    <input type="checkbox" {...form.register("active")} />
-                    Ativo
-                </label>
+                <FormField
+                    control={form.control}
+                    name="active"
+                    render={({ field }) => (
+                        <FormItem>
+                            <label className="flex items-center gap-2 text-sm text-text-primary">
+                                <FormControl>
+                                    <input
+                                        type="checkbox"
+                                        checked={!!field.value}
+                                        onChange={(e) => field.onChange(e.target.checked)}
+                                        onBlur={field.onBlur}
+                                        name={field.name}
+                                        ref={field.ref}
+                                    />
+                                </FormControl>
+                                Ativo
+                            </label>
+                        </FormItem>
+                    )}
+                />
             ) : null}
 
             <div className="flex justify-end gap-2 pt-2">
@@ -233,5 +265,6 @@ export function IngredientForm({ mode, initial }: Props) {
                 </Button>
             </div>
         </form>
+        </Form>
     )
 }

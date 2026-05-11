@@ -4,8 +4,8 @@ import { ExportCsvButton } from "@/components/reports/export-csv-button"
 import { KpiCard } from "@/components/reports/kpi-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAllProducts } from "@/lib/products"
@@ -81,13 +81,22 @@ export default function SalesReportPage() {
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="rounded-xl border border-border/40 bg-white p-5" >
                 <div className="flex flex-wrap items-end gap-3">
-                    <Field label="De" htmlFor="f-from" error={form.formState.errors.from?.message} >
+                    <div className="space-y-1">
+                        <Label htmlFor="f-from">De</Label>
                         <Input id="f-from" type="date" {...form.register("from")} />
-                    </Field>
-                    <Field label="Até" htmlFor="f-to" error={form.formState.errors.to?.message} >
+                        {form.formState.errors.from?.message ? (
+                            <p className="text-sm text-danger">{form.formState.errors.from.message}</p>
+                        ) : null}
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="f-to">Até</Label>
                         <Input id="f-to" type="date" {...form.register("to")} />
-                    </Field>
-                    <Field label="Unidade" htmlFor="f-unit">
+                        {form.formState.errors.to?.message ? (
+                            <p className="text-sm text-danger">{form.formState.errors.to.message}</p>
+                        ) : null}
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="f-unit">Unidade</Label>
                         <Controller
                             control={form.control}
                             name="unit"
@@ -110,8 +119,9 @@ export default function SalesReportPage() {
                                 </Select>
                             )}
                         />
-                    </Field>
-                    <Field label="Produto" htmlFor="f-product">
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="f-product">Produto</Label>
                         <Controller
                             control={form.control}
                             name="product"
@@ -134,7 +144,7 @@ export default function SalesReportPage() {
                                 </Select>
                             )}
                         />
-                    </Field>
+                    </div>
                     <Button type="submit">Aplicar</Button>
                 </div>
             </form>

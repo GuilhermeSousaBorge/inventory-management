@@ -3,7 +3,7 @@
 import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
@@ -112,7 +112,8 @@ function IngredientsPageInner() {
             </header>
 
             <div className="flex flex-wrap items-end gap-3">
-                <Field label="Categoria" htmlFor="filter-category">
+                <div className="space-y-1">
+                    <Label htmlFor="filter-category">Categoria</Label>
                     <Select
                         value={categoryParam || "__all"}
                         onValueChange={(v) => setFilter("category", v === "__all" ? "" : v)}
@@ -129,8 +130,9 @@ function IngredientsPageInner() {
                             ))}
                         </SelectContent>
                     </Select>
-                </Field>
-                <Field label="Status" htmlFor="filter-status">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-status">Status</Label>
                     <Select
                         value={activeParam === "" ? "__all" : (activeParam ?? "true")}
                         onValueChange={(v) => setFilter("active", v === "__all" ? "" : v)}
@@ -144,7 +146,7 @@ function IngredientsPageInner() {
                             <SelectItem value="__all">Todos</SelectItem>
                         </SelectContent>
                     </Select>
-                </Field>
+                </div>
             </div>
 
             {ingredientsQuery.isLoading ? (

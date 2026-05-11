@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isApiError } from "@/lib/auth"
@@ -19,7 +19,7 @@ import { useAllUnits } from "@/lib/units"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus, Trash2 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form"
+import { useFieldArray, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 
 type Props = {
@@ -102,27 +102,27 @@ export function OrderForm({ mode, initial }: Props) {
         (form.formState.errors.items as any)?.root?.message
 
     return (
+        <Form {...form}>
         <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
             <section className="space-y-4 rounded-xl border border-border/40 bg-white p-5">
                 <h2 className="text-base font-semibold text-text-primary">Dados do pedido</h2>
 
-                <Field
-                    label="Unidade"
-                    htmlFor="ord-unit"
-                    error={form.formState.errors.unitId?.message}
-                >
-                    <Controller
-                        control={form.control}
-                        name="unitId"
-                        render={({ field }) => (
+                <FormField
+                    control={form.control}
+                    name="unitId"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Unidade</FormLabel>
                             <Select
                                 value={field.value || ""}
                                 onValueChange={field.onChange}
                                 disabled={units.isPending}
                             >
-                                <SelectTrigger id="ord-unit">
-                                    <SelectValue placeholder={units.isPending ? "Carregando..." : "Selecione..."} />
-                                </SelectTrigger>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={units.isPending ? "Carregando..." : "Selecione..."} />
+                                    </SelectTrigger>
+                                </FormControl>
                                 <SelectContent>
                                     {units.data?.map((u) => (
                                         <SelectItem key={u.id} value={u.id}>
@@ -131,18 +131,24 @@ export function OrderForm({ mode, initial }: Props) {
                                     ))}
                                 </SelectContent>
                             </Select>
-                        )}
-                    />
-                </Field>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
-                <Field
-                    label="Observações"
-                    htmlFor="ord-notes"
-                    hint="Opcional · até 500 caracteres"
-                    error={form.formState.errors.notes?.message}
-                >
-                    <Input id="ord-notes" {...form.register("notes")} />
-                </Field>
+                <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Observações</FormLabel>
+                            <FormControl>
+                                <Input {...field} value={field.value ?? ""} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
             </section>
 
             <section

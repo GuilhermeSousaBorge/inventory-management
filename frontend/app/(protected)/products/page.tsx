@@ -3,7 +3,7 @@
 import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
@@ -97,7 +97,8 @@ function ProductsPageInner() {
             </header>
 
             <div className="flex flex-wrap items-end gap-3">
-                <Field label="Categoria" htmlFor="filter-category">
+                <div className="space-y-1">
+                    <Label htmlFor="filter-category">Categoria</Label>
                     {/* Radix Select cannot have value="" on SelectItem; use "__all" sentinel and translate at URL boundary */}
                     <Select
                         value={categoryParam || "__all"}
@@ -115,8 +116,9 @@ function ProductsPageInner() {
                             ))}
                         </SelectContent>
                     </Select>
-                </Field>
-                <Field label="Tamanho" htmlFor="filter-size">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-size">Tamanho</Label>
                     <Select
                         value={sizeParam ?? "__all"}
                         onValueChange={(v) => setFilter("size", v === "__all" ? "" : v)}
@@ -133,8 +135,9 @@ function ProductsPageInner() {
                             ))}
                         </SelectContent>
                     </Select>
-                </Field>
-                <Field label="Ativo" htmlFor="filter-active">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-active">Ativo</Label>
                     <Select
                         value={activeParamRaw === "" ? "__all" : (activeParamRaw ?? "true")}
                         onValueChange={(v) => setFilter("active", v === "__all" ? "" : v)}
@@ -148,7 +151,7 @@ function ProductsPageInner() {
                             <SelectItem value="__all">Todos</SelectItem>
                         </SelectContent>
                     </Select>
-                </Field>
+                </div>
             </div>
 
             {query.isLoading ? (

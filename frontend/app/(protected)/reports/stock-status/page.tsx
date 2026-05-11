@@ -4,7 +4,7 @@ import { ExportCsvButton } from "@/components/reports/export-csv-button"
 import { KpiCard } from "@/components/reports/kpi-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useStockStatusReport, type StockStatusRow } from "@/lib/reports"
@@ -52,7 +52,8 @@ export default function StockStatusReportPage() {
             </header>
 
             <div className="rounded-xl border border-border/40 bg-white p-5">
-                <Field label="Unidade" htmlFor="f-unit">
+                <div className="space-y-1">
+                    <Label htmlFor="f-unit">Unidade</Label>
                     <Select
                         value={unit || "__all"}
                         onValueChange={(v) => setUnit(v === "__all" ? "" : v)}
@@ -69,7 +70,7 @@ export default function StockStatusReportPage() {
                             ))}
                         </SelectContent>
                     </Select>
-                </Field>
+                </div>
             </div>
 
             {query.isLoading ? (

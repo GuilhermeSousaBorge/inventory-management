@@ -2,7 +2,7 @@
 
 import { Modal } from "@/components/overlays/modal"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { isApiError } from "@/lib/auth"
 import {
@@ -81,22 +81,36 @@ export function CategoryDialog({ open, onClose, category }: Props) {
                 </>
             }
         >
-            <form id="category-form" className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-                <Field
-                    label="Nome"
-                    htmlFor="category-name"
-                    error={form.formState.errors.name?.message}
-                >
-                    <Input id="category-name" {...form.register("name")} />
-                </Field>
-                <Field
-                    label="Descrição"
-                    htmlFor="category-description"
-                    error={form.formState.errors.description?.message}
-                >
-                    <Input id="category-description" {...form.register("description")} />
-                </Field>
-            </form>
+            <Form {...form}>
+                <form id="category-form" className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+                    <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Nome</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Descrição</FormLabel>
+                                <FormControl>
+                                    <Input {...field} value={field.value ?? ""} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </form>
+            </Form>
         </Modal>
     )
 }

@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAllIngredients } from "@/lib/ingredients"
@@ -61,7 +61,8 @@ function StockPageInner() {
             </header>
 
             <div className="flex flex-wrap items-end gap-3">
-                <Field label="Unidade" htmlFor="filter-unit">
+                <div className="space-y-1">
+                    <Label htmlFor="filter-unit">Unidade</Label>
                     <Select
                         value={unitParam || "__all"}
                         onValueChange={(v) => setFilter("unit", v === "__all" ? "" : v)}
@@ -79,8 +80,9 @@ function StockPageInner() {
                             ))}
                         </SelectContent>
                     </Select>
-                </Field>
-                <Field label="Ingrediente" htmlFor="filter-ingredient">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-ingredient">Ingrediente</Label>
                     <Select
                         value={ingredientParam || "__all"}
                         onValueChange={(v) => setFilter("ingredient", v === "__all" ? "" : v)}
@@ -98,7 +100,7 @@ function StockPageInner() {
                             ))}
                         </SelectContent>
                     </Select>
-                </Field>
+                </div>
                 <label className="flex items-center gap-2 text-sm text-text-primary">
                     <input
                         type="checkbox"

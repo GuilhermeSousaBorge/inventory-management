@@ -2,8 +2,8 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
@@ -79,7 +79,8 @@ function AuditLogsPageInner() {
             </header>
 
             <div className="flex flex-wrap items-end gap-3">
-                <Field label="Tipo de entidade" htmlFor="f-entity-type">
+                <div className="space-y-1">
+                    <Label htmlFor="f-entity-type">Tipo de entidade</Label>
                     <Select
                         value={entityTypeParam || "__all"}
                         onValueChange={(v) => setFilter("entityType", v === "__all" ? "" : v)}
@@ -96,11 +97,13 @@ function AuditLogsPageInner() {
                             ))}
                         </SelectContent>
                     </Select>
-                </Field>
-                <Field label="ID da entidade" htmlFor="f-entity-id">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="f-entity-id">ID da entidade</Label>
                     <Input id="f-entity-id" value={entityIdParam} onChange={(e) => setFilter("entityId", e.target.value)} placeholder="UUID" />
-                </Field>
-                <Field label="Ação" htmlFor="f-action">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="f-action">Ação</Label>
                     <Select
                         value={actionParam || "__all"}
                         onValueChange={(v) => setFilter("action", v === "__all" ? "" : v)}
@@ -117,8 +120,9 @@ function AuditLogsPageInner() {
                             ))}
                         </SelectContent>
                     </Select>
-                </Field>
-                <Field label="Ator" htmlFor="f-actor">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="f-actor">Ator</Label>
                     <Select
                         value={actorParam || "__all"}
                         onValueChange={(v) => setFilter("actorId", v === "__all" ? "" : v)}
@@ -135,13 +139,15 @@ function AuditLogsPageInner() {
                             ))}
                         </SelectContent>
                     </Select>
-                </Field>
-                <Field label="De" htmlFor="f-from">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="f-from">De</Label>
                     <Input id="f-from" type="date" value={fromParam} onChange={(e) => setFilter("from", e.target.value)} />
-                </Field>
-                <Field label="Até" htmlFor="f-to">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="f-to">Até</Label>
                     <Input id="f-to" type="date" value={toParam} onChange={(e) => setFilter("to", e.target.value)} />
-                </Field>
+                </div>
             </div>
 
             {query.isLoading ? (
