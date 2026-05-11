@@ -2,7 +2,7 @@
 
 import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
 import { Button } from "@/components/ui/button"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import { useCategories, useDeleteCategory, type Category } from "@/lib/categories"
 import { Pencil, Plus, Trash2 } from "lucide-react"
@@ -95,20 +95,20 @@ export default function CategoriesPage() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Nome</TH>
-                            <TH>Descrição</TH>
-                            {isOwner ? <TH className="w-px text-right">Ações</TH> : null}
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nome</TableHead>
+                            <TableHead>Descrição</TableHead>
+                            {isOwner ? <TableHead className="w-px text-right">Ações</TableHead> : null}
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((c) => (
-                            <TR key={c.id}>
-                                <TD>{c.name}</TD>
-                                <TD className="max-w-[420px] truncate">{c.description ?? "—"}</TD>
+                            <TableRow key={c.id}>
+                                <TableCell>{c.name}</TableCell>
+                                <TableCell className="max-w-[420px] truncate">{c.description ?? "—"}</TableCell>
                                 {isOwner ? (
-                                    <TD className="text-right">
+                                    <TableCell className="text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             <button
                                                 type="button"
@@ -130,11 +130,11 @@ export default function CategoriesPage() {
                                                 <Trash2 className="h-4 w-4" />
                                             </button>
                                         </div>
-                                    </TD>
+                                    </TableCell>
                                 ) : null}
-                            </TR>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 

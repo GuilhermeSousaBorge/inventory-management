@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAuth } from "@/lib/auth"
 import { useAllIngredients } from "@/lib/ingredients"
 import {
@@ -25,7 +25,7 @@ function typeLabel(t: MovementType) {
 }
 
 function typeVariant(t: MovementType) {
-    return t === "ENTRY" ? "success" : t === "EXIT" ? "danger" : "warning"
+    return t === "ENTRY" ? "default" : t === "EXIT" ? "destructive" : "warning"
 }
 
 function StockMovementsPageInner() {
@@ -165,35 +165,35 @@ function StockMovementsPageInner() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Data</TH>
-                            <TH>Tipo</TH>
-                            <TH>Ingrediente</TH>
-                            <TH>Unidade</TH>
-                            <TH>Quantidade</TH>
-                            <TH>Preço unit.</TH>
-                            <TH>Origem/Motivo</TH>
-                            <TH>Por</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Data</TableHead>
+                            <TableHead>Tipo</TableHead>
+                            <TableHead>Ingrediente</TableHead>
+                            <TableHead>Unidade</TableHead>
+                            <TableHead>Quantidade</TableHead>
+                            <TableHead>Preço unit.</TableHead>
+                            <TableHead>Origem/Motivo</TableHead>
+                            <TableHead>Por</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((m) => {
                             const sign = m.type === "ENTRY" ? "+" : m.type === "EXIT" ? "−" : ""
                             return (
-                                <TR key={m.id}>
-                                    <TD>{new Date(m.createdAt).toLocaleString("pt-BR")}</TD>
-                                    <TD>
+                                <TableRow key={m.id}>
+                                    <TableCell>{new Date(m.createdAt).toLocaleString("pt-BR")}</TableCell>
+                                    <TableCell>
                                         <Badge variant={typeVariant(m.type)}>{typeLabel(m.type)}</Badge>
-                                    </TD>
-                                    <TD>{m.ingredientName}</TD>
-                                    <TD>{m.unitName}</TD>
-                                    <TD>
+                                    </TableCell>
+                                    <TableCell>{m.ingredientName}</TableCell>
+                                    <TableCell>{m.unitName}</TableCell>
+                                    <TableCell>
                                         {sign}
                                         {m.quantity}
-                                    </TD>
-                                    <TD>{m.unitPrice !== null ? `R$ ${m.unitPrice}` : "—"}</TD>
-                                    <TD>
+                                    </TableCell>
+                                    <TableCell>{m.unitPrice !== null ? `R$ ${m.unitPrice}` : "—"}</TableCell>
+                                    <TableCell>
                                         {m.purchaseOrderId ? (
                                             <Link
                                                 href={`/purchase-orders/${m.purchaseOrderId}`}
@@ -204,12 +204,12 @@ function StockMovementsPageInner() {
                                         ) : (
                                             m.reason ?? "—"
                                         )}
-                                    </TD>
-                                    <TD>{m.createdByName}</TD>
-                                </TR>
+                                    </TableCell>
+                                    <TableCell>{m.createdByName}</TableCell>
+                                </TableRow>
                             )
                         })}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 

@@ -3,7 +3,7 @@
 import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import { useDeactivateSupplier, useSuppliers, type Supplier } from "@/lib/suppliers"
 import { Pencil, Plus, Power } from "lucide-react"
@@ -89,28 +89,28 @@ export default function SuppliersPage() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Nome</TH>
-                            <TH>Contato</TH>
-                            <TH>Telefone</TH>
-                            <TH>Status</TH>
-                            {isOwner ? <TH className="w-px text-right">Ações</TH> : null}
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nome</TableHead>
+                            <TableHead>Contato</TableHead>
+                            <TableHead>Telefone</TableHead>
+                            <TableHead>Status</TableHead>
+                            {isOwner ? <TableHead className="w-px text-right">Ações</TableHead> : null}
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((s) => (
-                            <TR key={s.id}>
-                                <TD>{s.name}</TD>
-                                <TD>{s.contactName ?? "—"}</TD>
-                                <TD>{s.phone ?? "—"}</TD>
-                                <TD>
-                                    <Badge variant={s.active ? "success" : "neutral"}>
+                            <TableRow key={s.id}>
+                                <TableCell>{s.name}</TableCell>
+                                <TableCell>{s.contactName ?? "—"}</TableCell>
+                                <TableCell>{s.phone ?? "—"}</TableCell>
+                                <TableCell>
+                                    <Badge variant={s.active ? "default" : "outline"}>
                                         {s.active ? "Ativo" : "Inativo"}
                                     </Badge>
-                                </TD>
+                                </TableCell>
                                 {isOwner ? (
-                                    <TD className="text-right">
+                                    <TableCell className="text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             <button
                                                 type="button"
@@ -134,11 +134,11 @@ export default function SuppliersPage() {
                                                 </button>
                                             ) : null}
                                         </div>
-                                    </TD>
+                                    </TableCell>
                                 ) : null}
-                            </TR>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 

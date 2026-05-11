@@ -3,7 +3,7 @@
 import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import { useDeactivateUnit, useUnits, type Unit } from "@/lib/units"
 import { Pencil, Plus, Power } from "lucide-react"
@@ -87,26 +87,26 @@ export default function UnitsPage() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Nome</TH>
-                            <TH>Endereço</TH>
-                            <TH>Status</TH>
-                            {isOwner ? <TH className="w-px text-right">Ações</TH> : null}
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nome</TableHead>
+                            <TableHead>Endereço</TableHead>
+                            <TableHead>Status</TableHead>
+                            {isOwner ? <TableHead className="w-px text-right">Ações</TableHead> : null}
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((u) => (
-                            <TR key={u.id}>
-                                <TD>{u.name}</TD>
-                                <TD className="max-w-[320px] truncate">{u.address ?? "—"}</TD>
-                                <TD>
-                                    <Badge variant={u.active ? "success" : "neutral"}>
+                            <TableRow key={u.id}>
+                                <TableCell>{u.name}</TableCell>
+                                <TableCell className="max-w-[320px] truncate">{u.address ?? "—"}</TableCell>
+                                <TableCell>
+                                    <Badge variant={u.active ? "default" : "outline"}>
                                         {u.active ? "Ativa" : "Inativa"}
                                     </Badge>
-                                </TD>
+                                </TableCell>
                                 {isOwner ? (
-                                    <TD className="text-right">
+                                    <TableCell className="text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             <button
                                                 type="button"
@@ -130,11 +130,11 @@ export default function UnitsPage() {
                                                 </button>
                                             ) : null}
                                         </div>
-                                    </TD>
+                                    </TableCell>
                                 ) : null}
-                            </TR>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 

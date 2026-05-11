@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import { useAllCategories } from "@/lib/categories"
 import {
@@ -162,31 +162,31 @@ function ProductsPageInner() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Nome</TH>
-                            <TH>Tamanho</TH>
-                            <TH>Categoria</TH>
-                            <TH>Preço</TH>
-                            <TH>Status</TH>
-                            <TH className="w-px text-right">Ações</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nome</TableHead>
+                            <TableHead>Tamanho</TableHead>
+                            <TableHead>Categoria</TableHead>
+                            <TableHead>Preço</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="w-px text-right">Ações</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((p) => (
-                            <TR key={p.id}>
-                                <TD className="font-medium">{p.name}</TD>
-                                <TD>
-                                    <Badge variant="neutral">{p.size}</Badge>
-                                </TD>
-                                <TD>{p.categoryName ?? "—"}</TD>
-                                <TD>R$ {p.price.toFixed(2)}</TD>
-                                <TD>
-                                    <Badge variant={p.active ? "success" : "neutral"}>
+                            <TableRow key={p.id}>
+                                <TableCell className="font-medium">{p.name}</TableCell>
+                                <TableCell>
+                                    <Badge variant="outline">{p.size}</Badge>
+                                </TableCell>
+                                <TableCell>{p.categoryName ?? "—"}</TableCell>
+                                <TableCell>R$ {p.price.toFixed(2)}</TableCell>
+                                <TableCell>
+                                    <Badge variant={p.active ? "default" : "outline"}>
                                         {p.active ? "Ativo" : "Inativo"}
                                     </Badge>
-                                </TD>
-                                <TD className="text-right">
+                                </TableCell>
+                                <TableCell className="text-right">
                                     <div className="flex items-center justify-end gap-1">
                                         <Link
                                             href={`/products/${p.id}`}
@@ -222,10 +222,10 @@ function ProductsPageInner() {
                                             </>
                                         ) : null}
                                     </div>
-                                </TD>
-                            </TR>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 

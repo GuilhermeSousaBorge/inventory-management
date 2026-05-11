@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAuth } from "@/lib/auth"
 import {
     PURCHASE_ORDER_STATUSES,
@@ -24,7 +24,7 @@ function statusLabel(s: PurchaseOrderStatus) {
 }
 
 function statusVariant(s: PurchaseOrderStatus) {
-    return s === "PENDING" ? "warning" : s === "RECEIVED" ? "success" : "neutral"
+    return s === "PENDING" ? "warning" : s === "RECEIVED" ? "default" : "outline"
 }
 
 function PurchaseOrdersPageInner() {
@@ -174,31 +174,31 @@ function PurchaseOrdersPageInner() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Nº</TH>
-                            <TH>Fornecedor</TH>
-                            <TH>Unidade</TH>
-                            <TH>Status</TH>
-                            <TH>Esperada</TH>
-                            <TH>Total</TH>
-                            <TH>Criada</TH>
-                            <TH className="w-px text-right">Ações</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nº</TableHead>
+                            <TableHead>Fornecedor</TableHead>
+                            <TableHead>Unidade</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Esperada</TableHead>
+                            <TableHead>Total</TableHead>
+                            <TableHead>Criada</TableHead>
+                            <TableHead className="w-px text-right">Ações</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((po) => (
-                            <TR key={po.id}>
-                                <TD className="font-mono">#{po.id.slice(0, 8)}</TD>
-                                <TD>{po.supplierName}</TD>
-                                <TD>{po.unitName}</TD>
-                                <TD>
+                            <TableRow key={po.id}>
+                                <TableCell className="font-mono">#{po.id.slice(0, 8)}</TableCell>
+                                <TableCell>{po.supplierName}</TableCell>
+                                <TableCell>{po.unitName}</TableCell>
+                                <TableCell>
                                     <Badge variant={statusVariant(po.status)}>{statusLabel(po.status)}</Badge>
-                                </TD>
-                                <TD>{po.expectedAt ?? "—"}</TD>
-                                <TD>R$ {po.totalCost.toFixed(2)}</TD>
-                                <TD>{new Date(po.createdAt).toLocaleDateString("pt-BR")}</TD>
-                                <TD className="text-right">
+                                </TableCell>
+                                <TableCell>{po.expectedAt ?? "—"}</TableCell>
+                                <TableCell>R$ {po.totalCost.toFixed(2)}</TableCell>
+                                <TableCell>{new Date(po.createdAt).toLocaleDateString("pt-BR")}</TableCell>
+                                <TableCell className="text-right">
                                     <div className="flex items-center justify-end gap-1">
                                         <Link
                                             href={`/purchase-orders/${po.id}`}
@@ -217,10 +217,10 @@ function PurchaseOrdersPageInner() {
                                             </Link>
                                         ) : null}
                                     </div>
-                                </TD>
-                            </TR>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 

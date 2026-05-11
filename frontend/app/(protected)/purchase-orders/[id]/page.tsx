@@ -3,7 +3,7 @@
 import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import {
     useCancelPurchaseOrder,
@@ -21,7 +21,7 @@ function statusLabel(s: PurchaseOrderStatus) {
 }
 
 function statusVariant(s: PurchaseOrderStatus) {
-    return s === "PENDING" ? "warning" : s === "RECEIVED" ? "success" : "neutral"
+    return s === "PENDING" ? "warning" : s === "RECEIVED" ? "default" : "outline"
 }
 
 export default function PurchaseOrderDetailPage() {
@@ -161,24 +161,24 @@ export default function PurchaseOrderDetailPage() {
             <section className="space-y-3 rounded-xl border border-border/40 bg-white p-5">
                 <h2 className="text-base font-semibold text-text-primary">Itens</h2>
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Ingrediente</TH>
-                            <TH>Quantidade</TH>
-                            <TH>Preço unit.</TH>
-                            <TH>Subtotal</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Ingrediente</TableHead>
+                            <TableHead>Quantidade</TableHead>
+                            <TableHead>Preço unit.</TableHead>
+                            <TableHead>Subtotal</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {po.items.map((it) => (
-                            <TR key={it.id}>
-                                <TD>{it.ingredientName}</TD>
-                                <TD>{it.quantity}</TD>
-                                <TD>R$ {it.unitPrice.toFixed(4)}</TD>
-                                <TD>R$ {(it.quantity * it.unitPrice).toFixed(2)}</TD>
-                            </TR>
+                            <TableRow key={it.id}>
+                                <TableCell>{it.ingredientName}</TableCell>
+                                <TableCell>{it.quantity}</TableCell>
+                                <TableCell>R$ {it.unitPrice.toFixed(4)}</TableCell>
+                                <TableCell>R$ {(it.quantity * it.unitPrice).toFixed(2)}</TableCell>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
                 <div className="flex justify-end border-t border-border/40 pt-3 text-sm font-medium">
                     Total: <span className="ml-2">R$ {po.totalCost.toFixed(2)}</span>

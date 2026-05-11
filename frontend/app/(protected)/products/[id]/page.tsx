@@ -3,7 +3,7 @@
 import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import { useDeactivateProduct, useProduct } from "@/lib/products"
 import Link from "next/link"
@@ -82,7 +82,7 @@ export default function ProductDetailPage() {
                     <h1 className="text-2xl font-semibold text-text-primary">
                         {p.name} {p.size}
                     </h1>
-                    <Badge variant={p.active ? "success" : "neutral"}>
+                    <Badge variant={p.active ? "default" : "outline"}>
                         {p.active ? "Ativo" : "Inativo"}
                     </Badge>
                 </div>
@@ -132,22 +132,22 @@ export default function ProductDetailPage() {
             <section className="space-y-3 rounded-xl border border-border/40 bg-white p-5">
                 <h2 className="text-base font-semibold text-text-primary">Ficha técnica</h2>
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Ingrediente</TH>
-                            <TH>Quantidade</TH>
-                            <TH>Unidade</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Ingrediente</TableHead>
+                            <TableHead>Quantidade</TableHead>
+                            <TableHead>Unidade</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {(p.ingredients ?? []).map((i) => (
-                            <TR key={i.id}>
-                                <TD>{i.ingredientName}</TD>
-                                <TD>{i.quantity}</TD>
-                                <TD>{i.unitOfMeasure}</TD>
-                            </TR>
+                            <TableRow key={i.id}>
+                                <TableCell>{i.ingredientName}</TableCell>
+                                <TableCell>{i.quantity}</TableCell>
+                                <TableCell>{i.unitOfMeasure}</TableCell>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             </section>
 

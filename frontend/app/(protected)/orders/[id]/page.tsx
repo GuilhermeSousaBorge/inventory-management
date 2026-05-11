@@ -3,7 +3,7 @@
 import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import {
     useCancelOrder,
@@ -29,12 +29,12 @@ function statusLabel(s: OrderStatus) {
             : "Cancelado"
 }
 
-function statusVariant(s: OrderStatus): "warning" | "success" | "neutral" {
+function statusVariant(s: OrderStatus): "warning" | "default" | "outline" {
     return s === "PENDING" || s === "IN_PROGRESS"
         ? "warning"
         : s === "COMPLETED"
-          ? "success"
-          : "neutral"
+          ? "default"
+          : "outline"
 }
 
 export default function OrderDetailPage() {
@@ -190,24 +190,24 @@ export default function OrderDetailPage() {
             <section className="space-y-3 rounded-xl border border-border/40 bg-white p-5">
                 <h2 className="text-base font-semibold text-text-primary">Itens</h2>
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Produto</TH>
-                            <TH>Qtd</TH>
-                            <TH>Preço unit.</TH>
-                            <TH>Subtotal</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Produto</TableHead>
+                            <TableHead>Qtd</TableHead>
+                            <TableHead>Preço unit.</TableHead>
+                            <TableHead>Subtotal</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {(o.items ?? []).map((it) => (
-                            <TR key={it.id}>
-                                <TD>{it.productName}</TD>
-                                <TD>{it.quantity}</TD>
-                                <TD>R$ {it.unitPrice.toFixed(2)}</TD>
-                                <TD>R$ {it.subtotal.toFixed(2)}</TD>
-                            </TR>
+                            <TableRow key={it.id}>
+                                <TableCell>{it.productName}</TableCell>
+                                <TableCell>{it.quantity}</TableCell>
+                                <TableCell>R$ {it.unitPrice.toFixed(2)}</TableCell>
+                                <TableCell>R$ {it.subtotal.toFixed(2)}</TableCell>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
                 <div className="flex justify-end border-t border-border/40 pt-3 text-sm font-medium">
                     Total: <span className="ml-2">R$ {o.totalPrice.toFixed(2)}</span>

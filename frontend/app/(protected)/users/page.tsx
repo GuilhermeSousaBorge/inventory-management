@@ -3,7 +3,7 @@
 import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import {
     useDeactivateUser,
@@ -93,31 +93,31 @@ export default function UsersPage() {
                 />
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Nome</TH>
-                            <TH>E-mail</TH>
-                            <TH>Perfil</TH>
-                            <TH>Status</TH>
-                            <TH className="w-px text-right">Ações</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nome</TableHead>
+                            <TableHead>E-mail</TableHead>
+                            <TableHead>Perfil</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="w-px text-right">Ações</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((u) => (
-                            <TR key={u.id}>
-                                <TD>{u.name}</TD>
-                                <TD className="max-w-[260px] truncate">{u.email}</TD>
-                                <TD>
-                                    <Badge variant={u.role === "OWNER" ? "success" : "neutral"}>
+                            <TableRow key={u.id}>
+                                <TableCell>{u.name}</TableCell>
+                                <TableCell className="max-w-[260px] truncate">{u.email}</TableCell>
+                                <TableCell>
+                                    <Badge variant={u.role === "OWNER" ? "default" : "outline"}>
                                         {u.role}
                                     </Badge>
-                                </TD>
-                                <TD>
-                                    <Badge variant={u.active ? "success" : "neutral"}>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant={u.active ? "default" : "outline"}>
                                         {u.active ? "Ativo" : "Inativo"}
                                     </Badge>
-                                </TD>
-                                <TD className="text-right">
+                                </TableCell>
+                                <TableCell className="text-right">
                                     <div className="flex items-center justify-end gap-1">
                                         <button
                                             type="button"
@@ -150,10 +150,10 @@ export default function UsersPage() {
                                             </button>
                                         )}
                                     </div>
-                                </TD>
-                            </TR>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 

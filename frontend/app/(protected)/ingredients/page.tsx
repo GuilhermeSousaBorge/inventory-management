@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import { useAllCategories } from "@/lib/categories"
 import {
@@ -163,36 +163,36 @@ function IngredientsPageInner() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Nome</TH>
-                            <TH>Categoria</TH>
-                            <TH>Mínimo</TH>
-                            <TH>Fornecedor padrão</TH>
-                            <TH>Status</TH>
-                            {isOwner ? <TH className="w-px text-right">Ações</TH> : null}
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nome</TableHead>
+                            <TableHead>Categoria</TableHead>
+                            <TableHead>Mínimo</TableHead>
+                            <TableHead>Fornecedor padrão</TableHead>
+                            <TableHead>Status</TableHead>
+                            {isOwner ? <TableHead className="w-px text-right">Ações</TableHead> : null}
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((ing) => (
-                            <TR key={ing.id}>
-                                <TD>{ing.name}</TD>
-                                <TD>{categoryNameById.get(ing.categoryId) ?? "—"}</TD>
-                                <TD>
+                            <TableRow key={ing.id}>
+                                <TableCell>{ing.name}</TableCell>
+                                <TableCell>{categoryNameById.get(ing.categoryId) ?? "—"}</TableCell>
+                                <TableCell>
                                     {ing.minimumQty} {ing.unitOfMeasure}
-                                </TD>
-                                <TD>
+                                </TableCell>
+                                <TableCell>
                                     {ing.defaultSupplierId
                                         ? supplierNameById.get(ing.defaultSupplierId) ?? "—"
                                         : "—"}
-                                </TD>
-                                <TD>
-                                    <Badge variant={ing.active ? "success" : "neutral"}>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant={ing.active ? "default" : "outline"}>
                                         {ing.active ? "Ativo" : "Inativo"}
                                     </Badge>
-                                </TD>
+                                </TableCell>
                                 {isOwner ? (
-                                    <TD className="text-right">
+                                    <TableCell className="text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             <Link
                                                 href={`/ingredients/${ing.id}/editar`}
@@ -212,11 +212,11 @@ function IngredientsPageInner() {
                                                 </button>
                                             ) : null}
                                         </div>
-                                    </TD>
+                                    </TableCell>
                                 ) : null}
-                            </TR>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 
