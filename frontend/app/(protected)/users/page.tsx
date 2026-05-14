@@ -1,9 +1,18 @@
 "use client"
 
-import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import {
     useDeactivateUser,
@@ -65,8 +74,8 @@ export default function UsersPage() {
         <div className="space-y-6">
             <header className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-text-primary">Usuários</h1>
-                    <p className="mt-1 text-sm text-text-secondary">
+                    <h1 className="text-2xl font-semibold text-foreground">Usuários</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">
                         Gerencie quem tem acesso ao sistema.
                     </p>
                 </div>
@@ -93,31 +102,31 @@ export default function UsersPage() {
                 />
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Nome</TH>
-                            <TH>E-mail</TH>
-                            <TH>Perfil</TH>
-                            <TH>Status</TH>
-                            <TH className="w-px text-right">Ações</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nome</TableHead>
+                            <TableHead>E-mail</TableHead>
+                            <TableHead>Perfil</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="w-px text-right">Ações</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((u) => (
-                            <TR key={u.id}>
-                                <TD>{u.name}</TD>
-                                <TD className="max-w-[260px] truncate">{u.email}</TD>
-                                <TD>
-                                    <Badge variant={u.role === "OWNER" ? "success" : "neutral"}>
+                            <TableRow key={u.id}>
+                                <TableCell>{u.name}</TableCell>
+                                <TableCell className="max-w-[260px] truncate">{u.email}</TableCell>
+                                <TableCell>
+                                    <Badge variant={u.role === "OWNER" ? "default" : "outline"}>
                                         {u.role}
                                     </Badge>
-                                </TD>
-                                <TD>
-                                    <Badge variant={u.active ? "success" : "neutral"}>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant={u.active ? "default" : "outline"}>
                                         {u.active ? "Ativo" : "Inativo"}
                                     </Badge>
-                                </TD>
-                                <TD className="text-right">
+                                </TableCell>
+                                <TableCell className="text-right">
                                     <div className="flex items-center justify-end gap-1">
                                         <button
                                             type="button"
@@ -125,7 +134,7 @@ export default function UsersPage() {
                                                 setEditing(u)
                                                 setDialogOpen(true)
                                             }}
-                                            className="rounded p-1.5 text-text-primary/70 hover:bg-text-primary/5 hover:text-text-primary"
+                                            className="rounded p-1.5 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
                                             aria-label={`Editar ${u.name}`}
                                         >
                                             <Pencil className="h-4 w-4" />
@@ -134,7 +143,7 @@ export default function UsersPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => setConfirm({ user: u, action: "deactivate" })}
-                                                className="rounded p-1.5 text-danger/80 hover:bg-danger/10"
+                                                className="rounded p-1.5 text-destructive/80 hover:bg-destructive/10"
                                                 aria-label={`Desativar ${u.name}`}
                                             >
                                                 <Power className="h-4 w-4" />
@@ -143,22 +152,22 @@ export default function UsersPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => setConfirm({ user: u, action: "reactivate" })}
-                                                className="rounded p-1.5 text-text-primary/70 hover:bg-text-primary/5"
+                                                className="rounded p-1.5 text-foreground/70 hover:bg-foreground/5"
                                                 aria-label={`Reativar ${u.name}`}
                                             >
                                                 <RotateCcw className="h-4 w-4" />
                                             </button>
                                         )}
                                     </div>
-                                </TD>
-                            </TR>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 
             {data && data.total > size ? (
-                <div className="flex items-center justify-between text-sm text-text-secondary">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>
                         Página {page + 1} de {totalPages} · {size} por página
                     </span>
@@ -185,20 +194,40 @@ export default function UsersPage() {
 
             <UserDialog open={dialogOpen} onClose={() => setDialogOpen(false)} user={editing} />
 
-            <ConfirmDialog
-                open={!!confirm}
-                onClose={() => setConfirm(null)}
-                onConfirm={onConfirm}
-                title={confirm?.action === "deactivate" ? "Desativar usuário" : "Reativar usuário"}
-                message={
-                    confirm?.action === "deactivate"
-                        ? `Confirma desativar ${confirm.user.name}? Ele perderá acesso ao sistema.`
-                        : `Confirma reativar ${confirm?.user.name}?`
-                }
-                confirmLabel={confirm?.action === "deactivate" ? "Desativar" : "Reativar"}
-                confirmVariant={confirm?.action === "deactivate" ? "danger" : "primary"}
-                loading={deactivate.isPending || reactivate.isPending}
-            />
+            <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            {confirm?.action === "deactivate" ? "Desativar usuário" : "Reativar usuário"}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {confirm?.action === "deactivate"
+                                ? `Confirma desativar ${confirm.user.name}? Ele perderá acesso ao sistema.`
+                                : `Confirma reativar ${confirm?.user.name}?`}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deactivate.isPending || reactivate.isPending}>
+                            Cancelar
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={onConfirm}
+                            disabled={deactivate.isPending || reactivate.isPending}
+                            className={
+                                confirm?.action === "deactivate"
+                                    ? "bg-destructive text-white hover:bg-destructive/90"
+                                    : undefined
+                            }
+                        >
+                            {deactivate.isPending || reactivate.isPending
+                                ? "Processando..."
+                                : confirm?.action === "deactivate"
+                                  ? "Desativar"
+                                  : "Reativar"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }
@@ -207,7 +236,7 @@ function SkeletonRows() {
     return (
         <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
             ))}
         </div>
     )
@@ -216,7 +245,7 @@ function SkeletonRows() {
 function EmptyState({ onCreate }: { onCreate: () => void }) {
     return (
         <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-            <p className="text-sm text-text-secondary">Nenhum usuário cadastrado.</p>
+            <p className="text-sm text-muted-foreground">Nenhum usuário cadastrado.</p>
             <Button className="mt-4" onClick={onCreate}>
                 Criar primeiro usuário
             </Button>
@@ -226,8 +255,8 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
 
 function ErrorBanner({ onRetry }: { onRetry: () => void }) {
     return (
-        <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-            <p className="text-sm text-danger">Falha ao carregar usuários.</p>
+        <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+            <p className="text-sm text-destructive">Falha ao carregar usuários.</p>
             <Button variant="ghost" size="sm" onClick={onRetry}>
                 Tentar novamente
             </Button>
@@ -238,8 +267,8 @@ function ErrorBanner({ onRetry }: { onRetry: () => void }) {
 function NoAccess() {
     return (
         <div className="mx-auto max-w-md rounded-xl border border-border/40 bg-white p-8 text-center">
-            <h2 className="text-base font-semibold text-text-primary">Sem permissão</h2>
-            <p className="mt-2 text-sm text-text-secondary">
+            <h2 className="text-base font-semibold text-foreground">Sem permissão</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
                 Apenas o proprietário pode gerenciar usuários.
             </p>
         </div>

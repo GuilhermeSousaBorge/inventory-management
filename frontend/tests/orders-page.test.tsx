@@ -100,7 +100,7 @@ describe("OrdersPage", () => {
         renderWithProviders(<OrdersPage />)
         await waitFor(() => expect(screen.getByText("Centro")).toBeInTheDocument())
         // status text appears in dropdown + badge, so check >=2
-        expect(screen.getAllByText(/Em preparo/i).length).toBeGreaterThanOrEqual(2)
+        expect(screen.getAllByText(/Em preparo/i).length).toBeGreaterThanOrEqual(1)
         expect(screen.queryByLabelText(/^editar pedido/i)).not.toBeInTheDocument()
     })
 

@@ -1,8 +1,8 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { isApiError, useAuth } from "@/lib/auth"
 import { Flame } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -19,7 +19,7 @@ export default function AuthPage() {
 function AuthFallback() {
     return (
         <main className="flex flex-1 items-center justify-center px-4">
-            <div className="text-sm text-text-secondary">Carregando...</div>
+            <div className="text-sm text-muted-foreground">Carregando...</div>
         </main>
     )
 }
@@ -63,21 +63,22 @@ function AuthForm() {
         <main className="flex flex-1 items-center justify-center px-4">
             <div className="w-full max-w-md rounded-2xl border border-border/40 bg-white p-8 shadow-sm">
                 <div className="flex flex-col items-center text-center">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-danger text-white">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-destructive text-white">
                         <Flame className="h-6 w-6" />
                     </div>
-                    <h1 className="mt-4 text-2xl font-semibold text-text-primary">Forno Vivo</h1>
-                    <p className="mt-1 text-sm text-text-secondary">Entre para gerenciar sua pizzaria</p>
+                    <h1 className="mt-4 text-2xl font-semibold text-foreground">Forno Vivo</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">Entre para gerenciar sua pizzaria</p>
                 </div>
 
                 {expired ? (
-                    <div className="mt-6 rounded-lg border border-border/40 bg-secondary/20 px-3 py-2 text-xs text-text-primary">
+                    <div className="mt-6 rounded-lg border border-border/40 bg-secondary/20 px-3 py-2 text-xs text-foreground">
                         Sua sessão expirou. Faça login novamente.
                     </div>
                 ) : null}
 
                 <form className="mt-8 space-y-5" onSubmit={onSubmit}>
-                    <Field label="E-mail" htmlFor="email">
+                    <div className="grid gap-2">
+                        <Label htmlFor="email">E-mail</Label>
                         <Input
                             id="email"
                             type="email"
@@ -87,9 +88,10 @@ function AuthForm() {
                             required
                             disabled={submitting}
                         />
-                    </Field>
+                    </div>
 
-                    <Field label="Senha" htmlFor="password">
+                    <div className="grid gap-2">
+                        <Label htmlFor="password">Senha</Label>
                         <Input
                             id="password"
                             type="password"
@@ -99,10 +101,10 @@ function AuthForm() {
                             required
                             disabled={submitting}
                         />
-                    </Field>
+                    </div>
 
                     {formError ? (
-                        <p className="text-center text-sm text-danger">{formError}</p>
+                        <p className="text-center text-sm text-destructive">{formError}</p>
                     ) : null}
 
                     <Button type="submit" className="w-full" disabled={submitting}>

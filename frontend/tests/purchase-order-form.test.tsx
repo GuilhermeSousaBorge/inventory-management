@@ -1,4 +1,5 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const replaceMock = vi.fn()
@@ -101,8 +102,22 @@ function selectsHandler(cfg: { url?: string; method?: string }) {
     return null
 }
 
+async function pickFirstIngredient(row: HTMLElement) {
+    const user = userEvent.setup()
+    const trigger = within(row).getByRole("combobox", { name: /ingrediente/i })
+    await user.click(trigger)
+    await waitFor(() => {
+        const content = document.body.querySelector('[data-slot="select-content"]')
+        expect(content).toBeInTheDocument()
+    })
+    const items = document.body.querySelectorAll('[data-slot="select-item"]')
+    expect(items.length).toBeGreaterThan(0)
+    await user.click(items[0])
+}
+
 describe("PurchaseOrderForm (create)", () => {
     it("renders, adds an item, prefills unitPrice, computes total, submits", async () => {
+        const user = userEvent.setup()
         tokenStorage.setAccess("a1")
         setHandler((cfg) => {
             const r = selectsHandler(cfg)
@@ -116,30 +131,35 @@ describe("PurchaseOrderForm (create)", () => {
 
         renderWithProviders(<PurchaseOrderForm mode="create" />)
 
-        // wait for selects to populate
         await waitFor(() => expect(screen.getByText("Distribuidora ABC")).toBeInTheDocument())
 
-        fireEvent.change(screen.getByLabelText(/fornecedor/i), { target: { value: supplierUUID } })
-        fireEvent.change(screen.getByLabelText(/unidade/i), { target: { value: unitUUID } })
+        const supplierTrigger = screen.getByRole("combobox", { name: /fornecedor/i })
+        await user.click(supplierTrigger)
+        await waitFor(() => {
+            const content = document.body.querySelector('[data-slot="select-content"]')
+            expect(content).toBeInTheDocument()
+        })
+        await user.click(document.body.querySelector('[data-slot="select-content"] [data-slot="select-item"]')!)
 
-        // first item is auto-rendered (one default empty row)
+        const unitTrigger = screen.getByRole("combobox", { name: /unidade/i })
+        await user.click(unitTrigger)
+        await waitFor(() => {
+            const content = document.body.querySelector('[data-slot="select-content"]')
+            expect(content).toBeInTheDocument()
+        })
+        await user.click(document.body.querySelector('[data-slot="select-content"] [data-slot="select-item"]')!)
+
         const itemsBlock = screen.getByTestId("po-items")
         const firstRow = within(itemsBlock).getAllByTestId("po-item-row")[0]
 
-        // pick ingredient
-        fireEvent.change(within(firstRow).getByLabelText(/ingrediente/i), {
-            target: { value: ingredientUUID },
-        })
+        await pickFirstIngredient(firstRow)
 
-        // unitPrice is auto-populated with averageCost (23.5)
         await waitFor(() =>
             expect((within(firstRow).getByLabelText(/preço/i) as HTMLInputElement).value).toBe("23.5")
         )
 
-        // qty
         fireEvent.change(within(firstRow).getByLabelText(/quantidade/i), { target: { value: "2" } })
 
-        // total = 2 * 23.5 = 47
         await waitFor(() => expect(screen.getByTestId("po-total").textContent).toMatch(/47/))
 
         fireEvent.click(screen.getByRole("button", { name: /salvar/i }))
@@ -161,10 +181,8 @@ describe("PurchaseOrderForm (create)", () => {
         renderWithProviders(<PurchaseOrderForm mode="create" />)
         await waitFor(() => expect(screen.getByText("Distribuidora ABC")).toBeInTheDocument())
 
-        // remove the only row
         const itemsBlock = screen.getByTestId("po-items")
         const removeBtn = within(itemsBlock).queryByRole("button", { name: /remover item/i })
-        // remove may be disabled when there's only 1 row — check
         expect(removeBtn).toBeDisabled()
     })
 })

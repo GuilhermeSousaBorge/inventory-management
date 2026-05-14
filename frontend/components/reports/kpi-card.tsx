@@ -1,3 +1,4 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { ReactNode } from "react"
 
 type Props = {
@@ -8,14 +9,18 @@ type Props = {
 
 export function KpiCard({ label, value, subline }: Props) {
     return (
-        <div className="rounded-xl border border-border/40 bg-white p-5">
-            <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">
-                {label}
-            </p>
-            <p className="mt-2 text-2xl font-semibold text-text-primary">{value}</p>
-            {subline ? (
-                <p className="mt-1 text-xs text-text-secondary">{subline}</p>
-            ) : null}
-        </div>
+        <Card>
+            <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {label}
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-2xl font-semibold text-foreground">{value}</p>
+                {subline ? (
+                    <p className="mt-1 text-xs text-muted-foreground">{subline}</p>
+                ) : null}
+            </CardContent>
+        </Card>
     )
 }

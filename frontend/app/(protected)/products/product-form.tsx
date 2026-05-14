@@ -1,9 +1,9 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isApiError } from "@/lib/auth"
 import { useAllCategories } from "@/lib/categories"
 import { useAllIngredients } from "@/lib/ingredients"
@@ -100,76 +100,109 @@ export function ProductForm({ mode, initial }: Props) {
     const submitting = create.isPending || update.isPending
 
     return (
+        <Form {...form}>
         <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
             <section className="space-y-4 rounded-xl border border-border/40 bg-white p-5">
-                <h2 className="text-base font-semibold text-text-primary">Dados do produto</h2>
+                <h2 className="text-base font-semibold text-foreground">Dados do produto</h2>
 
-                <Field
-                    label="Nome"
-                    htmlFor="prod-name"
-                    error={form.formState.errors.name?.message}
-                >
-                    <Input id="prod-name" {...form.register("name")} />
-                </Field>
+                <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Nome</FormLabel>
+                            <FormControl>
+                                <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
                 <div className="grid gap-4 md:grid-cols-2">
-                    <Field
-                        label="Tamanho"
-                        htmlFor="prod-size"
-                        error={form.formState.errors.size?.message}
-                    >
-                        <Select id="prod-size" {...form.register("size")}>
-                            {PRODUCT_SIZES.map((s) => (
-                                <option key={s} value={s}>
-                                    {s}
-                                </option>
-                            ))}
-                        </Select>
-                    </Field>
+                    <FormField
+                        control={form.control}
+                        name="size"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Tamanho</FormLabel>
+                                <Select value={field.value || ""} onValueChange={field.onChange}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {PRODUCT_SIZES.map((s) => (
+                                            <SelectItem key={s} value={s}>
+                                                {s}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
-                    <Field
-                        label="Categoria"
-                        htmlFor="prod-category"
-                        hint="Opcional"
-                        error={form.formState.errors.categoryId?.message}
-                    >
-                        <Select
-                            id="prod-category"
-                            disabled={categories.isPending}
-                            {...form.register("categoryId")}
-                        >
-                            <option value="">Sem categoria</option>
-                            {categories.data?.map((c) => (
-                                <option key={c.id} value={c.id}>
-                                    {c.name}
-                                </option>
-                            ))}
-                        </Select>
-                    </Field>
+                    <FormField
+                        control={form.control}
+                        name="categoryId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Categoria</FormLabel>
+                                <Select
+                                    value={field.value || "__none"}
+                                    onValueChange={(v) => field.onChange(v === "__none" ? "" : v)}
+                                    disabled={categories.isPending}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Sem categoria" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="__none">Sem categoria</SelectItem>
+                                        {categories.data?.map((c) => (
+                                            <SelectItem key={c.id} value={c.id}>
+                                                {c.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </div>
 
-                <Field
-                    label="Preço (R$)"
-                    htmlFor="prod-price"
-                    error={form.formState.errors.price?.message}
-                >
-                    <Input
-                        id="prod-price"
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        {...form.register("price")}
-                    />
-                </Field>
+                <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Preço (R$)</FormLabel>
+                            <FormControl>
+                                <Input type="number" step="0.01" min="0.01" {...field} value={field.value ?? 0} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
-                <Field
-                    label="Descrição"
-                    htmlFor="prod-description"
-                    hint="Opcional"
-                    error={form.formState.errors.description?.message}
-                >
-                    <Input id="prod-description" {...form.register("description")} />
-                </Field>
+                <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Descrição</FormLabel>
+                            <FormControl>
+                                <Input {...field} value={field.value ?? ""} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
             </section>
 
             <section
@@ -177,11 +210,11 @@ export function ProductForm({ mode, initial }: Props) {
                 data-testid="prod-ingredients"
             >
                 <div className="flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-text-primary">Ficha técnica</h2>
+                    <h2 className="text-base font-semibold text-foreground">Ficha técnica</h2>
                     {(form.formState.errors.ingredients?.message ||
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         (form.formState.errors.ingredients as any)?.root?.message) ? (
-                        <span className="text-sm text-danger">
+                        <span className="text-sm text-destructive">
                             {form.formState.errors.ingredients?.message ||
                                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 (form.formState.errors.ingredients as any)?.root?.message}
@@ -198,44 +231,51 @@ export function ProductForm({ mode, initial }: Props) {
                                 data-testid="prod-ingredient-row"
                                 className="grid grid-cols-[1fr_120px_80px_auto] items-end gap-3"
                             >
-                                <Field
-                                    label="Ingrediente"
-                                    htmlFor={`prod-ing-${i}`}
-                                    error={form.formState.errors.ingredients?.[i]?.ingredientId?.message}
-                                >
-                                    <Select
-                                        id={`prod-ing-${i}`}
-                                        disabled={ingredients.isPending}
-                                        {...form.register(`ingredients.${i}.ingredientId`)}
-                                    >
-                                        <option value="">Selecione...</option>
-                                        {ingredients.data?.map((ing) => (
-                                            <option key={ing.id} value={ing.id}>
-                                                {ing.name}
-                                            </option>
-                                        ))}
-                                    </Select>
-                                </Field>
-                                <Field
-                                    label="Quantidade"
-                                    htmlFor={`prod-qty-${i}`}
-                                    error={form.formState.errors.ingredients?.[i]?.quantity?.message}
-                                >
-                                    <Input
-                                        id={`prod-qty-${i}`}
-                                        type="number"
-                                        step="0.001"
-                                        min="0"
-                                        {...form.register(`ingredients.${i}.quantity`)}
-                                    />
-                                </Field>
-                                <Field label="Unidade" htmlFor={`prod-unit-${i}`}>
-                                    <Input
-                                        id={`prod-unit-${i}`}
-                                        readOnly
-                                        value={ingredientUnit(ingredientId)}
-                                    />
-                                </Field>
+                                <FormField
+                                    control={form.control}
+                                    name={`ingredients.${i}.ingredientId`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Ingrediente</FormLabel>
+                                            <Select
+                                                value={field.value || ""}
+                                                onValueChange={field.onChange}
+                                                disabled={ingredients.isPending}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Selecione..." />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {ingredients.data?.map((ing) => (
+                                                        <SelectItem key={ing.id} value={ing.id}>
+                                                            {ing.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name={`ingredients.${i}.quantity`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Quantidade</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" step="0.001" min="0" {...field} value={field.value ?? 0} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormItem>
+                                    <FormLabel>Unidade</FormLabel>
+                                    <Input readOnly data-testid="prod-unidade-value" value={ingredientUnit(ingredientId)} />
+                                </FormItem>
                                 <Button
                                     type="button"
                                     variant="ghost"
@@ -280,5 +320,6 @@ export function ProductForm({ mode, initial }: Props) {
                 </Button>
             </div>
         </form>
+        </Form>
     )
 }

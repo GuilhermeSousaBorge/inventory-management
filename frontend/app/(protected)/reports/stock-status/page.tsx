@@ -4,9 +4,9 @@ import { ExportCsvButton } from "@/components/reports/export-csv-button"
 import { KpiCard } from "@/components/reports/kpi-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
-import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useStockStatusReport, type StockStatusRow } from "@/lib/reports"
 import { useAllUnits } from "@/lib/units"
 import Link from "next/link"
@@ -17,7 +17,7 @@ function todayISO(): string {
 }
 
 function levelVariant(l: StockStatusRow["level"]) {
-    return l === "LOW" ? "danger" : l === "WARNING" ? "warning" : "success"
+    return l === "LOW" ? "destructive" : l === "WARNING" ? "warning" : "default"
 }
 
 function levelLabel(l: StockStatusRow["level"]) {
@@ -37,42 +37,51 @@ export default function StockStatusReportPage() {
     return (
         <div className="space-y-6">
             <header>
-                <p className="text-sm text-text-secondary">
+                <p className="text-sm text-muted-foreground">
                     <Link href="/reports" className="hover:underline">
                         Relatórios
                     </Link>{" "}
                     › Status de estoque
                 </p>
-                <h1 className="mt-1 text-2xl font-semibold text-text-primary">
+                <h1 className="mt-1 text-2xl font-semibold text-foreground">
                     Status de estoque
                 </h1>
-                <p className="mt-1 text-sm text-text-secondary">
+                <p className="mt-1 text-sm text-muted-foreground">
                     Visão atual de saldos vs. mínimos por unidade.
                 </p>
             </header>
 
             <div className="rounded-xl border border-border/40 bg-white p-5">
-                <Field label="Unidade" htmlFor="f-unit">
-                    <Select id="f-unit" value={unit} onChange={(e) => setUnit(e.target.value)} >
-                        <option value="">Todas</option>
-                        {units.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
+                <div className="space-y-1">
+                    <Label htmlFor="f-unit">Unidade</Label>
+                    <Select
+                        value={unit || "__all"}
+                        onValueChange={(v) => setUnit(v === "__all" ? "" : v)}
+                    >
+                        <SelectTrigger id="f-unit">
+                            <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todas</SelectItem>
+                            {units.data?.map((u) => (
+                                <SelectItem key={u.id} value={u.id}>
+                                    {u.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
-                </Field>
+                </div>
             </div>
 
             {query.isLoading ? (
                 <div className="space-y-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
                     ))}
                 </div>
             ) : query.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                    <p className="text-sm text-danger">Falha ao carregar relatório.</p>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <p className="text-sm text-destructive">Falha ao carregar relatório.</p>
                     <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
                         Tentar novamente
                     </Button>
@@ -91,36 +100,36 @@ export default function StockStatusReportPage() {
 
                     {data.length === 0 ? (
                         <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                            <p className="text-sm text-text-secondary">
+                            <p className="text-sm text-muted-foreground">
                                 Nenhum dado para os filtros selecionados.
                             </p>
                         </div>
                     ) : (
                         <Table>
-                            <THead>
-                                <TR>
-                                    <TH>Ingrediente</TH>
-                                    <TH>UoM</TH>
-                                    <TH>Saldo</TH>
-                                    <TH>Mínimo</TH>
-                                    <TH>Nível</TH>
-                                </TR>
-                            </THead>
-                            <TBody>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Ingrediente</TableHead>
+                                    <TableHead>UoM</TableHead>
+                                    <TableHead>Saldo</TableHead>
+                                    <TableHead>Mínimo</TableHead>
+                                    <TableHead>Nível</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {data.map((r) => (
-                                    <TR key={r.ingredientId}>
-                                        <TD>{r.ingredientName}</TD>
-                                        <TD>{r.unitOfMeasure}</TD>
-                                        <TD>{r.currentQuantity.toLocaleString("pt-BR")}</TD>
-                                        <TD>{r.minQuantity.toLocaleString("pt-BR")}</TD>
-                                        <TD>
+                                    <TableRow key={r.ingredientId}>
+                                        <TableCell>{r.ingredientName}</TableCell>
+                                        <TableCell>{r.unitOfMeasure}</TableCell>
+                                        <TableCell>{r.currentQuantity.toLocaleString("pt-BR")}</TableCell>
+                                        <TableCell>{r.minQuantity.toLocaleString("pt-BR")}</TableCell>
+                                        <TableCell>
                                             <Badge variant={levelVariant(r.level)}>
                                                 {levelLabel(r.level)}
                                             </Badge>
-                                        </TD>
-                                    </TR>
+                                        </TableCell>
+                                    </TableRow>
                                 ))}
-                            </TBody>
+                            </TableBody>
                         </Table>
                     )}
                 </>

@@ -3,10 +3,10 @@
 import { ExportCsvButton } from "@/components/reports/export-csv-button"
 import { KpiCard } from "@/components/reports/kpi-card"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAllIngredients } from "@/lib/ingredients"
 import {
     reportsRangeFiltersSchema,
@@ -17,7 +17,7 @@ import { useAllUnits } from "@/lib/units"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
 import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 
 function startOfMonthISO(): string {
     const d = new Date()
@@ -61,67 +61,105 @@ export default function ConsumptionReportPage() {
     return (
         <div className="space-y-6">
             <header>
-                <p className="text-sm text-text-secondary">
+                <p className="text-sm text-muted-foreground">
                     <Link href="/reports" className="hover:underline">
                         Relatórios
                     </Link>{" "}
                     › Consumo
                 </p>
-                <h1 className="mt-1 text-2xl font-semibold text-text-primary">
+                <h1 className="mt-1 text-2xl font-semibold text-foreground">
                     Relatório de consumo
                 </h1>
-                <p className="mt-1 text-sm text-text-secondary">
+                <p className="mt-1 text-sm text-muted-foreground">
                     Total de saídas (EXIT) por ingrediente no período.
                 </p>
             </header>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="rounded-xl border border-border/40 bg-white p-5" >
                 <div className="flex flex-wrap items-end gap-3">
-                    <Field label="De" htmlFor="f-from" error={form.formState.errors.from?.message} >
+                    <div className="space-y-1">
+                        <Label htmlFor="f-from">De</Label>
                         <Input id="f-from" type="date" {...form.register("from")} />
-                    </Field>
-                    <Field label="Até" htmlFor="f-to" error={form.formState.errors.to?.message} >
+                        {form.formState.errors.from?.message ? (
+                            <p className="text-sm text-destructive">{form.formState.errors.from.message}</p>
+                        ) : null}
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="f-to">Até</Label>
                         <Input id="f-to" type="date" {...form.register("to")} />
-                    </Field>
-                    <Field label="Unidade" htmlFor="f-unit">
-                        <Select id="f-unit" {...form.register("unit")}>
-                            <option value="">Todas</option>
-                            {units.data?.map((u) => (
-                                <option key={u.id} value={u.id}>
-                                    {u.name}
-                                </option>
-                            ))}
-                        </Select>
-                    </Field>
-                    <Field label="Ingrediente" htmlFor="f-ingredient">
-                        <Select id="f-ingredient" {...form.register("ingredient")}>
-                            <option value="">Todos</option>
-                            {ingredients.data?.map((i) => (
-                                <option key={i.id} value={i.id}>
-                                    {i.name}
-                                </option>
-                            ))}
-                        </Select>
-                    </Field>
+                        {form.formState.errors.to?.message ? (
+                            <p className="text-sm text-destructive">{form.formState.errors.to.message}</p>
+                        ) : null}
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="f-unit">Unidade</Label>
+                        <Controller
+                            control={form.control}
+                            name="unit"
+                            render={({ field }) => (
+                                <Select
+                                    value={field.value || "__all"}
+                                    onValueChange={(v) => field.onChange(v === "__all" ? "" : v)}
+                                >
+                                    <SelectTrigger id="f-unit">
+                                        <SelectValue placeholder="Todas" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__all">Todas</SelectItem>
+                                        {units.data?.map((u) => (
+                                            <SelectItem key={u.id} value={u.id}>
+                                                {u.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="f-ingredient">Ingrediente</Label>
+                        <Controller
+                            control={form.control}
+                            name="ingredient"
+                            render={({ field }) => (
+                                <Select
+                                    value={field.value || "__all"}
+                                    onValueChange={(v) => field.onChange(v === "__all" ? "" : v)}
+                                >
+                                    <SelectTrigger id="f-ingredient">
+                                        <SelectValue placeholder="Todos" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__all">Todos</SelectItem>
+                                        {ingredients.data?.map((i) => (
+                                            <SelectItem key={i.id} value={i.id}>
+                                                {i.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
+                    </div>
                     <Button type="submit">Aplicar</Button>
                 </div>
             </form>
 
             {!applied ? (
                 <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                    <p className="text-sm text-text-secondary">
+                    <p className="text-sm text-muted-foreground">
                         Selecione um período e clique em Aplicar.
                     </p>
                 </div>
             ) : query.isLoading ? (
                 <div className="space-y-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
                     ))}
                 </div>
             ) : query.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                    <p className="text-sm text-danger">Falha ao carregar relatório.</p>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <p className="text-sm text-destructive">Falha ao carregar relatório.</p>
                     <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
                         Tentar novamente
                     </Button>
@@ -140,30 +178,30 @@ export default function ConsumptionReportPage() {
 
                     {data.length === 0 ? (
                         <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                            <p className="text-sm text-text-secondary">
+                            <p className="text-sm text-muted-foreground">
                                 Nenhum dado para os filtros selecionados.
                             </p>
                         </div>
                     ) : (
                         <Table>
-                            <THead>
-                                <TR>
-                                    <TH>Ingrediente</TH>
-                                    <TH>Unidade de medida</TH>
-                                    <TH>Total</TH>
-                                    <TH># movimentos</TH>
-                                </TR>
-                            </THead>
-                            <TBody>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Ingrediente</TableHead>
+                                    <TableHead>Unidade de medida</TableHead>
+                                    <TableHead>Total</TableHead>
+                                    <TableHead># movimentos</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {data.map((r) => (
-                                    <TR key={r.ingredientId}>
-                                        <TD>{r.ingredientName}</TD>
-                                        <TD>{r.unitOfMeasure}</TD>
-                                        <TD>{r.totalQuantity.toLocaleString("pt-BR")}</TD>
-                                        <TD>{r.movementCount}</TD>
-                                    </TR>
+                                    <TableRow key={r.ingredientId}>
+                                        <TableCell>{r.ingredientName}</TableCell>
+                                        <TableCell>{r.unitOfMeasure}</TableCell>
+                                        <TableCell>{r.totalQuantity.toLocaleString("pt-BR")}</TableCell>
+                                        <TableCell>{r.movementCount}</TableCell>
+                                    </TableRow>
                                 ))}
-                            </TBody>
+                            </TableBody>
                         </Table>
                     )}
                 </>

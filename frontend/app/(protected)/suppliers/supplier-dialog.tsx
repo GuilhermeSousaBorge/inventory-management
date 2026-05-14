@@ -1,8 +1,8 @@
 "use client"
 
-import { Modal } from "@/components/overlays/modal"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { isApiError } from "@/lib/auth"
 import {
@@ -80,64 +80,95 @@ export function SupplierDialog({ open, onClose, supplier }: Props) {
     const submitting = create.isPending || update.isPending
 
     return (
-        <Modal
-            open={open}
-            onClose={onClose}
-            title={editing ? "Editar fornecedor" : "Novo fornecedor"}
-            footer={
-                <>
+        <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{editing ? "Editar fornecedor" : "Novo fornecedor"}</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
+                <form id="supplier-form" className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+                    <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Nome</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="contactName"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Contato</FormLabel>
+                                <FormControl>
+                                    <Input {...field} value={field.value ?? ""} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Telefone</FormLabel>
+                                <FormControl>
+                                    <Input {...field} value={field.value ?? ""} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>E-mail</FormLabel>
+                                <FormControl>
+                                    <Input type="email" {...field} value={field.value ?? ""} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="address"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Endereço</FormLabel>
+                                <FormControl>
+                                    <Input {...field} value={field.value ?? ""} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    {editing ? (
+                        <label className="flex items-center gap-2 text-sm text-foreground">
+                            <input type="checkbox" {...form.register("active" as never)} />
+                            Ativo
+                        </label>
+                    ) : null}
+                </form>
+            </Form>
+                <DialogFooter>
                     <Button variant="ghost" onClick={onClose} disabled={submitting}>
                         Cancelar
                     </Button>
                     <Button type="submit" form="supplier-form" disabled={submitting}>
                         {submitting ? "Salvando..." : "Salvar"}
                     </Button>
-                </>
-            }
-        >
-            <form id="supplier-form" className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-                <Field
-                    label="Nome"
-                    htmlFor="supplier-name"
-                    error={form.formState.errors.name?.message}
-                >
-                    <Input id="supplier-name" {...form.register("name")} />
-                </Field>
-                <Field
-                    label="Contato"
-                    htmlFor="supplier-contact"
-                    error={form.formState.errors.contactName?.message}
-                >
-                    <Input id="supplier-contact" {...form.register("contactName")} />
-                </Field>
-                <Field
-                    label="Telefone"
-                    htmlFor="supplier-phone"
-                    error={form.formState.errors.phone?.message}
-                >
-                    <Input id="supplier-phone" {...form.register("phone")} />
-                </Field>
-                <Field
-                    label="E-mail"
-                    htmlFor="supplier-email"
-                    error={form.formState.errors.email?.message}
-                >
-                    <Input id="supplier-email" type="email" {...form.register("email")} />
-                </Field>
-                <Field
-                    label="Endereço"
-                    htmlFor="supplier-address"
-                    error={form.formState.errors.address?.message}
-                >
-                    <Input id="supplier-address" {...form.register("address")} />
-                </Field>
-                {editing ? (
-                    <label className="flex items-center gap-2 text-sm text-text-primary">
-                        <input type="checkbox" {...form.register("active" as never)} />
-                        Ativo
-                    </label>
-                ) : null}
-            </form>
-        </Modal>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }

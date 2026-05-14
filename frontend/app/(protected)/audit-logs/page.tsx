@@ -2,10 +2,10 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
     actionBadgeVariant,
     AUDIT_ACTIONS,
@@ -72,117 +72,147 @@ function AuditLogsPageInner() {
     return (
         <div className="space-y-6">
             <header>
-                <h1 className="text-2xl font-semibold text-text-primary">Auditoria</h1>
-                <p className="mt-1 text-sm text-text-secondary">
+                <h1 className="text-2xl font-semibold text-foreground">Auditoria</h1>
+                <p className="mt-1 text-sm text-muted-foreground">
                     Histórico imutável de mutações sensíveis no sistema.
                 </p>
             </header>
 
             <div className="flex flex-wrap items-end gap-3">
-                <Field label="Tipo de entidade" htmlFor="f-entity-type">
-                    <Select id="f-entity-type" value={entityTypeParam} onChange={(e) => setFilter("entityType", e.target.value)} >
-                        <option value="">Todos</option>
-                        {AUDIT_ENTITY_TYPES.map((t) => (
-                            <option key={t} value={t}>
-                                {t}
-                            </option>
-                        ))}
+                <div className="space-y-1">
+                    <Label htmlFor="f-entity-type">Tipo de entidade</Label>
+                    <Select
+                        value={entityTypeParam || "__all"}
+                        onValueChange={(v) => setFilter("entityType", v === "__all" ? "" : v)}
+                    >
+                        <SelectTrigger id="f-entity-type">
+                            <SelectValue placeholder="Todos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todos</SelectItem>
+                            {AUDIT_ENTITY_TYPES.map((t) => (
+                                <SelectItem key={t} value={t}>
+                                    {t}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
-                </Field>
-                <Field label="ID da entidade" htmlFor="f-entity-id">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="f-entity-id">ID da entidade</Label>
                     <Input id="f-entity-id" value={entityIdParam} onChange={(e) => setFilter("entityId", e.target.value)} placeholder="UUID" />
-                </Field>
-                <Field label="Ação" htmlFor="f-action">
-                    <Select id="f-action" value={actionParam} onChange={(e) => setFilter("action", e.target.value)} >
-                        <option value="">Todas</option>
-                        {AUDIT_ACTIONS.map((a) => (
-                            <option key={a} value={a}>
-                                {formatAuditAction(a)}
-                            </option>
-                        ))}
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="f-action">Ação</Label>
+                    <Select
+                        value={actionParam || "__all"}
+                        onValueChange={(v) => setFilter("action", v === "__all" ? "" : v)}
+                    >
+                        <SelectTrigger id="f-action">
+                            <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todas</SelectItem>
+                            {AUDIT_ACTIONS.map((a) => (
+                                <SelectItem key={a} value={a}>
+                                    {formatAuditAction(a)}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
-                </Field>
-                <Field label="Ator" htmlFor="f-actor">
-                    <Select id="f-actor" value={actorParam} onChange={(e) => setFilter("actorId", e.target.value)} >
-                        <option value="">Todos</option>
-                        {users.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="f-actor">Ator</Label>
+                    <Select
+                        value={actorParam || "__all"}
+                        onValueChange={(v) => setFilter("actorId", v === "__all" ? "" : v)}
+                    >
+                        <SelectTrigger id="f-actor">
+                            <SelectValue placeholder="Todos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todos</SelectItem>
+                            {users.data?.map((u) => (
+                                <SelectItem key={u.id} value={u.id}>
+                                    {u.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
-                </Field>
-                <Field label="De" htmlFor="f-from">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="f-from">De</Label>
                     <Input id="f-from" type="date" value={fromParam} onChange={(e) => setFilter("from", e.target.value)} />
-                </Field>
-                <Field label="Até" htmlFor="f-to">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="f-to">Até</Label>
                     <Input id="f-to" type="date" value={toParam} onChange={(e) => setFilter("to", e.target.value)} />
-                </Field>
+                </div>
             </div>
 
             {query.isLoading ? (
                 <div className="space-y-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
                     ))}
                 </div>
             ) : query.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                    <p className="text-sm text-danger">Falha ao carregar auditoria.</p>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <p className="text-sm text-destructive">Falha ao carregar auditoria.</p>
                     <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
                         Tentar novamente
                     </Button>
                 </div>
             ) : data && data.data.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                    <p className="text-sm text-text-secondary">
+                    <p className="text-sm text-muted-foreground">
                         Nenhum registro para os filtros selecionados.
                     </p>
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Data</TH>
-                            <TH>Ação</TH>
-                            <TH>Entidade</TH>
-                            <TH>Ator</TH>
-                            <TH>Detalhes</TH>
-                            <TH>Ações</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Data</TableHead>
+                            <TableHead>Ação</TableHead>
+                            <TableHead>Entidade</TableHead>
+                            <TableHead>Ator</TableHead>
+                            <TableHead>Detalhes</TableHead>
+                            <TableHead>Ações</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((log) => (
-                            <TR key={log.id}>
-                                <TD>{new Date(log.createdAt).toLocaleString("pt-BR")}</TD>
-                                <TD>
+                            <TableRow key={log.id}>
+                                <TableCell>{new Date(log.createdAt).toLocaleString("pt-BR")}</TableCell>
+                                <TableCell>
                                     <Badge variant={actionBadgeVariant(log.action)}>
                                         {formatAuditAction(log.action)}
                                     </Badge>
-                                </TD>
-                                <TD>
+                                </TableCell>
+                                <TableCell>
                                     {log.entityType}{" "}
-                                    <span className="font-mono text-xs text-text-secondary">
+                                    <span className="font-mono text-xs text-muted-foreground">
                                         #{log.entityId.slice(0, 8)}
                                     </span>
-                                </TD>
-                                <TD>{log.actorName}</TD>
-                                <TD className="max-w-xs truncate">
+                                </TableCell>
+                                <TableCell>{log.actorName}</TableCell>
+                                <TableCell className="max-w-xs truncate">
                                     {summarizeAuditDetails(log.action, log.details)}
-                                </TD>
-                                <TD>
+                                </TableCell>
+                                <TableCell>
                                     <Link href={`/audit-logs/${log.id}`} className="inline-flex items-center gap-1 text-primary hover:underline" >
                                         <Eye className="h-4 w-4" /> Ver
                                     </Link>
-                                </TD>
-                            </TR>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 
             {data && data.total > size ? (
-                <div className="flex items-center justify-between text-sm text-text-secondary">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>
                         Página {page + 1} de {totalPages} · {size} por página
                     </span>
@@ -203,8 +233,8 @@ function AuditLogsPageInner() {
 function NoAccess() {
     return (
         <div className="mx-auto max-w-md rounded-xl border border-border/40 bg-white p-8 text-center">
-            <h2 className="text-base font-semibold text-text-primary">Sem permissão</h2>
-            <p className="mt-2 text-sm text-text-secondary">
+            <h2 className="text-base font-semibold text-foreground">Sem permissão</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
                 Apenas o proprietário pode acessar a auditoria.
             </p>
         </div>

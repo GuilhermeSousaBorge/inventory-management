@@ -2,10 +2,10 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAuth } from "@/lib/auth"
 import {
     ORDER_STATUSES,
@@ -28,12 +28,12 @@ function statusLabel(s: OrderStatus) {
             : "Cancelado"
 }
 
-function statusVariant(s: OrderStatus): "warning" | "success" | "neutral" {
+function statusVariant(s: OrderStatus): "warning" | "default" | "outline" {
     return s === "PENDING" || s === "IN_PROGRESS"
         ? "warning"
         : s === "COMPLETED"
-          ? "success"
-          : "neutral"
+          ? "default"
+          : "outline"
 }
 
 function OrdersPageInner() {
@@ -83,8 +83,8 @@ function OrdersPageInner() {
         <div className="space-y-6">
             <header className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-text-primary">Pedidos</h1>
-                    <p className="mt-1 text-sm text-text-secondary">
+                    <h1 className="text-2xl font-semibold text-foreground">Pedidos</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">
                         Pedidos de cliente com workflow de preparo.
                     </p>
                 </div>
@@ -98,68 +98,80 @@ function OrdersPageInner() {
             </header>
 
             <div className="flex flex-wrap items-end gap-3">
-                <Field label="Status" htmlFor="filter-status">
+                <div className="space-y-1">
+                    <Label htmlFor="filter-status">Status</Label>
                     <Select
-                        id="filter-status"
-                        value={statusParam ?? ""}
-                        onChange={(e) => setFilter("status", e.target.value)}
+                        value={statusParam ?? "__all"}
+                        onValueChange={(v) => setFilter("status", v === "__all" ? "" : v)}
                     >
-                        <option value="">Todos</option>
-                        {ORDER_STATUSES.map((s) => (
-                            <option key={s} value={s}>
-                                {statusLabel(s)}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-status">
+                            <SelectValue placeholder="Todos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todos</SelectItem>
+                            {ORDER_STATUSES.map((s) => (
+                                <SelectItem key={s} value={s}>
+                                    {statusLabel(s)}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
-                </Field>
-                <Field label="Unidade" htmlFor="filter-unit">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-unit">Unidade</Label>
                     <Select
-                        id="filter-unit"
-                        value={unitParam}
-                        onChange={(e) => setFilter("unit", e.target.value)}
+                        value={unitParam || "__all"}
+                        onValueChange={(v) => setFilter("unit", v === "__all" ? "" : v)}
                     >
-                        <option value="">Todas</option>
-                        {units.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-unit">
+                            <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todas</SelectItem>
+                            {units.data?.map((u) => (
+                                <SelectItem key={u.id} value={u.id}>
+                                    {u.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
-                </Field>
-                <Field label="De" htmlFor="filter-from">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-from">De</Label>
                     <Input
                         id="filter-from"
                         type="date"
                         value={fromParam}
                         onChange={(e) => setFilter("from", e.target.value)}
                     />
-                </Field>
-                <Field label="Até" htmlFor="filter-to">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-to">Até</Label>
                     <Input
                         id="filter-to"
                         type="date"
                         value={toParam}
                         onChange={(e) => setFilter("to", e.target.value)}
                     />
-                </Field>
+                </div>
             </div>
 
             {query.isLoading ? (
                 <div className="space-y-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
                     ))}
                 </div>
             ) : query.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                    <p className="text-sm text-danger">Falha ao carregar pedidos.</p>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <p className="text-sm text-destructive">Falha ao carregar pedidos.</p>
                     <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
                         Tentar novamente
                     </Button>
                 </div>
             ) : data && data.data.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                    <p className="text-sm text-text-secondary">Nenhum pedido encontrado.</p>
+                    <p className="text-sm text-muted-foreground">Nenhum pedido encontrado.</p>
                     {isOwner ? (
                         <Link href="/orders/novo">
                             <Button className="mt-4">Criar primeiro pedido</Button>
@@ -168,30 +180,30 @@ function OrdersPageInner() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Nº</TH>
-                            <TH>Unidade</TH>
-                            <TH>Status</TH>
-                            <TH>Itens</TH>
-                            <TH>Total</TH>
-                            <TH>Criado</TH>
-                            <TH className="w-px text-right">Ações</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nº</TableHead>
+                            <TableHead>Unidade</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Itens</TableHead>
+                            <TableHead>Total</TableHead>
+                            <TableHead>Criado</TableHead>
+                            <TableHead className="w-px text-right">Ações</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((o) => (
-                            <TR key={o.id}>
-                                <TD className="font-mono">#{o.id.slice(0, 8)}</TD>
-                                <TD>{o.unitName}</TD>
-                                <TD>
+                            <TableRow key={o.id}>
+                                <TableCell className="font-mono">#{o.id.slice(0, 8)}</TableCell>
+                                <TableCell>{o.unitName}</TableCell>
+                                <TableCell>
                                     <Badge variant={statusVariant(o.status)}>
                                         {statusLabel(o.status)}
                                     </Badge>
-                                </TD>
-                                <TD>{o.items?.length ?? "—"}</TD>
-                                <TD>R$ {o.totalPrice.toFixed(2)}</TD>
-                                <TD>
+                                </TableCell>
+                                <TableCell>{o.items?.length ?? "—"}</TableCell>
+                                <TableCell>R$ {o.totalPrice.toFixed(2)}</TableCell>
+                                <TableCell>
                                     {new Date(o.createdAt).toLocaleString("pt-BR", {
                                         day: "2-digit",
                                         month: "2-digit",
@@ -199,12 +211,12 @@ function OrdersPageInner() {
                                         hour: "2-digit",
                                         minute: "2-digit",
                                     })}
-                                </TD>
-                                <TD className="text-right">
+                                </TableCell>
+                                <TableCell className="text-right">
                                     <div className="flex items-center justify-end gap-1">
                                         <Link
                                             href={`/orders/${o.id}`}
-                                            className="rounded p-1.5 text-text-primary/70 hover:bg-text-primary/5 hover:text-text-primary"
+                                            className="rounded p-1.5 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
                                             aria-label={`Ver pedido #${o.id.slice(0, 8)}`}
                                         >
                                             <Eye className="h-4 w-4" />
@@ -212,22 +224,22 @@ function OrdersPageInner() {
                                         {isOwner && o.status === "PENDING" ? (
                                             <Link
                                                 href={`/orders/${o.id}/editar`}
-                                                className="rounded p-1.5 text-text-primary/70 hover:bg-text-primary/5 hover:text-text-primary"
+                                                className="rounded p-1.5 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
                                                 aria-label={`Editar pedido #${o.id.slice(0, 8)}`}
                                             >
                                                 <Pencil className="h-4 w-4" />
                                             </Link>
                                         ) : null}
                                     </div>
-                                </TD>
-                            </TR>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 
             {data && data.total > size ? (
-                <div className="flex items-center justify-between text-sm text-text-secondary">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>
                         Página {page + 1} de {totalPages} · {size} por página
                     </span>

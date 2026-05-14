@@ -1,9 +1,18 @@
 "use client"
 
-import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import { useDeactivateUnit, useUnits, type Unit } from "@/lib/units"
 import { Pencil, Plus, Power } from "lucide-react"
@@ -42,8 +51,8 @@ export default function UnitsPage() {
         <div className="space-y-6">
             <header className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-text-primary">Unidades</h1>
-                    <p className="mt-1 text-sm text-text-secondary">As unidades físicas da pizzaria.</p>
+                    <h1 className="text-2xl font-semibold text-foreground">Unidades</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">As unidades físicas da pizzaria.</p>
                 </div>
                 {isOwner ? (
                     <Button
@@ -60,19 +69,19 @@ export default function UnitsPage() {
             {unitsQuery.isLoading ? (
                 <div className="space-y-2">
                     {Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
                     ))}
                 </div>
             ) : unitsQuery.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                    <p className="text-sm text-danger">Falha ao carregar unidades.</p>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <p className="text-sm text-destructive">Falha ao carregar unidades.</p>
                     <Button variant="ghost" size="sm" onClick={() => unitsQuery.refetch()}>
                         Tentar novamente
                     </Button>
                 </div>
             ) : data && data.data.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                    <p className="text-sm text-text-secondary">Nenhuma unidade cadastrada.</p>
+                    <p className="text-sm text-muted-foreground">Nenhuma unidade cadastrada.</p>
                     {isOwner ? (
                         <Button
                             className="mt-4"
@@ -87,26 +96,26 @@ export default function UnitsPage() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Nome</TH>
-                            <TH>Endereço</TH>
-                            <TH>Status</TH>
-                            {isOwner ? <TH className="w-px text-right">Ações</TH> : null}
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nome</TableHead>
+                            <TableHead>Endereço</TableHead>
+                            <TableHead>Status</TableHead>
+                            {isOwner ? <TableHead className="w-px text-right">Ações</TableHead> : null}
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((u) => (
-                            <TR key={u.id}>
-                                <TD>{u.name}</TD>
-                                <TD className="max-w-[320px] truncate">{u.address ?? "—"}</TD>
-                                <TD>
-                                    <Badge variant={u.active ? "success" : "neutral"}>
+                            <TableRow key={u.id}>
+                                <TableCell>{u.name}</TableCell>
+                                <TableCell className="max-w-[320px] truncate">{u.address ?? "—"}</TableCell>
+                                <TableCell>
+                                    <Badge variant={u.active ? "default" : "outline"}>
                                         {u.active ? "Ativa" : "Inativa"}
                                     </Badge>
-                                </TD>
+                                </TableCell>
                                 {isOwner ? (
-                                    <TD className="text-right">
+                                    <TableCell className="text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             <button
                                                 type="button"
@@ -114,7 +123,7 @@ export default function UnitsPage() {
                                                     setEditing(u)
                                                     setDialogOpen(true)
                                                 }}
-                                                className="rounded p-1.5 text-text-primary/70 hover:bg-text-primary/5 hover:text-text-primary"
+                                                className="rounded p-1.5 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
                                                 aria-label={`Editar ${u.name}`}
                                             >
                                                 <Pencil className="h-4 w-4" />
@@ -123,23 +132,23 @@ export default function UnitsPage() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setConfirm(u)}
-                                                    className="rounded p-1.5 text-danger/80 hover:bg-danger/10"
+                                                    className="rounded p-1.5 text-destructive/80 hover:bg-destructive/10"
                                                     aria-label={`Desativar ${u.name}`}
                                                 >
                                                     <Power className="h-4 w-4" />
                                                 </button>
                                             ) : null}
                                         </div>
-                                    </TD>
+                                    </TableCell>
                                 ) : null}
-                            </TR>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 
             {data && data.total > size ? (
-                <div className="flex items-center justify-between text-sm text-text-secondary">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>
                         Página {page + 1} de {totalPages} · {size} por página
                     </span>
@@ -168,15 +177,26 @@ export default function UnitsPage() {
                 <UnitDialog open={dialogOpen} onClose={() => setDialogOpen(false)} unit={editing} />
             ) : null}
 
-            <ConfirmDialog
-                open={!!confirm}
-                onClose={() => setConfirm(null)}
-                onConfirm={onConfirm}
-                title="Desativar unidade"
-                message={confirm ? `Confirma desativar ${confirm.name}?` : ""}
-                confirmLabel="Desativar"
-                loading={deactivate.isPending}
-            />
+            <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Desativar unidade</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {confirm ? `Confirma desativar ${confirm.name}?` : ""}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deactivate.isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={onConfirm}
+                            disabled={deactivate.isPending}
+                            className="bg-destructive text-white hover:bg-destructive/90"
+                        >
+                            {deactivate.isPending ? "Processando..." : "Desativar"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

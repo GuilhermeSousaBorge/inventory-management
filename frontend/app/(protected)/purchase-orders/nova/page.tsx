@@ -11,7 +11,7 @@ export default function NewPurchaseOrderPage() {
     if (user.role !== "OWNER") {
         return (
             <div className="rounded-xl border border-border/60 bg-white p-10 text-center">
-                <p className="text-sm text-text-secondary">
+                <p className="text-sm text-muted-foreground">
                     Você não tem permissão para criar compras.
                 </p>
             </div>
@@ -20,13 +20,13 @@ export default function NewPurchaseOrderPage() {
 
     return (
         <div className="mx-auto max-w-3xl space-y-4">
-            <nav className="text-sm text-text-secondary">
+            <nav className="text-sm text-muted-foreground">
                 <Link href="/purchase-orders" className="hover:underline">
                     Compras
                 </Link>{" "}
-                › <span className="text-text-primary">Nova</span>
+                › <span className="text-foreground">Nova</span>
             </nav>
-            <h1 className="text-2xl font-semibold text-text-primary">Nova compra</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Nova compra</h1>
             <PurchaseOrderForm mode="create" />
         </div>
     )

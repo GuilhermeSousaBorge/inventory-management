@@ -1,10 +1,10 @@
 "use client"
 
-import { Modal } from "@/components/overlays/modal"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isApiError } from "@/lib/auth"
 import { useAllIngredients } from "@/lib/ingredients"
 import {
@@ -53,12 +53,111 @@ export function AdjustmentDialog({ open, onClose }: Props) {
     }
 
     return (
-        <Modal
-            open={open}
-            onClose={onClose}
-            title="Novo ajuste de estoque"
-            footer={
-                <>
+        <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Novo ajuste de estoque</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
+                <form id="adjustment-form" className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
+                    <FormField
+                        control={form.control}
+                        name="ingredientId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Ingrediente</FormLabel>
+                                <Select value={field.value || ""} onValueChange={field.onChange}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Selecione..." />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {ingredients.data?.map((i) => (
+                                            <SelectItem key={i.id} value={i.id}>
+                                                {i.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="unitId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Unidade</FormLabel>
+                                <Select value={field.value || ""} onValueChange={field.onChange}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Selecione..." />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {units.data?.map((u) => (
+                                            <SelectItem key={u.id} value={u.id}>
+                                                {u.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="quantity"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Quantidade</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        step="0.001"
+                                        min="0"
+                                        {...field}
+                                        value={field.value ?? 0}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <fieldset>
+                        <legend className="mb-1 text-sm font-medium text-foreground">Direção</legend>
+                        <div className="flex gap-4">
+                            {ADJUSTMENT_DIRECTIONS.map((d) => (
+                                <label key={d} className="flex items-center gap-2 text-sm">
+                                    <input type="radio" value={d} {...form.register("direction")} />
+                                    {d === "INCREASE" ? "Aumentar" : "Diminuir"}
+                                </label>
+                            ))}
+                        </div>
+                    </fieldset>
+
+                    <FormField
+                        control={form.control}
+                        name="reason"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Motivo</FormLabel>
+                                <FormControl>
+                                    <Input {...field} value={field.value ?? ""} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </form>
+            </Form>
+                <DialogFooter>
                     <Button type="button" variant="ghost" onClick={onClose} disabled={create.isPending}>
                         Cancelar
                     </Button>
@@ -69,74 +168,8 @@ export function AdjustmentDialog({ open, onClose }: Props) {
                     >
                         {create.isPending ? "Salvando..." : "Salvar"}
                     </Button>
-                </>
-            }
-        >
-            <form id="adjustment-form" className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
-                <Field
-                    label="Ingrediente"
-                    htmlFor="adj-ingredient"
-                    error={form.formState.errors.ingredientId?.message}
-                >
-                    <Select id="adj-ingredient" {...form.register("ingredientId")}>
-                        <option value="">Selecione...</option>
-                        {ingredients.data?.map((i) => (
-                            <option key={i.id} value={i.id}>
-                                {i.name}
-                            </option>
-                        ))}
-                    </Select>
-                </Field>
-
-                <Field
-                    label="Unidade"
-                    htmlFor="adj-unit"
-                    error={form.formState.errors.unitId?.message}
-                >
-                    <Select id="adj-unit" {...form.register("unitId")}>
-                        <option value="">Selecione...</option>
-                        {units.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
-                    </Select>
-                </Field>
-
-                <Field
-                    label="Quantidade"
-                    htmlFor="adj-qty"
-                    error={form.formState.errors.quantity?.message}
-                >
-                    <Input
-                        id="adj-qty"
-                        type="number"
-                        step="0.001"
-                        min="0"
-                        {...form.register("quantity")}
-                    />
-                </Field>
-
-                <fieldset>
-                    <legend className="mb-1 text-sm font-medium text-text-primary">Direção</legend>
-                    <div className="flex gap-4">
-                        {ADJUSTMENT_DIRECTIONS.map((d) => (
-                            <label key={d} className="flex items-center gap-2 text-sm">
-                                <input type="radio" value={d} {...form.register("direction")} />
-                                {d === "INCREASE" ? "Aumentar" : "Diminuir"}
-                            </label>
-                        ))}
-                    </div>
-                </fieldset>
-
-                <Field
-                    label="Motivo"
-                    htmlFor="adj-reason"
-                    error={form.formState.errors.reason?.message}
-                >
-                    <Input id="adj-reason" {...form.register("reason")} />
-                </Field>
-            </form>
-        </Modal>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }

@@ -1,11 +1,20 @@
 "use client"
 
-import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
-import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import { useAllCategories } from "@/lib/categories"
 import {
@@ -84,8 +93,8 @@ function ProductsPageInner() {
         <div className="space-y-6">
             <header className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-text-primary">Produtos</h1>
-                    <p className="mt-1 text-sm text-text-secondary">Cardápio com fichas técnicas.</p>
+                    <h1 className="text-2xl font-semibold text-foreground">Produtos</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">Cardápio com fichas técnicas.</p>
                 </div>
                 {isOwner ? (
                     <Link href="/products/nova">
@@ -97,63 +106,79 @@ function ProductsPageInner() {
             </header>
 
             <div className="flex flex-wrap items-end gap-3">
-                <Field label="Categoria" htmlFor="filter-category">
+                <div className="space-y-1">
+                    <Label htmlFor="filter-category">Categoria</Label>
+                    {/* Radix Select cannot have value="" on SelectItem; use "__all" sentinel and translate at URL boundary */}
                     <Select
-                        id="filter-category"
-                        value={categoryParam}
-                        onChange={(e) => setFilter("category", e.target.value)}
+                        value={categoryParam || "__all"}
+                        onValueChange={(v) => setFilter("category", v === "__all" ? "" : v)}
                     >
-                        <option value="">Todas</option>
-                        {categories.data?.map((c) => (
-                            <option key={c.id} value={c.id}>
-                                {c.name}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-category">
+                            <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todas</SelectItem>
+                            {categories.data?.map((c) => (
+                                <SelectItem key={c.id} value={c.id}>
+                                    {c.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
-                </Field>
-                <Field label="Tamanho" htmlFor="filter-size">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-size">Tamanho</Label>
                     <Select
-                        id="filter-size"
-                        value={sizeParam ?? ""}
-                        onChange={(e) => setFilter("size", e.target.value)}
+                        value={sizeParam ?? "__all"}
+                        onValueChange={(v) => setFilter("size", v === "__all" ? "" : v)}
                     >
-                        <option value="">Todos</option>
-                        {PRODUCT_SIZES.map((s) => (
-                            <option key={s} value={s}>
-                                {s}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-size">
+                            <SelectValue placeholder="Todos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todos</SelectItem>
+                            {PRODUCT_SIZES.map((s) => (
+                                <SelectItem key={s} value={s}>
+                                    {s}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
-                </Field>
-                <Field label="Ativo" htmlFor="filter-active">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-active">Ativo</Label>
                     <Select
-                        id="filter-active"
-                        value={activeParamRaw ?? "true"}
-                        onChange={(e) => setFilter("active", e.target.value)}
+                        value={activeParamRaw === "" ? "__all" : (activeParamRaw ?? "true")}
+                        onValueChange={(v) => setFilter("active", v === "__all" ? "" : v)}
                     >
-                        <option value="true">Sim</option>
-                        <option value="false">Não</option>
-                        <option value="">Todos</option>
+                        <SelectTrigger id="filter-active">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="true">Sim</SelectItem>
+                            <SelectItem value="false">Não</SelectItem>
+                            <SelectItem value="__all">Todos</SelectItem>
+                        </SelectContent>
                     </Select>
-                </Field>
+                </div>
             </div>
 
             {query.isLoading ? (
                 <div className="space-y-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
                     ))}
                 </div>
             ) : query.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                    <p className="text-sm text-danger">Falha ao carregar produtos.</p>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <p className="text-sm text-destructive">Falha ao carregar produtos.</p>
                     <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
                         Tentar novamente
                     </Button>
                 </div>
             ) : data && data.data.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                    <p className="text-sm text-text-secondary">Nenhum produto cadastrado.</p>
+                    <p className="text-sm text-muted-foreground">Nenhum produto cadastrado.</p>
                     {isOwner ? (
                         <Link href="/products/nova">
                             <Button className="mt-4">Criar primeiro produto</Button>
@@ -162,35 +187,35 @@ function ProductsPageInner() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Nome</TH>
-                            <TH>Tamanho</TH>
-                            <TH>Categoria</TH>
-                            <TH>Preço</TH>
-                            <TH>Status</TH>
-                            <TH className="w-px text-right">Ações</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nome</TableHead>
+                            <TableHead>Tamanho</TableHead>
+                            <TableHead>Categoria</TableHead>
+                            <TableHead>Preço</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="w-px text-right">Ações</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((p) => (
-                            <TR key={p.id}>
-                                <TD className="font-medium">{p.name}</TD>
-                                <TD>
-                                    <Badge variant="neutral">{p.size}</Badge>
-                                </TD>
-                                <TD>{p.categoryName ?? "—"}</TD>
-                                <TD>R$ {p.price.toFixed(2)}</TD>
-                                <TD>
-                                    <Badge variant={p.active ? "success" : "neutral"}>
+                            <TableRow key={p.id}>
+                                <TableCell className="font-medium">{p.name}</TableCell>
+                                <TableCell>
+                                    <Badge variant="outline">{p.size}</Badge>
+                                </TableCell>
+                                <TableCell>{p.categoryName ?? "—"}</TableCell>
+                                <TableCell>R$ {p.price.toFixed(2)}</TableCell>
+                                <TableCell>
+                                    <Badge variant={p.active ? "default" : "outline"}>
                                         {p.active ? "Ativo" : "Inativo"}
                                     </Badge>
-                                </TD>
-                                <TD className="text-right">
+                                </TableCell>
+                                <TableCell className="text-right">
                                     <div className="flex items-center justify-end gap-1">
                                         <Link
                                             href={`/products/${p.id}`}
-                                            className="rounded p-1.5 text-text-primary/70 hover:bg-text-primary/5 hover:text-text-primary"
+                                            className="rounded p-1.5 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
                                             aria-label={`Ver produto ${p.name} ${p.size}`}
                                         >
                                             <Eye className="h-4 w-4" />
@@ -199,7 +224,7 @@ function ProductsPageInner() {
                                             <>
                                                 <Link
                                                     href={`/products/${p.id}/editar`}
-                                                    className="rounded p-1.5 text-text-primary/70 hover:bg-text-primary/5 hover:text-text-primary"
+                                                    className="rounded p-1.5 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
                                                     aria-label={`Editar ${p.name} ${p.size}`}
                                                 >
                                                     <Pencil className="h-4 w-4" />
@@ -213,7 +238,7 @@ function ProductsPageInner() {
                                                                 name: `${p.name} ${p.size}`,
                                                             })
                                                         }
-                                                        className="rounded p-1.5 text-text-primary/70 hover:bg-danger/10 hover:text-danger"
+                                                        className="rounded p-1.5 text-foreground/70 hover:bg-destructive/10 hover:text-destructive"
                                                         aria-label={`Desativar ${p.name} ${p.size}`}
                                                     >
                                                         <Trash2 className="h-4 w-4" />
@@ -222,15 +247,15 @@ function ProductsPageInner() {
                                             </>
                                         ) : null}
                                     </div>
-                                </TD>
-                            </TR>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 
             {data && data.total > pageSize ? (
-                <div className="flex items-center justify-between text-sm text-text-secondary">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>
                         Página {page + 1} de {totalPages} · {pageSize} por página
                     </span>
@@ -255,15 +280,26 @@ function ProductsPageInner() {
                 </div>
             ) : null}
 
-            <ConfirmDialog
-                open={!!confirmTarget}
-                onClose={() => setConfirmTarget(null)}
-                onConfirm={handleDeactivate}
-                title="Desativar produto"
-                message={`Tem certeza que deseja desativar "${confirmTarget?.name ?? ""}"? Ele deixará de aparecer no cardápio.`}
-                confirmLabel="Desativar"
-                loading={deactivate.isPending}
-            />
+            <AlertDialog open={!!confirmTarget} onOpenChange={(o) => !o && setConfirmTarget(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Desativar produto</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {`Tem certeza que deseja desativar "${confirmTarget?.name ?? ""}"? Ele deixará de aparecer no cardápio.`}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deactivate.isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeactivate}
+                            disabled={deactivate.isPending}
+                            className="bg-destructive text-white hover:bg-destructive/90"
+                        >
+                            {deactivate.isPending ? "Processando..." : "Desativar"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

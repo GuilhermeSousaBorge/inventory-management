@@ -1,11 +1,20 @@
 "use client"
 
-import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
-import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import { useAllCategories } from "@/lib/categories"
 import {
@@ -97,8 +106,8 @@ function IngredientsPageInner() {
         <div className="space-y-6">
             <header className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-text-primary">Ingredientes</h1>
-                    <p className="mt-1 text-sm text-text-secondary">
+                    <h1 className="text-2xl font-semibold text-foreground">Ingredientes</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">
                         Insumos controlados no estoque.
                     </p>
                 </div>
@@ -112,49 +121,59 @@ function IngredientsPageInner() {
             </header>
 
             <div className="flex flex-wrap items-end gap-3">
-                <Field label="Categoria" htmlFor="filter-category">
+                <div className="space-y-1">
+                    <Label htmlFor="filter-category">Categoria</Label>
                     <Select
-                        id="filter-category"
-                        value={categoryParam}
-                        onChange={(e) => setFilter("category", e.target.value)}
+                        value={categoryParam || "__all"}
+                        onValueChange={(v) => setFilter("category", v === "__all" ? "" : v)}
                     >
-                        <option value="">Todas</option>
-                        {categories.data?.map((c) => (
-                            <option key={c.id} value={c.id}>
-                                {c.name}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-category">
+                            <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todas</SelectItem>
+                            {categories.data?.map((c) => (
+                                <SelectItem key={c.id} value={c.id}>
+                                    {c.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
-                </Field>
-                <Field label="Status" htmlFor="filter-status">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-status">Status</Label>
                     <Select
-                        id="filter-status"
-                        value={activeParam ?? "true"}
-                        onChange={(e) => setFilter("active", e.target.value)}
+                        value={activeParam === "" ? "__all" : (activeParam ?? "true")}
+                        onValueChange={(v) => setFilter("active", v === "__all" ? "" : v)}
                     >
-                        <option value="true">Ativos</option>
-                        <option value="false">Inativos</option>
-                        <option value="">Todos</option>
+                        <SelectTrigger id="filter-status">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="true">Ativos</SelectItem>
+                            <SelectItem value="false">Inativos</SelectItem>
+                            <SelectItem value="__all">Todos</SelectItem>
+                        </SelectContent>
                     </Select>
-                </Field>
+                </div>
             </div>
 
             {ingredientsQuery.isLoading ? (
                 <div className="space-y-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
                     ))}
                 </div>
             ) : ingredientsQuery.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                    <p className="text-sm text-danger">Falha ao carregar ingredientes.</p>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <p className="text-sm text-destructive">Falha ao carregar ingredientes.</p>
                     <Button variant="ghost" size="sm" onClick={() => ingredientsQuery.refetch()}>
                         Tentar novamente
                     </Button>
                 </div>
             ) : data && data.data.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                    <p className="text-sm text-text-secondary">Nenhum ingrediente cadastrado.</p>
+                    <p className="text-sm text-muted-foreground">Nenhum ingrediente cadastrado.</p>
                     {isOwner ? (
                         <Link href="/ingredients/novo">
                             <Button className="mt-4">Criar primeiro ingrediente</Button>
@@ -163,40 +182,40 @@ function IngredientsPageInner() {
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Nome</TH>
-                            <TH>Categoria</TH>
-                            <TH>Mínimo</TH>
-                            <TH>Fornecedor padrão</TH>
-                            <TH>Status</TH>
-                            {isOwner ? <TH className="w-px text-right">Ações</TH> : null}
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nome</TableHead>
+                            <TableHead>Categoria</TableHead>
+                            <TableHead>Mínimo</TableHead>
+                            <TableHead>Fornecedor padrão</TableHead>
+                            <TableHead>Status</TableHead>
+                            {isOwner ? <TableHead className="w-px text-right">Ações</TableHead> : null}
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((ing) => (
-                            <TR key={ing.id}>
-                                <TD>{ing.name}</TD>
-                                <TD>{categoryNameById.get(ing.categoryId) ?? "—"}</TD>
-                                <TD>
+                            <TableRow key={ing.id}>
+                                <TableCell>{ing.name}</TableCell>
+                                <TableCell>{categoryNameById.get(ing.categoryId) ?? "—"}</TableCell>
+                                <TableCell>
                                     {ing.minimumQty} {ing.unitOfMeasure}
-                                </TD>
-                                <TD>
+                                </TableCell>
+                                <TableCell>
                                     {ing.defaultSupplierId
                                         ? supplierNameById.get(ing.defaultSupplierId) ?? "—"
                                         : "—"}
-                                </TD>
-                                <TD>
-                                    <Badge variant={ing.active ? "success" : "neutral"}>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant={ing.active ? "default" : "outline"}>
                                         {ing.active ? "Ativo" : "Inativo"}
                                     </Badge>
-                                </TD>
+                                </TableCell>
                                 {isOwner ? (
-                                    <TD className="text-right">
+                                    <TableCell className="text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             <Link
                                                 href={`/ingredients/${ing.id}/editar`}
-                                                className="rounded p-1.5 text-text-primary/70 hover:bg-text-primary/5 hover:text-text-primary"
+                                                className="rounded p-1.5 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
                                                 aria-label={`Editar ${ing.name}`}
                                             >
                                                 <Pencil className="h-4 w-4" />
@@ -205,23 +224,23 @@ function IngredientsPageInner() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setConfirm(ing)}
-                                                    className="rounded p-1.5 text-danger/80 hover:bg-danger/10"
+                                                    className="rounded p-1.5 text-destructive/80 hover:bg-destructive/10"
                                                     aria-label={`Desativar ${ing.name}`}
                                                 >
                                                     <Power className="h-4 w-4" />
                                                 </button>
                                             ) : null}
                                         </div>
-                                    </TD>
+                                    </TableCell>
                                 ) : null}
-                            </TR>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 
             {data && data.total > size ? (
-                <div className="flex items-center justify-between text-sm text-text-secondary">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>
                         Página {page + 1} de {totalPages} · {size} por página
                     </span>
@@ -246,16 +265,26 @@ function IngredientsPageInner() {
                 </div>
             ) : null}
 
-            <ConfirmDialog
-                open={!!confirm}
-                onClose={() => setConfirm(null)}
-                onConfirm={onConfirm}
-                title="Desativar ingrediente"
-                message={confirm ? `Confirma desativar ${confirm.name}?` : ""}
-                confirmLabel="Desativar"
-                confirmVariant="danger"
-                loading={deactivate.isPending}
-            />
+            <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Desativar ingrediente</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {confirm ? `Confirma desativar ${confirm.name}?` : ""}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deactivate.isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={onConfirm}
+                            disabled={deactivate.isPending}
+                            className="bg-destructive text-white hover:bg-destructive/90"
+                        >
+                            {deactivate.isPending ? "Processando..." : "Desativar"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

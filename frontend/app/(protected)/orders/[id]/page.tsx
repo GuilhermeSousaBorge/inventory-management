@@ -1,9 +1,18 @@
 "use client"
 
-import { ConfirmDialog } from "@/components/overlays/confirm-dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { isApiError, useAuth } from "@/lib/auth"
 import {
     useCancelOrder,
@@ -29,12 +38,12 @@ function statusLabel(s: OrderStatus) {
             : "Cancelado"
 }
 
-function statusVariant(s: OrderStatus): "warning" | "success" | "neutral" {
+function statusVariant(s: OrderStatus): "warning" | "default" | "outline" {
     return s === "PENDING" || s === "IN_PROGRESS"
         ? "warning"
         : s === "COMPLETED"
-          ? "success"
-          : "neutral"
+          ? "default"
+          : "outline"
 }
 
 export default function OrderDetailPage() {
@@ -54,15 +63,15 @@ export default function OrderDetailPage() {
         return (
             <div className="space-y-2">
                 {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="h-16 animate-pulse rounded-lg bg-text-primary/5" />
+                    <div key={i} className="h-16 animate-pulse rounded-lg bg-foreground/5" />
                 ))}
             </div>
         )
     }
     if (query.isError) {
         return (
-            <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                <p className="text-sm text-danger">Não foi possível carregar o pedido.</p>
+            <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                <p className="text-sm text-destructive">Não foi possível carregar o pedido.</p>
                 <div className="flex gap-2">
                     <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
                         Tentar novamente
@@ -110,16 +119,16 @@ export default function OrderDetailPage() {
 
     return (
         <div className="space-y-6">
-            <nav className="text-sm text-text-secondary">
+            <nav className="text-sm text-muted-foreground">
                 <Link href="/orders" className="hover:underline">
                     Pedidos
                 </Link>{" "}
-                › <span className="text-text-primary">#{o.id.slice(0, 8)}</span>
+                › <span className="text-foreground">#{o.id.slice(0, 8)}</span>
             </nav>
 
             <header className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <h1 className="text-2xl font-semibold text-text-primary">
+                    <h1 className="text-2xl font-semibold text-foreground">
                         Pedido #{o.id.slice(0, 8)}
                     </h1>
                     <Badge variant={statusVariant(o.status)}>{statusLabel(o.status)}</Badge>
@@ -146,106 +155,124 @@ export default function OrderDetailPage() {
 
             <section className="grid gap-3 rounded-xl border border-border/40 bg-white p-5 sm:grid-cols-2">
                 <div>
-                    <p className="text-xs text-text-secondary">Unidade</p>
-                    <p className="text-sm text-text-primary">{o.unitName}</p>
+                    <p className="text-xs text-muted-foreground">Unidade</p>
+                    <p className="text-sm text-foreground">{o.unitName}</p>
                 </div>
                 <div>
-                    <p className="text-xs text-text-secondary">Criado em</p>
-                    <p className="text-sm text-text-primary">
+                    <p className="text-xs text-muted-foreground">Criado em</p>
+                    <p className="text-sm text-foreground">
                         {new Date(o.createdAt).toLocaleString("pt-BR")}
                     </p>
                 </div>
                 {o.startedAt ? (
                     <div>
-                        <p className="text-xs text-text-secondary">Iniciado em</p>
-                        <p className="text-sm text-text-primary">
+                        <p className="text-xs text-muted-foreground">Iniciado em</p>
+                        <p className="text-sm text-foreground">
                             {new Date(o.startedAt).toLocaleString("pt-BR")}
                         </p>
                     </div>
                 ) : null}
                 {o.completedAt ? (
                     <div>
-                        <p className="text-xs text-text-secondary">Concluído em</p>
-                        <p className="text-sm text-text-primary">
+                        <p className="text-xs text-muted-foreground">Concluído em</p>
+                        <p className="text-sm text-foreground">
                             {new Date(o.completedAt).toLocaleString("pt-BR")}
                         </p>
                     </div>
                 ) : null}
                 {o.canceledAt ? (
                     <div>
-                        <p className="text-xs text-text-secondary">Cancelado em</p>
-                        <p className="text-sm text-text-primary">
+                        <p className="text-xs text-muted-foreground">Cancelado em</p>
+                        <p className="text-sm text-foreground">
                             {new Date(o.canceledAt).toLocaleString("pt-BR")}
                         </p>
                     </div>
                 ) : null}
                 {o.notes ? (
                     <div className="sm:col-span-2">
-                        <p className="text-xs text-text-secondary">Observações</p>
-                        <p className="text-sm text-text-primary">{o.notes}</p>
+                        <p className="text-xs text-muted-foreground">Observações</p>
+                        <p className="text-sm text-foreground">{o.notes}</p>
                     </div>
                 ) : null}
             </section>
 
             <section className="space-y-3 rounded-xl border border-border/40 bg-white p-5">
-                <h2 className="text-base font-semibold text-text-primary">Itens</h2>
+                <h2 className="text-base font-semibold text-foreground">Itens</h2>
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Produto</TH>
-                            <TH>Qtd</TH>
-                            <TH>Preço unit.</TH>
-                            <TH>Subtotal</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Produto</TableHead>
+                            <TableHead>Qtd</TableHead>
+                            <TableHead>Preço unit.</TableHead>
+                            <TableHead>Subtotal</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {(o.items ?? []).map((it) => (
-                            <TR key={it.id}>
-                                <TD>{it.productName}</TD>
-                                <TD>{it.quantity}</TD>
-                                <TD>R$ {it.unitPrice.toFixed(2)}</TD>
-                                <TD>R$ {it.subtotal.toFixed(2)}</TD>
-                            </TR>
+                            <TableRow key={it.id}>
+                                <TableCell>{it.productName}</TableCell>
+                                <TableCell>{it.quantity}</TableCell>
+                                <TableCell>R$ {it.unitPrice.toFixed(2)}</TableCell>
+                                <TableCell>R$ {it.subtotal.toFixed(2)}</TableCell>
+                            </TableRow>
                         ))}
-                    </TBody>
+                    </TableBody>
                 </Table>
                 <div className="flex justify-end border-t border-border/40 pt-3 text-sm font-medium">
                     Total: <span className="ml-2">R$ {o.totalPrice.toFixed(2)}</span>
                 </div>
             </section>
 
-            <ConfirmDialog
-                open={action === "start"}
-                onClose={() => setAction(null)}
-                onConfirm={runAction}
-                title="Iniciar pedido"
-                message="Os ingredientes serão descontados do estoque conforme as fichas técnicas, e a ação não pode ser desfeita."
-                confirmLabel="Iniciar"
-                confirmVariant="primary"
-                loading={actionLoading}
-            />
+            <AlertDialog open={action === "start"} onOpenChange={(o) => !o && setAction(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Iniciar pedido</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Os ingredientes serão descontados do estoque conforme as fichas técnicas, e a ação não pode ser desfeita.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={actionLoading}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={runAction} disabled={actionLoading}>
+                            {actionLoading ? "Processando..." : "Iniciar"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
-            <ConfirmDialog
-                open={action === "complete"}
-                onClose={() => setAction(null)}
-                onConfirm={runAction}
-                title="Concluir pedido"
-                message="Marcar este pedido como concluído?"
-                confirmLabel="Concluir"
-                confirmVariant="primary"
-                loading={actionLoading}
-            />
+            <AlertDialog open={action === "complete"} onOpenChange={(o) => !o && setAction(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Concluir pedido</AlertDialogTitle>
+                        <AlertDialogDescription>Marcar este pedido como concluído?</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={actionLoading}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={runAction} disabled={actionLoading}>
+                            {actionLoading ? "Processando..." : "Concluir"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
-            <ConfirmDialog
-                open={action === "cancel"}
-                onClose={() => setAction(null)}
-                onConfirm={runAction}
-                title="Cancelar pedido"
-                message="Esta ação não pode ser desfeita."
-                confirmLabel="Cancelar pedido"
-                confirmVariant="danger"
-                loading={actionLoading}
-            />
+            <AlertDialog open={action === "cancel"} onOpenChange={(o) => !o && setAction(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Cancelar pedido</AlertDialogTitle>
+                        <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={actionLoading}>Voltar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={runAction}
+                            disabled={actionLoading}
+                            className="bg-destructive text-white hover:bg-destructive/90"
+                        >
+                            {actionLoading ? "Processando..." : "Cancelar pedido"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

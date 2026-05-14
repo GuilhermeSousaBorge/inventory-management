@@ -1,31 +1,56 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
+  /* shadcn tokens (canonical) */
   --background: #f5f5db;
   --foreground: #2b3d50;
-
-  --color-bg: #f5f5db;
-  --color-text-primary: #2b3d50;
-  --color-text-secondary: rgb(43 61 80 / 0.65);
-  --color-primary: #28af60;
-  --color-secondary: #c1ff80;
-  --color-danger: #bf3a2b;
-  --color-border: rgb(43 61 80 / 0.3);
-  --color-icon: rgb(43 61 80 / 0.5);
+  --card: #ffffff;
+  --card-foreground: #2b3d50;
+  --popover: #ffffff;
+  --popover-foreground: #2b3d50;
+  --primary: #28af60;
+  --primary-foreground: #ffffff;
+  --secondary: #c1ff80;
+  --secondary-foreground: #2b3d50;
+  --muted: rgb(43 61 80 / 0.04);
+  --muted-foreground: rgb(43 61 80 / 0.65);
+  --accent: rgb(43 61 80 / 0.06);
+  --accent-foreground: #2b3d50;
+  --destructive: #bf3a2b;
+  --destructive-foreground: #ffffff;
+  --border: rgb(43 61 80 / 0.3);
+  --input: rgb(43 61 80 / 0.3);
+  --ring: #28af60;
+  --radius: 0.625rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-
-  --color-bg: var(--color-bg);
-  --color-text-primary: var(--color-text-primary);
-  --color-text-secondary: var(--color-text-secondary);
-  --color-primary: var(--color-primary);
-  --color-secondary: var(--color-secondary);
-  --color-danger: var(--color-danger);
-  --color-border: var(--color-border);
-  --color-icon: var(--color-icon);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

@@ -102,16 +102,16 @@ export function formatAuditAction(action: AuditAction): string {
 
 export function actionBadgeVariant(
     action: AuditAction,
-): "success" | "neutral" | "warning" | "danger" {
-    if (action.endsWith("_CREATED")) return "success"
-    if (action.endsWith("_DEACTIVATED") || action.endsWith("_CANCELED")) return "neutral"
+): "default" | "outline" | "warning" | "destructive" {
+    if (action.endsWith("_CREATED")) return "default"
+    if (action.endsWith("_DEACTIVATED") || action.endsWith("_CANCELED")) return "outline"
     if (
         action.startsWith("STOCK_") ||
         action.startsWith("ORDER_") ||
         action.startsWith("PURCHASE_ORDER_")
     )
         return "warning"
-    return "neutral"
+    return "outline"
 }
 
 function fmtNum(v: unknown): string {

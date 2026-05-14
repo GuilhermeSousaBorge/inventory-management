@@ -4,10 +4,10 @@ import { ExportCsvButton } from "@/components/reports/export-csv-button"
 import { KpiCard } from "@/components/reports/kpi-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAllProducts } from "@/lib/products"
 import {
     reportsRangeFiltersSchema,
@@ -18,7 +18,7 @@ import { useAllUnits } from "@/lib/units"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
 import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 
 function startOfMonthISO(): string {
     const d = new Date()
@@ -65,67 +65,105 @@ export default function SalesReportPage() {
     return (
         <div className="space-y-6">
             <header>
-                <p className="text-sm text-text-secondary">
+                <p className="text-sm text-muted-foreground">
                     <Link href="/reports" className="hover:underline">
                         Relatórios
                     </Link>{" "}
                     › Vendas
                 </p>
-                <h1 className="mt-1 text-2xl font-semibold text-text-primary">
+                <h1 className="mt-1 text-2xl font-semibold text-foreground">
                     Relatório de vendas
                 </h1>
-                <p className="mt-1 text-sm text-text-secondary">
+                <p className="mt-1 text-sm text-muted-foreground">
                     Pedidos concluídos por produto e receita gerada.
                 </p>
             </header>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="rounded-xl border border-border/40 bg-white p-5" >
                 <div className="flex flex-wrap items-end gap-3">
-                    <Field label="De" htmlFor="f-from" error={form.formState.errors.from?.message} >
+                    <div className="space-y-1">
+                        <Label htmlFor="f-from">De</Label>
                         <Input id="f-from" type="date" {...form.register("from")} />
-                    </Field>
-                    <Field label="Até" htmlFor="f-to" error={form.formState.errors.to?.message} >
+                        {form.formState.errors.from?.message ? (
+                            <p className="text-sm text-destructive">{form.formState.errors.from.message}</p>
+                        ) : null}
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="f-to">Até</Label>
                         <Input id="f-to" type="date" {...form.register("to")} />
-                    </Field>
-                    <Field label="Unidade" htmlFor="f-unit">
-                        <Select id="f-unit" {...form.register("unit")}>
-                            <option value="">Todas</option>
-                            {units.data?.map((u) => (
-                                <option key={u.id} value={u.id}>
-                                    {u.name}
-                                </option>
-                            ))}
-                        </Select>
-                    </Field>
-                    <Field label="Produto" htmlFor="f-product">
-                        <Select id="f-product" {...form.register("product")}>
-                            <option value="">Todos</option>
-                            {products.data?.map((p) => (
-                                <option key={p.id} value={p.id}>
-                                    {p.name} {p.size}
-                                </option>
-                            ))}
-                        </Select>
-                    </Field>
+                        {form.formState.errors.to?.message ? (
+                            <p className="text-sm text-destructive">{form.formState.errors.to.message}</p>
+                        ) : null}
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="f-unit">Unidade</Label>
+                        <Controller
+                            control={form.control}
+                            name="unit"
+                            render={({ field }) => (
+                                <Select
+                                    value={field.value || "__all"}
+                                    onValueChange={(v) => field.onChange(v === "__all" ? "" : v)}
+                                >
+                                    <SelectTrigger id="f-unit">
+                                        <SelectValue placeholder="Todas" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__all">Todas</SelectItem>
+                                        {units.data?.map((u) => (
+                                            <SelectItem key={u.id} value={u.id}>
+                                                {u.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="f-product">Produto</Label>
+                        <Controller
+                            control={form.control}
+                            name="product"
+                            render={({ field }) => (
+                                <Select
+                                    value={field.value || "__all"}
+                                    onValueChange={(v) => field.onChange(v === "__all" ? "" : v)}
+                                >
+                                    <SelectTrigger id="f-product">
+                                        <SelectValue placeholder="Todos" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__all">Todos</SelectItem>
+                                        {products.data?.map((p) => (
+                                            <SelectItem key={p.id} value={p.id}>
+                                                {p.name} {p.size}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
+                    </div>
                     <Button type="submit">Aplicar</Button>
                 </div>
             </form>
 
             {!applied ? (
                 <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                    <p className="text-sm text-text-secondary">
+                    <p className="text-sm text-muted-foreground">
                         Selecione um período e clique em Aplicar.
                     </p>
                 </div>
             ) : query.isLoading ? (
                 <div className="space-y-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
                     ))}
                 </div>
             ) : query.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                    <p className="text-sm text-danger">Falha ao carregar relatório.</p>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <p className="text-sm text-destructive">Falha ao carregar relatório.</p>
                     <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
                         Tentar novamente
                     </Button>
@@ -144,33 +182,33 @@ export default function SalesReportPage() {
 
                     {data.length === 0 ? (
                         <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                            <p className="text-sm text-text-secondary">
+                            <p className="text-sm text-muted-foreground">
                                 Nenhum dado para os filtros selecionados.
                             </p>
                         </div>
                     ) : (
                         <Table>
-                            <THead>
-                                <TR>
-                                    <TH>Produto</TH>
-                                    <TH>Unidades</TH>
-                                    <TH>Receita</TH>
-                                    <TH># pedidos</TH>
-                                </TR>
-                            </THead>
-                            <TBody>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Produto</TableHead>
+                                    <TableHead>Unidades</TableHead>
+                                    <TableHead>Receita</TableHead>
+                                    <TableHead># pedidos</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {data.map((r) => (
-                                    <TR key={r.productId}>
-                                        <TD>
+                                    <TableRow key={r.productId}>
+                                        <TableCell>
                                             {r.productName}{" "}
-                                            <Badge variant="neutral">{r.size}</Badge>
-                                        </TD>
-                                        <TD>{r.unitsSold}</TD>
-                                        <TD>{brl(r.revenue)}</TD>
-                                        <TD>{r.ordersCount}</TD>
-                                    </TR>
+                                            <Badge variant="outline">{r.size}</Badge>
+                                        </TableCell>
+                                        <TableCell>{r.unitsSold}</TableCell>
+                                        <TableCell>{brl(r.revenue)}</TableCell>
+                                        <TableCell>{r.ordersCount}</TableCell>
+                                    </TableRow>
                                 ))}
-                            </TBody>
+                            </TableBody>
                         </Table>
                     )}
                 </>

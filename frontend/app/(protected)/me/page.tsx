@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { isApiError, useAuth } from "@/lib/auth"
 import { changePasswordSchema, useChangeMyPassword, type ChangePasswordInput } from "@/lib/users"
@@ -39,26 +39,26 @@ export default function MePage() {
 
     return (
         <div className="mx-auto max-w-2xl space-y-6">
-            <h1 className="text-2xl font-semibold text-text-primary">Meu perfil</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Meu perfil</h1>
 
             <section className="rounded-xl border border-border/40 bg-white p-5">
-                <h2 className="text-base font-semibold text-text-primary">Dados</h2>
+                <h2 className="text-base font-semibold text-foreground">Dados</h2>
                 <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                     <div>
-                        <dt className="text-text-secondary">Nome</dt>
-                        <dd className="text-text-primary">{user.name}</dd>
+                        <dt className="text-muted-foreground">Nome</dt>
+                        <dd className="text-foreground">{user.name}</dd>
                     </div>
                     <div>
-                        <dt className="text-text-secondary">E-mail</dt>
-                        <dd className="text-text-primary">{user.email}</dd>
+                        <dt className="text-muted-foreground">E-mail</dt>
+                        <dd className="text-foreground">{user.email}</dd>
                     </div>
                     <div>
-                        <dt className="text-text-secondary">Perfil</dt>
-                        <dd className="text-text-primary">{user.role}</dd>
+                        <dt className="text-muted-foreground">Perfil</dt>
+                        <dd className="text-foreground">{user.role}</dd>
                     </div>
                     <div>
-                        <dt className="text-text-secondary">Ativo desde</dt>
-                        <dd className="text-text-primary">
+                        <dt className="text-muted-foreground">Ativo desde</dt>
+                        <dd className="text-foreground">
                             {new Date(user.createdAt).toLocaleDateString("pt-BR")}
                         </dd>
                     </div>
@@ -66,35 +66,55 @@ export default function MePage() {
             </section>
 
             <section className="rounded-xl border border-border/40 bg-white p-5">
-                <h2 className="text-base font-semibold text-text-primary">Alterar senha</h2>
-                <form className="mt-4 space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-                    <Field
-                        label="Senha atual"
-                        htmlFor="currentPassword"
-                        error={form.formState.errors.currentPassword?.message}
-                    >
-                        <Input id="currentPassword" type="password" {...form.register("currentPassword")} />
-                    </Field>
-                    <Field
-                        label="Nova senha"
-                        htmlFor="newPassword"
-                        error={form.formState.errors.newPassword?.message}
-                    >
-                        <Input id="newPassword" type="password" {...form.register("newPassword")} />
-                    </Field>
-                    <Field
-                        label="Confirmar nova senha"
-                        htmlFor="confirmPassword"
-                        error={form.formState.errors.confirmPassword?.message}
-                    >
-                        <Input id="confirmPassword" type="password" {...form.register("confirmPassword")} />
-                    </Field>
-                    <div className="flex justify-end">
-                        <Button type="submit" disabled={changePassword.isPending}>
-                            {changePassword.isPending ? "Salvando..." : "Salvar senha"}
-                        </Button>
-                    </div>
-                </form>
+                <h2 className="text-base font-semibold text-foreground">Alterar senha</h2>
+                <Form {...form}>
+                    <form className="mt-4 space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+                        <FormField
+                            control={form.control}
+                            name="currentPassword"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Senha atual</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="newPassword"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Nova senha</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="confirmPassword"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Confirmar nova senha</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <div className="flex justify-end">
+                            <Button type="submit" disabled={changePassword.isPending}>
+                                {changePassword.isPending ? "Salvando..." : "Salvar senha"}
+                            </Button>
+                        </div>
+                    </form>
+                </Form>
             </section>
         </div>
     )

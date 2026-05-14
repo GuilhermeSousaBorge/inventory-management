@@ -1,10 +1,10 @@
 "use client"
 
-import { Modal } from "@/components/overlays/modal"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isApiError } from "@/lib/auth"
 import {
     createUserSchema,
@@ -67,50 +67,92 @@ export function UserDialog({ open, onClose, user }: Props) {
     const submitting = createUser.isPending || updateUser.isPending
 
     return (
-        <Modal
-            open={open}
-            onClose={onClose}
-            title={editing ? "Editar usuário" : "Novo usuário"}
-            footer={
-                <>
+        <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{editing ? "Editar usuário" : "Novo usuário"}</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
+                <form id="user-form" className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+                    <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Nome</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>E-mail</FormLabel>
+                                <FormControl>
+                                    <Input type="email" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    {!editing ? (
+                        <FormField
+                            control={form.control}
+                            name={"password" as never}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Senha</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    ) : null}
+                    <FormField
+                        control={form.control}
+                        name="role"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Perfil</FormLabel>
+                                <Select value={field.value || ""} onValueChange={field.onChange}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="EMPLOYEE">EMPLOYEE</SelectItem>
+                                        <SelectItem value="OWNER">OWNER</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    {editing ? (
+                        <label className="flex items-center gap-2 text-sm text-foreground">
+                            <input type="checkbox" {...form.register("active" as never)} />
+                            Ativo
+                        </label>
+                    ) : null}
+                </form>
+            </Form>
+                <DialogFooter>
                     <Button variant="ghost" onClick={onClose} disabled={submitting}>
                         Cancelar
                     </Button>
                     <Button type="submit" form="user-form" disabled={submitting}>
                         {submitting ? "Salvando..." : "Salvar"}
                     </Button>
-                </>
-            }
-        >
-            <form id="user-form" className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-                <Field label="Nome" htmlFor="name" error={form.formState.errors.name?.message}>
-                    <Input id="name" {...form.register("name")} />
-                </Field>
-                <Field label="E-mail" htmlFor="email" error={form.formState.errors.email?.message}>
-                    <Input id="email" type="email" {...form.register("email")} />
-                </Field>
-                {!editing ? (
-                    <Field
-                        label="Senha"
-                        htmlFor="password"
-                        error={(form.formState.errors as Record<string, { message?: string }>).password?.message}
-                    >
-                        <Input id="password" type="password" {...form.register("password" as never)} />
-                    </Field>
-                ) : null}
-                <Field label="Perfil" htmlFor="role" error={form.formState.errors.role?.message}>
-                    <Select id="role" {...form.register("role")}>
-                        <option value="EMPLOYEE">EMPLOYEE</option>
-                        <option value="OWNER">OWNER</option>
-                    </Select>
-                </Field>
-                {editing ? (
-                    <label className="flex items-center gap-2 text-sm text-text-primary">
-                        <input type="checkbox" {...form.register("active" as never)} />
-                        Ativo
-                    </label>
-                ) : null}
-            </form>
-        </Modal>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }

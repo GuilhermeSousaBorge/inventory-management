@@ -1,9 +1,9 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isApiError } from "@/lib/auth"
 import {
     createOrderSchema,
@@ -102,33 +102,53 @@ export function OrderForm({ mode, initial }: Props) {
         (form.formState.errors.items as any)?.root?.message
 
     return (
+        <Form {...form}>
         <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
             <section className="space-y-4 rounded-xl border border-border/40 bg-white p-5">
-                <h2 className="text-base font-semibold text-text-primary">Dados do pedido</h2>
+                <h2 className="text-base font-semibold text-foreground">Dados do pedido</h2>
 
-                <Field
-                    label="Unidade"
-                    htmlFor="ord-unit"
-                    error={form.formState.errors.unitId?.message}
-                >
-                    <Select id="ord-unit" disabled={units.isPending} {...form.register("unitId")}>
-                        <option value="">{units.isPending ? "Carregando..." : "Selecione..."}</option>
-                        {units.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
-                    </Select>
-                </Field>
+                <FormField
+                    control={form.control}
+                    name="unitId"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Unidade</FormLabel>
+                            <Select
+                                value={field.value || ""}
+                                onValueChange={field.onChange}
+                                disabled={units.isPending}
+                            >
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={units.isPending ? "Carregando..." : "Selecione..."} />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {units.data?.map((u) => (
+                                        <SelectItem key={u.id} value={u.id}>
+                                            {u.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
-                <Field
-                    label="Observações"
-                    htmlFor="ord-notes"
-                    hint="Opcional · até 500 caracteres"
-                    error={form.formState.errors.notes?.message}
-                >
-                    <Input id="ord-notes" {...form.register("notes")} />
-                </Field>
+                <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Observações</FormLabel>
+                            <FormControl>
+                                <Input {...field} value={field.value ?? ""} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
             </section>
 
             <section
@@ -136,9 +156,9 @@ export function OrderForm({ mode, initial }: Props) {
                 data-testid="ord-items"
             >
                 <div className="flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-text-primary">Itens</h2>
+                    <h2 className="text-base font-semibold text-foreground">Itens</h2>
                     {itemsRootMessage ? (
-                        <span className="text-sm text-danger">{itemsRootMessage}</span>
+                        <span className="text-sm text-destructive">{itemsRootMessage}</span>
                     ) : null}
                 </div>
 
@@ -154,51 +174,67 @@ export function OrderForm({ mode, initial }: Props) {
                                 data-testid="ord-item-row"
                                 className="grid grid-cols-[1fr_100px_120px_140px_auto] items-end gap-3"
                             >
-                                <Field
-                                    label="Produto"
-                                    htmlFor={`ord-item-prod-${i}`}
-                                    error={form.formState.errors.items?.[i]?.productId?.message}
-                                >
-                                    <Select
-                                        id={`ord-item-prod-${i}`}
-                                        disabled={products.isPending}
-                                        {...form.register(`items.${i}.productId`)}
-                                    >
-                                        <option value="">Selecione...</option>
-                                        {products.data?.map((p) => (
-                                            <option key={p.id} value={p.id}>
-                                                {p.name} {p.size} — R$ {p.price.toFixed(2)}
-                                            </option>
-                                        ))}
-                                    </Select>
-                                </Field>
-                                <Field
-                                    label="Quantidade"
-                                    htmlFor={`ord-item-qty-${i}`}
-                                    error={form.formState.errors.items?.[i]?.quantity?.message}
-                                >
+                                <FormField
+                                    control={form.control}
+                                    name={`items.${i}.productId`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Produto</FormLabel>
+                                            <Select
+                                                value={field.value || ""}
+                                                onValueChange={field.onChange}
+                                                disabled={products.isPending}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Selecione..." />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {products.data?.map((p) => (
+                                                        <SelectItem key={p.id} value={p.id}>
+                                                            {p.name} {p.size} — R$ {p.price.toFixed(2)}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name={`items.${i}.quantity`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Quantidade</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    step="1"
+                                                    min="1"
+                                                    {...field}
+                                                    value={field.value ?? 0}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <div className="space-y-1">
+                                    <label className="text-sm font-medium leading-none">Preço</label>
                                     <Input
-                                        id={`ord-item-qty-${i}`}
-                                        type="number"
-                                        step="1"
-                                        min="1"
-                                        {...form.register(`items.${i}.quantity`)}
-                                    />
-                                </Field>
-                                <Field label="Preço" htmlFor={`ord-item-price-${i}`}>
-                                    <Input
-                                        id={`ord-item-price-${i}`}
                                         readOnly
                                         value={`R$ ${price.toFixed(2)}`}
                                     />
-                                </Field>
-                                <Field label="Subtotal" htmlFor={`ord-item-sub-${i}`}>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-sm font-medium leading-none">Subtotal</label>
                                     <Input
-                                        id={`ord-item-sub-${i}`}
                                         readOnly
                                         value={`R$ ${subtotal.toFixed(2)}`}
                                     />
-                                </Field>
+                                </div>
                                 <Button
                                     type="button"
                                     variant="ghost"
@@ -248,5 +284,6 @@ export function OrderForm({ mode, initial }: Props) {
                 </Button>
             </div>
         </form>
+        </Form>
     )
 }

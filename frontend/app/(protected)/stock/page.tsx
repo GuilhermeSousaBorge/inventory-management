@@ -2,9 +2,9 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
-import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAllIngredients } from "@/lib/ingredients"
 import { useLowStock, useStock } from "@/lib/stock"
 import { useAllUnits } from "@/lib/units"
@@ -54,44 +54,54 @@ function StockPageInner() {
     return (
         <div className="space-y-6">
             <header>
-                <h1 className="text-2xl font-semibold text-text-primary">Estoque</h1>
-                <p className="mt-1 text-sm text-text-secondary">
+                <h1 className="text-2xl font-semibold text-foreground">Estoque</h1>
+                <p className="mt-1 text-sm text-muted-foreground">
                     Saldos atuais por unidade e ingrediente.
                 </p>
             </header>
 
             <div className="flex flex-wrap items-end gap-3">
-                <Field label="Unidade" htmlFor="filter-unit">
+                <div className="space-y-1">
+                    <Label htmlFor="filter-unit">Unidade</Label>
                     <Select
-                        id="filter-unit"
-                        value={unitParam}
-                        onChange={(e) => setFilter("unit", e.target.value)}
+                        value={unitParam || "__all"}
+                        onValueChange={(v) => setFilter("unit", v === "__all" ? "" : v)}
                         disabled={belowMin}
                     >
-                        <option value="">Todas</option>
-                        {units.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-unit">
+                            <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todas</SelectItem>
+                            {units.data?.map((u) => (
+                                <SelectItem key={u.id} value={u.id}>
+                                    {u.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
-                </Field>
-                <Field label="Ingrediente" htmlFor="filter-ingredient">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-ingredient">Ingrediente</Label>
                     <Select
-                        id="filter-ingredient"
-                        value={ingredientParam}
-                        onChange={(e) => setFilter("ingredient", e.target.value)}
+                        value={ingredientParam || "__all"}
+                        onValueChange={(v) => setFilter("ingredient", v === "__all" ? "" : v)}
                         disabled={belowMin}
                     >
-                        <option value="">Todos</option>
-                        {ingredients.data?.map((i) => (
-                            <option key={i.id} value={i.id}>
-                                {i.name}
-                            </option>
-                        ))}
+                        <SelectTrigger id="filter-ingredient">
+                            <SelectValue placeholder="Todos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todos</SelectItem>
+                            {ingredients.data?.map((i) => (
+                                <SelectItem key={i.id} value={i.id}>
+                                    {i.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
-                </Field>
-                <label className="flex items-center gap-2 text-sm text-text-primary">
+                </div>
+                <label className="flex items-center gap-2 text-sm text-foreground">
                     <input
                         type="checkbox"
                         checked={belowMin}
@@ -104,62 +114,62 @@ function StockPageInner() {
             {query.isLoading ? (
                 <div className="space-y-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
                     ))}
                 </div>
             ) : query.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                    <p className="text-sm text-danger">Falha ao carregar estoque.</p>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <p className="text-sm text-destructive">Falha ao carregar estoque.</p>
                     <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
                         Tentar novamente
                     </Button>
                 </div>
             ) : data && data.data.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                    <p className="text-sm text-text-secondary">Nenhum saldo registrado.</p>
+                    <p className="text-sm text-muted-foreground">Nenhum saldo registrado.</p>
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Ingrediente</TH>
-                            <TH>Unidade</TH>
-                            <TH>Quantidade</TH>
-                            <TH>Mínimo</TH>
-                            <TH>Custo médio</TH>
-                            <TH>Status</TH>
-                            <TH>Atualizado em</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Ingrediente</TableHead>
+                            <TableHead>Unidade</TableHead>
+                            <TableHead>Quantidade</TableHead>
+                            <TableHead>Mínimo</TableHead>
+                            <TableHead>Custo médio</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Atualizado em</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((s) => {
                             const uom = ingredientById.get(s.ingredientId)?.unitOfMeasure ?? ""
                             return (
-                                <TR key={s.id}>
-                                    <TD>{s.ingredientName}</TD>
-                                    <TD>{s.unitName}</TD>
-                                    <TD>
+                                <TableRow key={s.id}>
+                                    <TableCell>{s.ingredientName}</TableCell>
+                                    <TableCell>{s.unitName}</TableCell>
+                                    <TableCell>
                                         {s.quantity} {uom}
-                                    </TD>
-                                    <TD>
+                                    </TableCell>
+                                    <TableCell>
                                         {s.minimumQty} {uom}
-                                    </TD>
-                                    <TD>R$ {s.averageCost.toFixed(4)}</TD>
-                                    <TD>
-                                        <Badge variant={s.belowMinimum ? "danger" : "success"}>
+                                    </TableCell>
+                                    <TableCell>R$ {s.averageCost.toFixed(4)}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={s.belowMinimum ? "destructive" : "default"}>
                                             {s.belowMinimum ? "Abaixo" : "OK"}
                                         </Badge>
-                                    </TD>
-                                    <TD>{new Date(s.updatedAt).toLocaleString("pt-BR")}</TD>
-                                </TR>
+                                    </TableCell>
+                                    <TableCell>{new Date(s.updatedAt).toLocaleString("pt-BR")}</TableCell>
+                                </TableRow>
                             )
                         })}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 
             {data && data.total > size ? (
-                <div className="flex items-center justify-between text-sm text-text-secondary">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>
                         Página {page + 1} de {totalPages} · {size} por página
                     </span>

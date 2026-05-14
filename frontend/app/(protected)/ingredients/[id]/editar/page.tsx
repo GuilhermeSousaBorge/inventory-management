@@ -18,25 +18,25 @@ export default function EditIngredientPage() {
     return (
         <div className="space-y-6">
             <header>
-                <p className="text-sm text-text-secondary">
+                <p className="text-sm text-muted-foreground">
                     <Link href="/ingredients" className="hover:underline">
                         Ingredientes
                     </Link>{" "}
                     › Editar
                 </p>
-                <h1 className="mt-1 text-2xl font-semibold text-text-primary">Editar ingrediente</h1>
+                <h1 className="mt-1 text-2xl font-semibold text-foreground">Editar ingrediente</h1>
             </header>
 
             <div className="mx-auto max-w-2xl rounded-xl border border-border/40 bg-white p-6">
                 {ingredientQuery.isLoading ? (
                     <div className="space-y-3">
                         {Array.from({ length: 8 }).map((_, i) => (
-                            <div key={i} className="h-10 animate-pulse rounded-lg bg-text-primary/5" />
+                            <div key={i} className="h-10 animate-pulse rounded-lg bg-foreground/5" />
                         ))}
                     </div>
                 ) : ingredientQuery.isError ? (
                     <div className="text-center">
-                        <p className="text-sm text-danger">Não foi possível carregar o ingrediente.</p>
+                        <p className="text-sm text-destructive">Não foi possível carregar o ingrediente.</p>
                         <div className="mt-3 flex items-center justify-center gap-2">
                             <Button
                                 variant="ghost"
@@ -63,8 +63,8 @@ export default function EditIngredientPage() {
 function NoAccess() {
     return (
         <div className="mx-auto max-w-md rounded-xl border border-border/40 bg-white p-8 text-center">
-            <h2 className="text-base font-semibold text-text-primary">Sem permissão</h2>
-            <p className="mt-2 text-sm text-text-secondary">
+            <h2 className="text-base font-semibold text-foreground">Sem permissão</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
                 Apenas o proprietário pode editar ingredientes.
             </p>
         </div>

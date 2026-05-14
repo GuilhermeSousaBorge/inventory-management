@@ -2,10 +2,10 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
     NOTIFICATION_STATUSES,
     useNotifications,
@@ -18,7 +18,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useState } from "react"
 
 function statusVariant(s: NotificationStatus) {
-    return s === "ACTIVE" ? "danger" : "neutral"
+    return s === "ACTIVE" ? "destructive" : "outline"
 }
 
 function statusLabel(s: NotificationStatus) {
@@ -68,113 +68,133 @@ function NotificationsPageInner() {
     return (
         <div className="space-y-6">
             <header>
-                <h1 className="text-2xl font-semibold text-text-primary">Alertas</h1>
-                <p className="mt-1 text-sm text-text-secondary">
+                <h1 className="text-2xl font-semibold text-foreground">Alertas</h1>
+                <p className="mt-1 text-sm text-muted-foreground">
                     Alertas operacionais — estoque abaixo do mínimo.
                 </p>
             </header>
 
             <div className="flex flex-wrap items-end gap-3">
-                <Field label="Status" htmlFor="filter-status">
-                    <Select id="filter-status" value={statusParam} onChange={(e) => setFilter("status", e.target.value)} >
-                        <option value="">Todos</option>
-                        {NOTIFICATION_STATUSES.map((s) => (
-                            <option key={s} value={s}>
-                                {statusLabel(s)}
-                            </option>
-                        ))}
+                <div className="space-y-1">
+                    <Label htmlFor="filter-status">Status</Label>
+                    <Select
+                        value={statusParam || "__all"}
+                        onValueChange={(v) => setFilter("status", v === "__all" ? "" : v)}
+                    >
+                        <SelectTrigger id="filter-status">
+                            <SelectValue placeholder="Todos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todos</SelectItem>
+                            {NOTIFICATION_STATUSES.map((s) => (
+                                <SelectItem key={s} value={s}>
+                                    {statusLabel(s)}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
-                </Field>
-                <Field label="Unidade" htmlFor="filter-unit">
-                    <Select id="filter-unit" value={unitParam} onChange={(e) => setFilter("unit", e.target.value)} >
-                        <option value="">Todas</option>
-                        {units.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-unit">Unidade</Label>
+                    <Select
+                        value={unitParam || "__all"}
+                        onValueChange={(v) => setFilter("unit", v === "__all" ? "" : v)}
+                    >
+                        <SelectTrigger id="filter-unit">
+                            <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">Todas</SelectItem>
+                            {units.data?.map((u) => (
+                                <SelectItem key={u.id} value={u.id}>
+                                    {u.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
-                </Field>
-                <Field label="De" htmlFor="filter-from">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-from">De</Label>
                     <Input id="filter-from" type="date" value={fromParam} onChange={(e) => setFilter("from", e.target.value)} />
-                </Field>
-                <Field label="Até" htmlFor="filter-to">
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="filter-to">Até</Label>
                     <Input id="filter-to" type="date" value={toParam} onChange={(e) => setFilter("to", e.target.value)} />
-                </Field>
+                </div>
             </div>
 
             {query.isLoading ? (
                 <div className="space-y-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-text-primary/5" />
+                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
                     ))}
                 </div>
             ) : query.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
-                    <p className="text-sm text-danger">Falha ao carregar alertas.</p>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <p className="text-sm text-destructive">Falha ao carregar alertas.</p>
                     <Button variant="ghost" size="sm" onClick={() => query.refetch()}>
                         Tentar novamente
                     </Button>
                 </div>
             ) : data && data.data.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                    <p className="text-sm text-text-secondary">Nenhum alerta no período.</p>
+                    <p className="text-sm text-muted-foreground">Nenhum alerta no período.</p>
                 </div>
             ) : (
                 <Table>
-                    <THead>
-                        <TR>
-                            <TH>Ingrediente</TH>
-                            <TH>Unidade</TH>
-                            <TH>Mensagem</TH>
-                            <TH>Saldo / Mínimo</TH>
-                            <TH>Status</TH>
-                            <TH>Disparado em</TH>
-                            <TH>Resolvido em</TH>
-                            <TH>Ações</TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Ingrediente</TableHead>
+                            <TableCell>Unidade</TableCell>
+                            <TableCell>Mensagem</TableCell>
+                            <TableCell>Saldo / Mínimo</TableCell>
+                            <TableCell>Status</TableCell>
+                            <TableCell>Disparado em</TableCell>
+                            <TableCell>Resolvido em</TableCell>
+                            <TableCell>Ações</TableCell>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {data!.data.map((n) => {
                             const uom = extractUom(n.message)
                             return (
-                                <TR key={n.id}>
-                                    <TD>{n.ingredientName}</TD>
-                                    <TD>{n.unitName}</TD>
-                                    <TD className="max-w-xs truncate" title={n.message}>
+                                <TableRow key={n.id}>
+                                    <TableCell>{n.ingredientName}</TableCell>
+                                    <TableCell>{n.unitName}</TableCell>
+                                    <TableCell className="max-w-xs truncate" title={n.message}>
                                         {n.message}
-                                    </TD>
-                                    <TD>
+                                    </TableCell>
+                                    <TableCell>
                                         {n.triggeredQuantity} / {n.minQuantity} {uom}
-                                    </TD>
-                                    <TD>
+                                    </TableCell>
+                                    <TableCell>
                                         <Badge variant={statusVariant(n.status)}>
                                             {statusLabel(n.status)}
                                         </Badge>
-                                    </TD>
-                                    <TD>
+                                    </TableCell>
+                                    <TableCell>
                                         {new Date(n.createdAt).toLocaleString("pt-BR")}
-                                    </TD>
-                                    <TD>
+                                    </TableCell>
+                                    <TableCell>
                                         {n.resolvedAt
                                             ? new Date(n.resolvedAt).toLocaleString("pt-BR")
                                             : "—"}
-                                    </TD>
-                                    <TD>
+                                    </TableCell>
+                                    <TableCell>
                                         <Link href={`/notifications/${n.id}`} className="inline-flex items-center gap-1 text-primary hover:underline" >
                                             <Eye className="h-4 w-4" />
                                             Ver
                                         </Link>
-                                    </TD>
-                                </TR>
+                                    </TableCell>
+                                </TableRow>
                             )
                         })}
-                    </TBody>
+                    </TableBody>
                 </Table>
             )}
 
             {data && data.total > size ? (
-                <div className="flex items-center justify-between text-sm text-text-secondary">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>
                         Página {page + 1} de {totalPages} · {size} por página
                     </span>

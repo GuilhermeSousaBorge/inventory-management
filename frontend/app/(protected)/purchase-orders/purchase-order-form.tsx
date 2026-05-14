@@ -1,9 +1,9 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isApiError } from "@/lib/auth"
 import { useAllIngredients } from "@/lib/ingredients"
 import {
@@ -107,179 +107,238 @@ export function PurchaseOrderForm({ mode, initial }: Props) {
     const submitting = create.isPending || update.isPending
 
     return (
-        <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
-            <section className="space-y-4 rounded-xl border border-border/40 bg-white p-5">
-                <h2 className="text-base font-semibold text-text-primary">Dados da compra</h2>
+        <Form {...form}>
+            <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+                <section className="space-y-4 rounded-xl border border-border/40 bg-white p-5">
+                    <h2 className="text-base font-semibold text-foreground">Dados da compra</h2>
 
-                <Field
-                    label="Fornecedor"
-                    htmlFor="po-supplier"
-                    error={form.formState.errors.supplierId?.message}
-                >
-                    <Select
-                        id="po-supplier"
-                        disabled={suppliers.isPending}
-                        {...form.register("supplierId")}
-                    >
-                        <option value="">{suppliers.isPending ? "Carregando..." : "Selecione..."}</option>
-                        {suppliers.data?.map((s) => (
-                            <option key={s.id} value={s.id}>
-                                {s.name}
-                            </option>
-                        ))}
-                    </Select>
-                </Field>
-
-                <Field
-                    label="Unidade"
-                    htmlFor="po-unit"
-                    error={form.formState.errors.unitId?.message}
-                >
-                    <Select id="po-unit" disabled={units.isPending} {...form.register("unitId")}>
-                        <option value="">{units.isPending ? "Carregando..." : "Selecione..."}</option>
-                        {units.data?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
-                            </option>
-                        ))}
-                    </Select>
-                </Field>
-
-                <Field
-                    label="Data esperada"
-                    htmlFor="po-expected"
-                    error={form.formState.errors.expectedAt?.message}
-                >
-                    <Input id="po-expected" type="date" {...form.register("expectedAt")} />
-                </Field>
-
-                <Field
-                    label="Observações"
-                    htmlFor="po-notes"
-                    error={form.formState.errors.notes?.message}
-                >
-                    <Input id="po-notes" {...form.register("notes")} />
-                </Field>
-            </section>
-
-            <section className="space-y-4 rounded-xl border border-border/40 bg-white p-5" data-testid="po-items">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-text-primary">Itens</h2>
-                    {form.formState.errors.items?.message ? (
-                        <span className="text-sm text-danger">{form.formState.errors.items.message}</span>
-                    ) : null}
-                </div>
-
-                <div className="space-y-3">
-                    {fields.map((f, i) => {
-                        const qty = Number(watchedItems[i]?.quantity) || 0
-                        const price = Number(watchedItems[i]?.unitPrice) || 0
-                        const subtotal = qty * price
-                        return (
-                            <div
-                                key={f.id}
-                                data-testid="po-item-row"
-                                className="grid grid-cols-[1fr_120px_140px_120px_auto] items-end gap-3"
-                            >
-                                <Field
-                                    label="Ingrediente"
-                                    htmlFor={`po-item-ing-${i}`}
-                                    error={form.formState.errors.items?.[i]?.ingredientId?.message}
+                    <FormField
+                        control={form.control}
+                        name="supplierId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Fornecedor</FormLabel>
+                                <Select
+                                    value={field.value || ""}
+                                    onValueChange={field.onChange}
+                                    disabled={suppliers.isPending}
                                 >
-                                    <Select
-                                        id={`po-item-ing-${i}`}
-                                        disabled={ingredients.isPending}
-                                        value={watchedItems[i]?.ingredientId ?? ""}
-                                        onChange={(e) => onIngredientChange(i, e.target.value)}
-                                    >
-                                        <option value="">Selecione...</option>
-                                        {ingredients.data?.map((ing) => (
-                                            <option key={ing.id} value={ing.id}>
-                                                {ing.name}
-                                            </option>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder={suppliers.isPending ? "Carregando..." : "Selecione..."} />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {suppliers.data?.map((s) => (
+                                            <SelectItem key={s.id} value={s.id}>
+                                                {s.name}
+                                            </SelectItem>
                                         ))}
-                                    </Select>
-                                </Field>
-                                <Field
-                                    label="Quantidade"
-                                    htmlFor={`po-item-qty-${i}`}
-                                    error={form.formState.errors.items?.[i]?.quantity?.message}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="unitId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Unidade</FormLabel>
+                                <Select
+                                    value={field.value || ""}
+                                    onValueChange={field.onChange}
+                                    disabled={units.isPending}
                                 >
-                                    <Input
-                                        id={`po-item-qty-${i}`}
-                                        type="number"
-                                        step="0.001"
-                                        min="0"
-                                        {...form.register(`items.${i}.quantity`)}
-                                    />
-                                </Field>
-                                <Field
-                                    label="Preço unit."
-                                    htmlFor={`po-item-price-${i}`}
-                                    error={form.formState.errors.items?.[i]?.unitPrice?.message}
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder={units.isPending ? "Carregando..." : "Selecione..."} />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {units.data?.map((u) => (
+                                            <SelectItem key={u.id} value={u.id}>
+                                                {u.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="expectedAt"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Data esperada</FormLabel>
+                                <FormControl>
+                                    <Input type="date" {...field} value={field.value ?? ""} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="notes"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Observações</FormLabel>
+                                <FormControl>
+                                    <Input {...field} value={field.value ?? ""} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </section>
+
+                <section className="space-y-4 rounded-xl border border-border/40 bg-white p-5" data-testid="po-items">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-base font-semibold text-foreground">Itens</h2>
+                        {form.formState.errors.items?.message ? (
+                            <span className="text-sm text-destructive">{form.formState.errors.items.message}</span>
+                        ) : null}
+                    </div>
+
+                    <div className="space-y-3">
+                        {fields.map((f, i) => {
+                            const qty = Number(watchedItems[i]?.quantity) || 0
+                            const price = Number(watchedItems[i]?.unitPrice) || 0
+                            const subtotal = qty * price
+                            return (
+                                <div
+                                    key={f.id}
+                                    data-testid="po-item-row"
+                                    className="grid grid-cols-[1fr_120px_140px_120px_auto] items-end gap-3"
                                 >
-                                    <Input
-                                        id={`po-item-price-${i}`}
-                                        type="number"
-                                        step="0.0001"
-                                        min="0"
-                                        {...form.register(`items.${i}.unitPrice`)}
+                                    <FormField
+                                        control={form.control}
+                                        name={`items.${i}.ingredientId`}
+                                        render={() => (
+                                            <FormItem>
+                                                <FormLabel>Ingrediente</FormLabel>
+                                                <Select
+                                                    value={watchedItems[i]?.ingredientId || ""}
+                                                    onValueChange={(v) => onIngredientChange(i, v)}
+                                                    disabled={ingredients.isPending}
+                                                >
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Selecione..." />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        {ingredients.data?.map((ing) => (
+                                                            <SelectItem key={ing.id} value={ing.id}>
+                                                                {ing.name}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                </Field>
-                                <Field label="Subtotal" htmlFor={`po-item-sub-${i}`}>
-                                    <Input
-                                        id={`po-item-sub-${i}`}
-                                        readOnly
-                                        value={`R$ ${subtotal.toFixed(2)}`}
+                                    <FormField
+                                        control={form.control}
+                                        name={`items.${i}.quantity`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Quantidade</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="number"
+                                                        step="0.001"
+                                                        min="0"
+                                                        {...field}
+                                                        value={field.value ?? 0}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                </Field>
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    aria-label="Remover item"
-                                    disabled={fields.length === 1}
-                                    onClick={() => remove(i)}
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        )
-                    })}
+                                    <FormField
+                                        control={form.control}
+                                        name={`items.${i}.unitPrice`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Preço unit.</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="number"
+                                                        step="0.0001"
+                                                        min="0"
+                                                        {...field}
+                                                        value={field.value ?? 0}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <div className="space-y-1">
+                                        <label className="text-sm font-medium leading-none">Subtotal</label>
+                                        <Input
+                                            readOnly
+                                            value={`R$ ${subtotal.toFixed(2)}`}
+                                        />
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        aria-label="Remover item"
+                                        disabled={fields.length === 1}
+                                        onClick={() => remove(i)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            )
+                        })}
+                    </div>
+
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => append({ ingredientId: "", quantity: 0, unitPrice: 0 })}
+                    >
+                        <Plus className="mr-2 h-4 w-4" /> Adicionar item
+                    </Button>
+
+                    <div className="flex justify-end border-t border-border/40 pt-3 text-sm font-medium">
+                        Total: <span data-testid="po-total" className="ml-2">R$ {total.toFixed(2)}</span>
+                    </div>
+                </section>
+
+                <div className="flex justify-end gap-2">
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        disabled={submitting}
+                        onClick={() =>
+                            router.replace(
+                                mode === "edit" && initial
+                                    ? `/purchase-orders/${initial.id}`
+                                    : "/purchase-orders"
+                            )
+                        }
+                    >
+                        Cancelar
+                    </Button>
+                    <Button type="submit" disabled={submitting}>
+                        {submitting ? "Salvando..." : "Salvar"}
+                    </Button>
                 </div>
-
-                <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => append({ ingredientId: "", quantity: 0, unitPrice: 0 })}
-                >
-                    <Plus className="mr-2 h-4 w-4" /> Adicionar item
-                </Button>
-
-                <div className="flex justify-end border-t border-border/40 pt-3 text-sm font-medium">
-                    Total: <span data-testid="po-total" className="ml-2">R$ {total.toFixed(2)}</span>
-                </div>
-            </section>
-
-            <div className="flex justify-end gap-2">
-                <Button
-                    type="button"
-                    variant="ghost"
-                    disabled={submitting}
-                    onClick={() =>
-                        router.replace(
-                            mode === "edit" && initial
-                                ? `/purchase-orders/${initial.id}`
-                                : "/purchase-orders"
-                        )
-                    }
-                >
-                    Cancelar
-                </Button>
-                <Button type="submit" disabled={submitting}>
-                    {submitting ? "Salvando..." : "Salvar"}
-                </Button>
-            </div>
-        </form>
+            </form>
+        </Form>
     )
 }
