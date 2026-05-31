@@ -1,7 +1,6 @@
 package br.com.easy_inventory.management.supplier;
 
 import br.com.easy_inventory.management.auth.repository.RefreshTokenRepository;
-import br.com.easy_inventory.management.supplier.repository.SupplierRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Map;
@@ -22,17 +22,24 @@ class SupplierControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
-    @Autowired SupplierRepository supplierRepository;
     @Autowired RefreshTokenRepository refreshTokenRepository;
+    @Autowired JdbcTemplate jdbc;
 
     private String adminToken;
 
     @BeforeEach
     void setUp() throws Exception {
         refreshTokenRepository.deleteAll();
-        supplierRepository.findAll().stream()
-                .filter(s -> s.getName().startsWith("Test"))
-                .forEach(supplierRepository::delete);
+        // Clear rows that reference Test suppliers before deleting the suppliers
+        // themselves — other test classes (e.g. PurchaseOrderControllerTest) may
+        // leave purchase_orders pointing at a "Test%" supplier, and the FK
+        // purchase_orders_supplier_id_fkey would otherwise block the delete.
+        jdbc.update("DELETE FROM stock_movements WHERE purchase_order_id IN "
+                + "(SELECT id FROM purchase_orders WHERE supplier_id IN "
+                + "(SELECT id FROM suppliers WHERE name LIKE 'Test%'))");
+        jdbc.update("DELETE FROM purchase_orders WHERE supplier_id IN "
+                + "(SELECT id FROM suppliers WHERE name LIKE 'Test%')");
+        jdbc.update("DELETE FROM suppliers WHERE name LIKE 'Test%'");
 
         String loginBody = objectMapper.writeValueAsString(
                 Map.of("email", "admin@pizzaria.com", "password", "admin123"));
