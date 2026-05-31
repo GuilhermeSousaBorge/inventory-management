@@ -1,0 +1,55 @@
+name: Deploy
+
+# Manual deploy to the VPS. Trigger it from the Actions tab once the image
+# has been published by the CI workflow and the VPS secrets are configured.
+#
+# To deploy automatically after every successful CI run on main, uncomment the
+# workflow_run trigger below.
+on:
+  workflow_dispatch:
+  # workflow_run:
+  #   workflows: ["CI"]
+  #   types: [completed]
+  #   branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy to VPS over SSH
+    runs-on: ubuntu-latest
+    # Uncomment if using the workflow_run trigger, so failed CI runs don't deploy:
+    # if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    steps:
+      - uses: actions/checkout@v4
+
+      # Copy only the files the VPS needs to run the stack (the app image
+      # itself comes from ghcr, so src/ is not needed on the server).
+      - name: Copy compose + monitoring config to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "backend/docker-compose.yml,backend/prometheus.yml,backend/promtail.yml"
+          target: "~/easy-inventory"
+          strip_components: 1
+
+      - name: Pull images and (re)start the stack
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          envs: GHCR_ACTOR,GHCR_TOKEN,GRAFANA_ADMIN_PASSWORD
+          script: |
+            set -e
+            cd ~/easy-inventory
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_ACTOR" --password-stdin
+            docker compose pull
+            docker compose up -d
+            docker image prune -f
+        env:
+          GHCR_ACTOR: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
