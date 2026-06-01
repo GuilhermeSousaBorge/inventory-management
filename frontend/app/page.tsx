@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import { useAuth } from "@/lib/auth"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useAuth } from "@/lib/auth";
 
 export default function RootPage() {
-    const router = useRouter()
-    const { status } = useAuth()
+  const router = useRouter();
+  const { status } = useAuth();
 
-    useEffect(() => {
-        if (status === "authenticated") router.replace("/home")
-        else if (status === "unauthenticated") router.replace("/auth")
-    }, [status, router])
+  useEffect(() => {
+    if (status === "authenticated") router.replace("/home");
+    else if (status === "unauthenticated") router.replace("/auth");
+  }, [status, router]);
 
-    return (
-        <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
-            Carregando...
-        </div>
-    )
+  return (
+    <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
+      Carregando...
+    </div>
+  );
 }

@@ -19,12 +19,12 @@ jobs:
     # Uncomment if using the workflow_run trigger, so failed CI runs don't deploy:
     # if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Copy only the files the VPS needs to run the stack (the app image
       # itself comes from ghcr, so src/ is not needed on the server).
       - name: Copy compose + monitoring config to VPS
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -35,7 +35,7 @@ jobs:
           strip_components: 1
 
       - name: Pull images and (re)start the stack
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
