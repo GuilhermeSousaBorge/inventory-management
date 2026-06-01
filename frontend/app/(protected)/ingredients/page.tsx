@@ -1,298 +1,336 @@
-"use client"
+"use client";
 
+import { Pencil, Plus, Power } from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { isApiError, useAuth } from "@/lib/auth"
-import { useAllCategories } from "@/lib/categories"
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
-    useDeactivateIngredient,
-    useIngredients,
-    type Ingredient,
-} from "@/lib/ingredients"
-import { useActiveSuppliers } from "@/lib/suppliers"
-import { Pencil, Plus, Power } from "lucide-react"
-import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
-import { Suspense, useMemo, useState } from "react"
-import { toast } from "sonner"
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { isApiError, useAuth } from "@/lib/auth";
+import { useAllCategories } from "@/lib/categories";
+import {
+  type Ingredient,
+  useDeactivateIngredient,
+  useIngredients,
+} from "@/lib/ingredients";
+import { useActiveSuppliers } from "@/lib/suppliers";
 
 function parseActive(v: string | null): boolean | undefined {
-    if (v === "true") return true
-    if (v === "false") return false
-    return undefined
+  if (v === "true") return true;
+  if (v === "false") return false;
+  return undefined;
 }
 
 function IngredientsPageInner() {
-    const { user } = useAuth()
-    const isOwner = user?.role === "OWNER"
-    const router = useRouter()
-    const searchParams = useSearchParams()
+  const { user } = useAuth();
+  const isOwner = user?.role === "OWNER";
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-    const categoryParam = searchParams.get("category") ?? ""
-    const activeParam = searchParams.get("active")
-    const activeFilter =
-        activeParam === null ? true : parseActive(activeParam)
+  const categoryParam = searchParams.get("category") ?? "";
+  const activeParam = searchParams.get("active");
+  const activeFilter = activeParam === null ? true : parseActive(activeParam);
 
-    const [page, setPage] = useState(0)
-    const size = 20
+  const [page, setPage] = useState(0);
+  const size = 20;
 
-    const ingredientsQuery = useIngredients({
-        category: categoryParam || undefined,
-        active: activeFilter,
-        page,
-        size,
-    })
+  const ingredientsQuery = useIngredients({
+    category: categoryParam || undefined,
+    active: activeFilter,
+    page,
+    size,
+  });
 
-    const categories = useAllCategories()
-    const suppliers = useActiveSuppliers()
+  const categories = useAllCategories();
+  const suppliers = useActiveSuppliers();
 
-    const categoryNameById = useMemo(() => {
-        const m = new Map<string, string>()
-        categories.data?.forEach((c) => m.set(c.id, c.name))
-        return m
-    }, [categories.data])
+  const categoryNameById = useMemo(() => {
+    const m = new Map<string, string>();
+    categories.data?.forEach((c) => {
+      m.set(c.id, c.name);
+    });
+    return m;
+  }, [categories.data]);
 
-    const supplierNameById = useMemo(() => {
-        const m = new Map<string, string>()
-        suppliers.data?.forEach((s) => m.set(s.id, s.name))
-        return m
-    }, [suppliers.data])
+  const supplierNameById = useMemo(() => {
+    const m = new Map<string, string>();
+    suppliers.data?.forEach((s) => {
+      m.set(s.id, s.name);
+    });
+    return m;
+  }, [suppliers.data]);
 
-    const [confirm, setConfirm] = useState<Ingredient | null>(null)
-    const deactivate = useDeactivateIngredient()
+  const [confirm, setConfirm] = useState<Ingredient | null>(null);
+  const deactivate = useDeactivateIngredient();
 
-    const data = ingredientsQuery.data
-    const totalPages = data ? Math.max(1, Math.ceil(data.total / size)) : 1
+  const data = ingredientsQuery.data;
+  const totalPages = data ? Math.max(1, Math.ceil(data.total / size)) : 1;
 
-    function setFilter(key: "category" | "active", value: string) {
-        const params = new URLSearchParams(searchParams.toString())
-        if (value === "" && key === "active") {
-            params.delete("active")
-        } else if (value === "") {
-            params.delete(key)
-        } else {
-            params.set(key, value)
-        }
-        setPage(0)
-        router.replace(`/ingredients?${params.toString()}`)
+  function setFilter(key: "category" | "active", value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === "" && key === "active") {
+      params.delete("active");
+    } else if (value === "") {
+      params.delete(key);
+    } else {
+      params.set(key, value);
     }
+    setPage(0);
+    router.replace(`/ingredients?${params.toString()}`);
+  }
 
-    async function onConfirm() {
-        if (!confirm) return
-        try {
-            await deactivate.mutateAsync(confirm.id)
-            toast.success("Ingrediente desativado")
-            setConfirm(null)
-        } catch (err) {
-            if (isApiError(err)) toast.error(err.message)
-            else toast.error("Erro ao desativar ingrediente")
-        }
+  async function onConfirm() {
+    if (!confirm) return;
+    try {
+      await deactivate.mutateAsync(confirm.id);
+      toast.success("Ingrediente desativado");
+      setConfirm(null);
+    } catch (err) {
+      if (isApiError(err)) toast.error(err.message);
+      else toast.error("Erro ao desativar ingrediente");
     }
+  }
 
-    return (
-        <div className="space-y-6">
-            <header className="flex items-start justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-semibold text-foreground">Ingredientes</h1>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        Insumos controlados no estoque.
-                    </p>
-                </div>
-                {isOwner ? (
-                    <Link href="/ingredients/novo">
-                        <Button>
-                            <Plus className="mr-2 h-4 w-4" /> Novo ingrediente
-                        </Button>
-                    </Link>
-                ) : null}
-            </header>
-
-            <div className="flex flex-wrap items-end gap-3">
-                <div className="space-y-1">
-                    <Label htmlFor="filter-category">Categoria</Label>
-                    <Select
-                        value={categoryParam || "__all"}
-                        onValueChange={(v) => setFilter("category", v === "__all" ? "" : v)}
-                    >
-                        <SelectTrigger id="filter-category">
-                            <SelectValue placeholder="Todas" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="__all">Todas</SelectItem>
-                            {categories.data?.map((c) => (
-                                <SelectItem key={c.id} value={c.id}>
-                                    {c.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div className="space-y-1">
-                    <Label htmlFor="filter-status">Status</Label>
-                    <Select
-                        value={activeParam === "" ? "__all" : (activeParam ?? "true")}
-                        onValueChange={(v) => setFilter("active", v === "__all" ? "" : v)}
-                    >
-                        <SelectTrigger id="filter-status">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="true">Ativos</SelectItem>
-                            <SelectItem value="false">Inativos</SelectItem>
-                            <SelectItem value="__all">Todos</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
-
-            {ingredientsQuery.isLoading ? (
-                <div className="space-y-2">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-12 animate-pulse rounded-lg bg-foreground/5" />
-                    ))}
-                </div>
-            ) : ingredientsQuery.isError ? (
-                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
-                    <p className="text-sm text-destructive">Falha ao carregar ingredientes.</p>
-                    <Button variant="ghost" size="sm" onClick={() => ingredientsQuery.refetch()}>
-                        Tentar novamente
-                    </Button>
-                </div>
-            ) : data && data.data.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
-                    <p className="text-sm text-muted-foreground">Nenhum ingrediente cadastrado.</p>
-                    {isOwner ? (
-                        <Link href="/ingredients/novo">
-                            <Button className="mt-4">Criar primeiro ingrediente</Button>
-                        </Link>
-                    ) : null}
-                </div>
-            ) : (
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Nome</TableHead>
-                            <TableHead>Categoria</TableHead>
-                            <TableHead>Mínimo</TableHead>
-                            <TableHead>Fornecedor padrão</TableHead>
-                            <TableHead>Status</TableHead>
-                            {isOwner ? <TableHead className="w-px text-right">Ações</TableHead> : null}
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {data!.data.map((ing) => (
-                            <TableRow key={ing.id}>
-                                <TableCell>{ing.name}</TableCell>
-                                <TableCell>{categoryNameById.get(ing.categoryId) ?? "—"}</TableCell>
-                                <TableCell>
-                                    {ing.minimumQty} {ing.unitOfMeasure}
-                                </TableCell>
-                                <TableCell>
-                                    {ing.defaultSupplierId
-                                        ? supplierNameById.get(ing.defaultSupplierId) ?? "—"
-                                        : "—"}
-                                </TableCell>
-                                <TableCell>
-                                    <Badge variant={ing.active ? "default" : "outline"}>
-                                        {ing.active ? "Ativo" : "Inativo"}
-                                    </Badge>
-                                </TableCell>
-                                {isOwner ? (
-                                    <TableCell className="text-right">
-                                        <div className="flex items-center justify-end gap-1">
-                                            <Link
-                                                href={`/ingredients/${ing.id}/editar`}
-                                                className="rounded p-1.5 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
-                                                aria-label={`Editar ${ing.name}`}
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                            </Link>
-                                            {ing.active ? (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setConfirm(ing)}
-                                                    className="rounded p-1.5 text-destructive/80 hover:bg-destructive/10"
-                                                    aria-label={`Desativar ${ing.name}`}
-                                                >
-                                                    <Power className="h-4 w-4" />
-                                                </button>
-                                            ) : null}
-                                        </div>
-                                    </TableCell>
-                                ) : null}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            )}
-
-            {data && data.total > size ? (
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>
-                        Página {page + 1} de {totalPages} · {size} por página
-                    </span>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setPage((p) => Math.max(0, p - 1))}
-                            disabled={page === 0}
-                        >
-                            Anterior
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setPage((p) => p + 1)}
-                            disabled={page + 1 >= totalPages}
-                        >
-                            Próximo
-                        </Button>
-                    </div>
-                </div>
-            ) : null}
-
-            <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Desativar ingrediente</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            {confirm ? `Confirma desativar ${confirm.name}?` : ""}
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel disabled={deactivate.isPending}>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={onConfirm}
-                            disabled={deactivate.isPending}
-                            className="bg-destructive text-white hover:bg-destructive/90"
-                        >
-                            {deactivate.isPending ? "Processando..." : "Desativar"}
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+  return (
+    <div className="space-y-6">
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">
+            Ingredientes
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Insumos controlados no estoque.
+          </p>
         </div>
-    )
+        {isOwner ? (
+          <Link href="/ingredients/novo">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" /> Novo ingrediente
+            </Button>
+          </Link>
+        ) : null}
+      </header>
+
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1">
+          <Label htmlFor="filter-category">Categoria</Label>
+          <Select
+            value={categoryParam || "__all"}
+            onValueChange={(v) => setFilter("category", v === "__all" ? "" : v)}
+          >
+            <SelectTrigger id="filter-category">
+              <SelectValue placeholder="Todas" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all">Todas</SelectItem>
+              {categories.data?.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="filter-status">Status</Label>
+          <Select
+            value={activeParam === "" ? "__all" : (activeParam ?? "true")}
+            onValueChange={(v) => setFilter("active", v === "__all" ? "" : v)}
+          >
+            <SelectTrigger id="filter-status">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="true">Ativos</SelectItem>
+              <SelectItem value="false">Inativos</SelectItem>
+              <SelectItem value="__all">Todos</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {ingredientsQuery.isLoading ? (
+        <div className="space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-12 animate-pulse rounded-lg bg-foreground/5"
+            />
+          ))}
+        </div>
+      ) : ingredientsQuery.isError ? (
+        <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+          <p className="text-sm text-destructive">
+            Falha ao carregar ingredientes.
+          </p>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => ingredientsQuery.refetch()}
+          >
+            Tentar novamente
+          </Button>
+        </div>
+      ) : data && data.data.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border/60 bg-white p-10 text-center">
+          <p className="text-sm text-muted-foreground">
+            Nenhum ingrediente cadastrado.
+          </p>
+          {isOwner ? (
+            <Link href="/ingredients/novo">
+              <Button className="mt-4">Criar primeiro ingrediente</Button>
+            </Link>
+          ) : null}
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nome</TableHead>
+              <TableHead>Categoria</TableHead>
+              <TableHead>Mínimo</TableHead>
+              <TableHead>Fornecedor padrão</TableHead>
+              <TableHead>Status</TableHead>
+              {isOwner ? (
+                <TableHead className="w-px text-right">Ações</TableHead>
+              ) : null}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data!.data.map((ing) => (
+              <TableRow key={ing.id}>
+                <TableCell>{ing.name}</TableCell>
+                <TableCell>
+                  {categoryNameById.get(ing.categoryId) ?? "—"}
+                </TableCell>
+                <TableCell>
+                  {ing.minimumQty} {ing.unitOfMeasure}
+                </TableCell>
+                <TableCell>
+                  {ing.defaultSupplierId
+                    ? (supplierNameById.get(ing.defaultSupplierId) ?? "—")
+                    : "—"}
+                </TableCell>
+                <TableCell>
+                  <Badge variant={ing.active ? "default" : "outline"}>
+                    {ing.active ? "Ativo" : "Inativo"}
+                  </Badge>
+                </TableCell>
+                {isOwner ? (
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Link
+                        href={`/ingredients/${ing.id}/editar`}
+                        className="rounded p-1.5 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                        aria-label={`Editar ${ing.name}`}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Link>
+                      {ing.active ? (
+                        <button
+                          type="button"
+                          onClick={() => setConfirm(ing)}
+                          className="rounded p-1.5 text-destructive/80 hover:bg-destructive/10"
+                          aria-label={`Desativar ${ing.name}`}
+                        >
+                          <Power className="h-4 w-4" />
+                        </button>
+                      ) : null}
+                    </div>
+                  </TableCell>
+                ) : null}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+
+      {data && data.total > size ? (
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>
+            Página {page + 1} de {totalPages} · {size} por página
+          </span>
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={page === 0}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={page + 1 >= totalPages}
+            >
+              Próximo
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
+      <AlertDialog
+        open={!!confirm}
+        onOpenChange={(o) => !o && setConfirm(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Desativar ingrediente</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirm ? `Confirma desativar ${confirm.name}?` : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deactivate.isPending}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={onConfirm}
+              disabled={deactivate.isPending}
+              className="bg-destructive text-white hover:bg-destructive/90"
+            >
+              {deactivate.isPending ? "Processando..." : "Desativar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
 }
 
 export default function IngredientsPage() {
-    return (
-        <Suspense fallback={null}>
-            <IngredientsPageInner />
-        </Suspense>
-    )
+  return (
+    <Suspense fallback={null}>
+      <IngredientsPageInner />
+    </Suspense>
+  );
 }

@@ -1,43 +1,50 @@
-"use client"
+"use client";
 
-import { useAuth } from "@/lib/auth"
-import Link from "next/link"
+import Link from "next/link";
+import { useAuth } from "@/lib/auth";
 
 export default function HomePage() {
-    const { user } = useAuth()
-    if (!user) return null
+  const { user } = useAuth();
+  if (!user) return null;
 
-    const firstName = user.name.split(" ")[0]
+  const firstName = user.name.split(" ")[0];
 
-    return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-semibold text-foreground">
-                    Bem-vinda, {firstName} 👋
-                </h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                    Aqui está o resumo da operação. Em breve: dashboard completo (vendas, estoque, alertas).
-                </p>
-            </div>
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold text-foreground">
+          Bem-vinda, {firstName} 👋
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Aqui está o resumo da operação. Em breve: dashboard completo (vendas,
+          estoque, alertas).
+        </p>
+      </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-                <Link
-                    href="/unidades"
-                    className="rounded-xl border border-border/40 bg-white p-5 transition hover:border-primary"
-                >
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Unidades</p>
-                    <p className="mt-1 text-base font-semibold text-foreground">Ver unidades</p>
-                </Link>
-                <Link
-                    href="/me"
-                    className="rounded-xl border border-border/40 bg-white p-5 transition hover:border-primary"
-                >
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Seu perfil</p>
-                    <p className="mt-1 text-base font-semibold text-foreground">
-                        {user.role} · {user.name}
-                    </p>
-                </Link>
-            </div>
-        </div>
-    )
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Link
+          href="/unidades"
+          className="rounded-xl border border-border/40 bg-white p-5 transition hover:border-primary"
+        >
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+            Unidades
+          </p>
+          <p className="mt-1 text-base font-semibold text-foreground">
+            Ver unidades
+          </p>
+        </Link>
+        <Link
+          href="/me"
+          className="rounded-xl border border-border/40 bg-white p-5 transition hover:border-primary"
+        >
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+            Seu perfil
+          </p>
+          <p className="mt-1 text-base font-semibold text-foreground">
+            {user.role} · {user.name}
+          </p>
+        </Link>
+      </div>
+    </div>
+  );
 }
