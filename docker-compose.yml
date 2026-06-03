@@ -1,5 +1,8 @@
-name: backend-easy-inventory
+name: easy-inventory
 services:
+  # ---------------------------------------------------------------------------
+  # Database
+  # ---------------------------------------------------------------------------
   postgres:
     image: postgres:16
     environment:
@@ -10,6 +13,11 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d pizzaria"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     restart: unless-stopped
 
   pgadmin:
@@ -19,17 +27,19 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
     restart: unless-stopped
 
   # ---------------------------------------------------------------------------
-  # Application
+  # Backend (Spring Boot)
   # ---------------------------------------------------------------------------
   app:
     # In production the CI-built image is pulled from ghcr (`docker compose pull`).
     # Locally you can build it instead with `docker compose up --build` — Compose
     # tags the local build as this same image name.
     image: ghcr.io/guilhermesousaborge/inventory-management:latest
-    build: .
+    build: ./backend
     container_name: easy-inventory-app
     ports:
       - "8080:8080"
@@ -38,7 +48,24 @@ services:
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: admin
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Frontend (Next.js)
+  # ---------------------------------------------------------------------------
+  frontend:
+    image: ghcr.io/guilhermesousaborge/inventory-management-frontend:latest
+    build: ./frontend
+    container_name: easy-inventory-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      # /api/* rewrites are proxied to the backend over the compose network.
+      BACKEND_URL: http://app:8080
+    depends_on:
+      - app
     restart: unless-stopped
 
   # ---------------------------------------------------------------------------
@@ -64,13 +91,16 @@ services:
     ports:
       - "127.0.0.1:9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./backend/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     restart: unless-stopped
 
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
+    # Collects host (VPS) metrics — requires Linux host mounts + pid:host, which
+    # are unavailable on Docker Desktop. Enable with `--profile host-metrics`.
+    profiles: ["host-metrics"]
     command:
       - "--path.rootfs=/host"
     pid: host
@@ -82,7 +112,7 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3000:3000"
+      - "3300:3000"
     environment:
       # Override via a .env file or shell env in production.
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-changeme}
@@ -109,10 +139,13 @@ services:
   promtail:
     image: grafana/promtail:latest
     container_name: promtail
+    # Tails host (VPS) Docker container logs — Linux host paths unavailable on
+    # Docker Desktop. Enable with `--profile host-metrics`.
+    profiles: ["host-metrics"]
     volumes:
       - /var/log:/var/log
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - ./promtail.yml:/etc/promtail/config.yml
+      - ./backend/promtail.yml:/etc/promtail/config.yml
     command: -config.file=/etc/promtail/config.yml
     depends_on:
       - loki
@@ -120,6 +153,7 @@ services:
 
 volumes:
   pgdata:
+  pgadmin-data:
   uptime-kuma-data:
   prometheus-data:
   grafana-data:

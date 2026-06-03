@@ -16,6 +16,11 @@ RUN ./mvnw -B clean package -DskipTests
 # ---- Runtime stage ----
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-COPY --from=build /app/target/backend-0.0.1-SNAPSHOT.jar app.jar
+
+# Non-root user
+RUN useradd -r -u 1001 spring
+USER spring
+
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
