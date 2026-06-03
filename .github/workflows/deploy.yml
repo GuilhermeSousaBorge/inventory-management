@@ -21,8 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      # Copy only the files the VPS needs to run the stack (the app image
-      # itself comes from ghcr, so src/ is not needed on the server).
+      # Copy only the files the VPS needs to run the stack (the app/frontend
+      # images come from ghcr, so src/ is not needed on the server). The repo
+      # layout is preserved so the compose volume paths (./backend/*.yml) resolve.
       - name: Copy compose + monitoring config to VPS
         uses: appleboy/scp-action@v1.0.0
         with:
@@ -30,9 +31,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "backend/docker-compose.yml,backend/prometheus.yml,backend/promtail.yml"
+          source: "docker-compose.yml,backend/prometheus.yml,backend/promtail.yml"
           target: "~/easy-inventory"
-          strip_components: 1
 
       - name: Pull images and (re)start the stack
         uses: appleboy/ssh-action@v1.2.5
@@ -46,8 +46,10 @@ jobs:
             set -e
             cd ~/easy-inventory
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_ACTOR" --password-stdin
-            docker compose pull
-            docker compose up -d
+            # --profile host-metrics includes node-exporter + promtail, which only
+            # run on the Linux VPS (skipped locally on Docker Desktop).
+            docker compose --profile host-metrics pull
+            docker compose --profile host-metrics up -d
             docker image prune -f
         env:
           GHCR_ACTOR: ${{ github.actor }}

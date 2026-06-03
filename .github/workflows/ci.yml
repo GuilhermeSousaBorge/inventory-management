@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  IMAGE: ghcr.io/guilhermesousaborge/inventory-management
-
 jobs:
   test:
     name: Backend tests
@@ -72,14 +69,21 @@ jobs:
         run: npm run build
 
   build-and-push:
-    name: Build & push image
+    name: Build & push images
     needs: [test, frontend]
-    # Only publish from main; PRs just run the test job above.
+    # Only publish from main; PRs just run the test/check jobs above.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        include:
+          - context: backend
+            image: ghcr.io/guilhermesousaborge/inventory-management
+          - context: frontend
+            image: ghcr.io/guilhermesousaborge/inventory-management-frontend
     steps:
       - uses: actions/checkout@v6
 
@@ -93,13 +97,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push ${{ matrix.context }}
         uses: docker/build-push-action@v7
         with:
-          context: backend
+          context: ${{ matrix.context }}
           push: true
           tags: |
-            ${{ env.IMAGE }}:latest
-            ${{ env.IMAGE }}:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            ${{ matrix.image }}:latest
+            ${{ matrix.image }}:${{ github.sha }}
+          # Scope the cache per context so backend/frontend don't clobber each other.
+          cache-from: type=gha,scope=${{ matrix.context }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.context }}
